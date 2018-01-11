@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.pin-pay.com/schemas/ProfileService/Requests" elementFormDefault="qualified" targetNamespace="http://www.pin-pay.com/schemas/ProfileService/Requests" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" />
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd3" namespace="http://www.pin-pay.com/schemas/Requests/DTO" />
+  <xs:complexType name="ProfileRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q1="http://www.pin-pay.com/schemas/Requests/DTO" base="q1:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" minOccurs="0" name="Header" nillable="true" type="q2:Header" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ProfileRequest" nillable="true" type="tns:ProfileRequest" />
+  <xs:complexType name="RemoveDeviceRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q3="http://www.pin-pay.com/schemas/Requests/DTO" base="q3:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="DeviceId" type="xs:int" />
+          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" minOccurs="0" name="Header" nillable="true" type="q4:Header" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="RemoveDeviceRequest" nillable="true" type="tns:RemoveDeviceRequest" />
+  <xs:complexType name="ResetPinRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q5="http://www.pin-pay.com/schemas/Requests/DTO" base="q5:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" minOccurs="0" name="Header" nillable="true" type="q6:Header" />
+          <xs:element minOccurs="0" name="Pin" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ResetPinRequest" nillable="true" type="tns:ResetPinRequest" />
+  <xs:complexType name="BlackListRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q7="http://www.pin-pay.com/schemas/Requests/DTO" base="q7:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" minOccurs="0" name="Header" nillable="true" type="q8:Header" />
+          <xs:element minOccurs="0" name="Reason" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BlackListRequest" nillable="true" type="tns:BlackListRequest" />
+</xs:schema>

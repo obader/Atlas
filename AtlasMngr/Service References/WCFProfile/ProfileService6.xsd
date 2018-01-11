@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.pin-pay.com/schemas/Requests/DTO" elementFormDefault="qualified" targetNamespace="http://www.pin-pay.com/schemas/Requests/DTO" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="BaseRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Request" nillable="true" type="tns:GenericRequest" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BaseRequest" nillable="true" type="tns:BaseRequest" />
+  <xs:complexType name="GenericRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="RequestDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="RequestId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GenericRequest" nillable="true" type="tns:GenericRequest" />
+</xs:schema>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="2a2f6a1fe38341a984bd269304f44767" Name="Diagram1">
+        <EntityTypeShape EntityType="TicketingModel.Application" Width="1.5" PointX="3.75" PointY="9.25" />
+        <EntityTypeShape EntityType="TicketingModel.Comment" Width="1.5" PointX="8.25" PointY="3.125" />
+        <EntityTypeShape EntityType="TicketingModel.TicketAudit" Width="1.5" PointX="3" PointY="5.5" />
+        <EntityTypeShape EntityType="TicketingModel.TicketStatus" Width="1.5" PointX="0.75" PointY="5.875" />
+        <AssociationConnector Association="TicketingModel.FK_TICKETAU_REFERENCE_TICKETST" />
+        <EntityTypeShape EntityType="TicketingModel.Department" Width="1.5" PointX="4.125" PointY="12.25" />
+        <EntityTypeShape EntityType="TicketingModel.Priority" Width="1.5" PointX="0.75" PointY="0.875" />
+        <AssociationConnector Association="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME" />
+        <AssociationConnector Association="TicketingModel.FK_TICKETAU_REFERENCE_PRIORITI" />
+        <EntityTypeShape EntityType="TicketingModel.Reason" Width="1.5" PointX="0.75" PointY="10.75" />
+        <EntityTypeShape EntityType="TicketingModel.Category" Width="1.5" PointX="8.375" PointY="11.75" />
+        <EntityTypeShape EntityType="TicketingModel.ActionsRoute" Width="1.5" PointX="3.375" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketingModel.CategoriesActionsRoute" Width="2.125" PointX="5.375" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketingModel.TicketAction" Width="1.5" PointX="0.5" PointY="3.625" />
+        <EntityTypeShape EntityType="TicketingModel.TicketCategoriesActionsRoute" Width="2.75" PointX="11.375" PointY="3.75" />
+        <EntityTypeShape EntityType="TicketingModel.TicketType" Width="1.5" PointX="11.375" PointY="10.75" />
+        <AssociationConnector Association="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME1" />
+        <EntityTypeShape EntityType="TicketingModel.TicketTransaction" Width="1.5" PointX="8.25" PointY="15.75" />
+        <EntityTypeShape EntityType="TicketingModel.ActionsNotification" Width="1.5" PointX="8.375" PointY="6.75" />
+        <EntityTypeShape EntityType="TicketingModel.CategoriesActionsNotification" Width="1.5" PointX="10.375" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketingModel.TicketCategoriesActionsNotification" Width="1.5" PointX="12.375" PointY="0.75" />
+        <EntityTypeShape EntityType="TicketingModel.TicketCategoriesAction" Width="1.5" PointX="5.375" PointY="3.75" />
+        <EntityTypeShape EntityType="TicketingModel.Ticket" Width="1.5" PointX="14.375" PointY="7" />
+        <AssociationConnector Association="TicketingModel.FK_Comments_Tickets" />
+        <AssociationConnector Association="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" />
+        <AssociationConnector Association="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI" />
+        <AssociationConnector Association="TicketingModel.FK_TicketAudits_Tickets" />
+        <AssociationConnector Association="TicketingModel.FK_TicketTransactions_Tickets" />
+        <EntityTypeShape EntityType="TicketingModel.TicketExternalReference" Width="1.5" PointX="16.625" PointY="8.5" />
+        <AssociationConnector Association="TicketingModel.FK_ExternalReferences_Tickets" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

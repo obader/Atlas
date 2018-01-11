@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B3ED019D-E65F-49BD-B3F4-70A5DEF4C911}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Atlas.Core.Logic</RootNamespace>
+    <AssemblyName>Atlas.Core.Logic</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PinPayObjects.BaseObjects, Version=1.0.30.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PinPayObjects.BaseObjects.1.0.30\lib\net45\PinPayObjects.BaseObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="PinPayObjects.Enumerators, Version=1.0.33.0, Culture=neutral, PublicKeyToken=1722aaba48ad093e, processorArchitecture=MSIL">
+      <HintPath>..\packages\PinPayObjects.Enumerators.1.0.33\lib\net45\PinPayObjects.Enumerators.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Aggregates\MasterTicket.cs" />
+    <Compile Include="DataAccess.cs" />
+    <Compile Include="DM\ActionsNotification.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\ActionsRoute.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Application.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\CategoriesActionsNotification.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\CategoriesActionsRoute.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Category.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Comment.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Department.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Priority.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Reason.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\Ticket.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketAction.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketAudit.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketCategoriesAction.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketCategoriesActionsNotification.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketCategoriesActionsRoute.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketExternalReference.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TicketModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TicketModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketModel.Partial.cs" />
+    <Compile Include="DM\TicketStatus.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketTransaction.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DM\TicketType.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DTOs\AuditObject.cs" />
+    <Compile Include="DTOs\CommentObject.cs" />
+    <Compile Include="DTOs\FullTicketInfo.cs" />
+    <Compile Include="DTOs\TicketObject.cs" />
+    <Compile Include="DTOs\TransactionObject.cs" />
+    <Compile Include="Entities\TicketCategoriesActions.cs" />
+    <Compile Include="Entities\Reason.cs" />
+    <Compile Include="Entities\Application.cs" />
+    <Compile Include="Entities\Enums.cs" />
+    <Compile Include="Entities\TicketCategory.cs" />
+    <Compile Include="Entities\Resolution.cs" />
+    <Compile Include="Entities\Action.cs" />
+    <Compile Include="Entities\Category.cs" />
+    <Compile Include="Entities\Comment.cs" />
+    <Compile Include="Entities\Department.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\Priority.cs" />
+    <Compile Include="Entities\Profile.cs" />
+    <Compile Include="Entities\Ticket.cs" />
+    <Compile Include="Entities\TicketAudit.cs" />
+    <Compile Include="Entities\TicketExternalReferences.cs" />
+    <Compile Include="Entities\TicketStatus.cs" />
+    <Compile Include="Entities\TicketTransaction.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TicketingLogic.cs" />
+    <Compile Include="ValueObjects\Property.cs" />
+    <Compile Include="ValueObjects\TicketStatusModel.cs" />
+    <Compile Include="ValueObjects\ValueObject.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <EntityDeploy Include="DM\TicketModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>TicketModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="DM\TicketModel.edmx.diagram">
+      <DependentUpon>TicketModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DM\TicketModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TicketModel.edmx</DependentUpon>
+      <LastGenOutput>TicketModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="DM\TicketModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TicketModel.edmx</DependentUpon>
+      <LastGenOutput>TicketModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

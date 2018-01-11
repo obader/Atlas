@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.pin-pay.com/schemas/ProfileService/Responses" elementFormDefault="qualified" targetNamespace="http://www.pin-pay.com/schemas/ProfileService/Responses" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" />
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd6" namespace="http://www.pin-pay.com/schemas/Responses/DTO" />
+  <xs:complexType name="ProfileResponse">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q1="http://www.pin-pay.com/schemas/Responses/DTO" base="q1:BaseResponse">
+        <xs:sequence>
+          <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" minOccurs="0" name="Profile" nillable="true" type="q2:FullProfile" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ProfileResponse" nillable="true" type="tns:ProfileResponse" />
+</xs:schema>

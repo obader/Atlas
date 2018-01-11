@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://www.pin-pay.com/schemas/ProfileService" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.pin-pay.com/schemas/ProfileService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://www.pin-pay.com/schemas/ProfileService/Imports">
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd0" namespace="http://www.pin-pay.com/schemas/ProfileService" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd2" namespace="http://www.pin-pay.com/schemas/ProfileService/Requests" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd3" namespace="http://www.pin-pay.com/schemas/Requests/DTO" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/PinPayProfile.WCF.ProfileService.DTO.DataObject" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd5" namespace="http://www.pin-pay.com/schemas/ProfileService/Responses" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd6" namespace="http://www.pin-pay.com/schemas/Responses/DTO" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/System" />
+      <xsd:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd8" namespace="http://www.pin-pay.com/schemas/DTO" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IProfileService_GetProfile_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetProfile" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_GetProfile_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetProfileResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_RemoveDevice_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoveDevice" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_RemoveDevice_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoveDeviceResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_ResetPin_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResetPin" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_ResetPin_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResetPinResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_Block_InputMessage">
+    <wsdl:part name="parameters" element="tns:Block" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_Block_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BlockResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_Cancel_InputMessage">
+    <wsdl:part name="parameters" element="tns:Cancel" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_Cancel_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CancelResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_BlackList_InputMessage">
+    <wsdl:part name="parameters" element="tns:BlackList" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_BlackList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:BlackListResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_UnBlackList_InputMessage">
+    <wsdl:part name="parameters" element="tns:UnBlackList" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_UnBlackList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UnBlackListResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_Ping_InputMessage">
+    <wsdl:part name="parameters" element="tns:Ping" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_Ping_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PingResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_StopService_InputMessage">
+    <wsdl:part name="parameters" element="tns:StopService" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_StopService_OutputMessage">
+    <wsdl:part name="parameters" element="tns:StopServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_StartService_InputMessage">
+    <wsdl:part name="parameters" element="tns:StartService" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_StartService_OutputMessage">
+    <wsdl:part name="parameters" element="tns:StartServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_ResetServiceCache_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResetServiceCache" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_ResetServiceCache_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResetServiceCacheResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_SetServiceLogLevel_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetServiceLogLevel" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_SetServiceLogLevel_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetServiceLogLevelResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_SetVersion_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetVersion" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_SetVersion_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetVersionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_RetrieveVersion_InputMessage">
+    <wsdl:part name="parameters" element="tns:RetrieveVersion" />
+  </wsdl:message>
+  <wsdl:message name="IProfileService_RetrieveVersion_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RetrieveVersionResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IProfileService">
+    <wsdl:operation name="GetProfile">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/GetProfile" message="tns:IProfileService_GetProfile_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/GetProfileResponse" message="tns:IProfileService_GetProfile_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDevice">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/RemoveDevice" message="tns:IProfileService_RemoveDevice_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/RemoveDeviceResponse" message="tns:IProfileService_RemoveDevice_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetPin">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/ResetPin" message="tns:IProfileService_ResetPin_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/ResetPinResponse" message="tns:IProfileService_ResetPin_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Block">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/Block" message="tns:IProfileService_Block_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/BlockResponse" message="tns:IProfileService_Block_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Cancel">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/Cancel" message="tns:IProfileService_Cancel_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/CancelResponse" message="tns:IProfileService_Cancel_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="BlackList">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/BlackList" message="tns:IProfileService_BlackList_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/BlackListResponse" message="tns:IProfileService_BlackList_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UnBlackList">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/UnBlackList" message="tns:IProfileService_UnBlackList_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/UnBlackListResponse" message="tns:IProfileService_UnBlackList_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Ping">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/Ping" message="tns:IProfileService_Ping_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/PingResponse" message="tns:IProfileService_Ping_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="StopService">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/StopService" message="tns:IProfileService_StopService_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/StopServiceResponse" message="tns:IProfileService_StopService_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="StartService">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/StartService" message="tns:IProfileService_StartService_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/StartServiceResponse" message="tns:IProfileService_StartService_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetServiceCache">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/ResetServiceCache" message="tns:IProfileService_ResetServiceCache_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/ResetServiceCacheResponse" message="tns:IProfileService_ResetServiceCache_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetServiceLogLevel">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/SetServiceLogLevel" message="tns:IProfileService_SetServiceLogLevel_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/SetServiceLogLevelResponse" message="tns:IProfileService_SetServiceLogLevel_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetVersion">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/SetVersion" message="tns:IProfileService_SetVersion_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/SetVersionResponse" message="tns:IProfileService_SetVersion_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RetrieveVersion">
+      <wsdl:input wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/RetrieveVersion" message="tns:IProfileService_RetrieveVersion_InputMessage" />
+      <wsdl:output wsaw:Action="http://www.pin-pay.com/schemas/ProfileService/IProfileService/RetrieveVersionResponse" message="tns:IProfileService_RetrieveVersion_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

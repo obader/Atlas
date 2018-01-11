@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.pin-pay.com/schemas/ProfileService" elementFormDefault="qualified" targetNamespace="http://www.pin-pay.com/schemas/ProfileService" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd2" namespace="http://www.pin-pay.com/schemas/ProfileService/Requests" />
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd5" namespace="http://www.pin-pay.com/schemas/ProfileService/Responses" />
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd6" namespace="http://www.pin-pay.com/schemas/Responses/DTO" />
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd8" namespace="http://www.pin-pay.com/schemas/DTO" />
+  <xs:element name="GetProfile">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q1:ProfileRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetProfileResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://www.pin-pay.com/schemas/ProfileService/Responses" minOccurs="0" name="GetProfileResult" nillable="true" type="q2:ProfileResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoveDevice">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q3:RemoveDeviceRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoveDeviceResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://www.pin-pay.com/schemas/Responses/DTO" minOccurs="0" name="RemoveDeviceResult" nillable="true" type="q4:BaseResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetPin">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q5:ResetPinRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetPinResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://www.pin-pay.com/schemas/Responses/DTO" minOccurs="0" name="ResetPinResult" nillable="true" type="q6:BaseResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Block">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q7:ProfileRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://www.pin-pay.com/schemas/Responses/DTO" minOccurs="0" name="BlockResult" nillable="true" type="q8:BaseResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Cancel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q9:ProfileRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancelResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://www.pin-pay.com/schemas/Responses/DTO" minOccurs="0" name="CancelResult" nillable="true" type="q10:BaseResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlackList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q11:BlackListRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlackListResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://www.pin-pay.com/schemas/Responses/DTO" minOccurs="0" name="BlackListResult" nillable="true" type="q12:BaseResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnBlackList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://www.pin-pay.com/schemas/ProfileService/Requests" minOccurs="0" name="pRequest" nillable="true" type="q13:ProfileRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnBlackListResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://www.pin-pay.com/schemas/Responses/DTO" minOccurs="0" name="UnBlackListResult" nillable="true" type="q14:BaseResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Ping">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PingResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="PingResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StopService">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StopServiceResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StartService">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StartServiceResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetServiceCache">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetServiceCacheResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ResetServiceCacheResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetServiceLogLevel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://www.pin-pay.com/schemas/DTO" minOccurs="0" name="pLogLevel" nillable="true" type="q15:LogLevel" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetServiceLogLevelResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetVersion">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="pVersion" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetVersionResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RetrieveVersion">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RetrieveVersionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RetrieveVersionResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

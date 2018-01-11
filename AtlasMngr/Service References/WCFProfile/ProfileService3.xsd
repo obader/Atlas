@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.pin-pay.com/schemas/Responses/DTO" elementFormDefault="qualified" targetNamespace="http://www.pin-pay.com/schemas/Responses/DTO" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/System" />
+  <xs:import schemaLocation="http://192.168.2.85:8080/ProfileService/ProfileService.svc?xsd=xsd8" namespace="http://www.pin-pay.com/schemas/DTO" />
+  <xs:complexType name="BaseResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Response" nillable="true" type="tns:GenericResponse" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BaseResponse" nillable="true" type="tns:BaseResponse" />
+  <xs:complexType name="GenericResponse">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/System" minOccurs="0" name="Exception" nillable="true" type="q1:Exception" />
+      <xs:element minOccurs="0" name="FunctionName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccessfull" type="xs:boolean" />
+      <xs:element minOccurs="0" name="RequestId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResponseDate" type="xs:dateTime" />
+      <xs:element xmlns:q2="http://www.pin-pay.com/schemas/DTO" minOccurs="0" name="Result" nillable="true" type="q2:ResultCode" />
+      <xs:element minOccurs="0" name="ResultCode" type="xs:int" />
+      <xs:element xmlns:q3="http://www.pin-pay.com/schemas/DTO" minOccurs="0" name="Server" nillable="true" type="q3:ServerInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GenericResponse" nillable="true" type="tns:GenericResponse" />
+</xs:schema>
