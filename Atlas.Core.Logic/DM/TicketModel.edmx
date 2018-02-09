@@ -228,6 +228,7 @@
           <Property Name="Amount" Type="decimal" Precision="21" Scale="2" Nullable="false" />
           <Property Name="CurrencyId" Type="int" Nullable="false" />
           <Property Name="CurrencyCode" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="PaymentCurrencyId" Type="int" />
           <Property Name="TransactionDate" Type="datetime" Nullable="false" />
           <Property Name="TransactionStatus" Type="nvarchar" MaxLength="5" Nullable="false" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
@@ -674,6 +675,7 @@
           <Property Name="TransactionStatus" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
           <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="TicketTransaction" ToRole="Ticket" />
+          <Property Name="PaymentCurrencyId" Type="Int32" />
         </EntityType>
         <EntityType Name="ActionsNotification">
           <Key>
@@ -987,6 +989,7 @@
           <EntitySetMapping Name="TicketTransactions">
             <EntityTypeMapping TypeName="TicketingModel.TicketTransaction">
               <MappingFragment StoreEntitySet="TicketTransactions">
+                <ScalarProperty Name="PaymentCurrencyId" ColumnName="PaymentCurrencyId" />
                 <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
                 <ScalarProperty Name="TransactionStatus" ColumnName="TransactionStatus" />
                 <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />

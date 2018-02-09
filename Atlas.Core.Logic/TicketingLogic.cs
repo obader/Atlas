@@ -23,7 +23,7 @@ namespace Atlas.Core.Logic
 
         public TicketingLogic(string host, string catalog, string user, string pass, bool winAuth)
         {
-            _connectionInfo = new DBConnectionInfo(host,catalog,user,pass,winAuth);
+            _connectionInfo = new DBConnectionInfo(host, catalog, user, pass, winAuth);
         }
 
         public bool CheckDb()
@@ -65,15 +65,15 @@ namespace Atlas.Core.Logic
 
                     var statuses =
                     ctx.TicketAudits.Where(
-                            p => (pStatusId == 0 || p.TicketStatusId == pStatusId) && (pFromDate == null || p.ChangeDate >= pFromDate) && (p.ChangeDate <= pToDate || pToDate == null) 
-                            && (pFilter.Count == 0 || !pFilter.Contains(p.TicketStatusId) && p.TicketStatusId!= null)
+                            p => (pStatusId == 0 || p.TicketStatusId == pStatusId) && (pFromDate == null || p.ChangeDate >= pFromDate) && (p.ChangeDate <= pToDate || pToDate == null)
+                            && (pFilter.Count == 0 || !pFilter.Contains(p.TicketStatusId) && p.TicketStatusId != null)
                         )
                               .ToList();
 
                     if (statuses.Count == 0)
                         return lTickets;
 
-                    var statusesIds = ctx.TicketStatuses.Where(p=> _pFilter.Contains(p.Value)).Select(q => q.TicketStatusId).ToList();
+                    var statusesIds = ctx.TicketStatuses.Where(p => _pFilter.Contains(p.Value)).Select(q => q.TicketStatusId).ToList();
 
 
                     var ticketIds = statuses.Select(q => q.TicketId).ToList();
@@ -85,7 +85,7 @@ namespace Atlas.Core.Logic
                             .AsNoTracking()
                             .ToList();
 
-                  
+
 
                     if (tickets.Count == 0)
                         return lTickets;
@@ -93,80 +93,6 @@ namespace Atlas.Core.Logic
                     foreach (var ticket in tickets)
                     {
 
-                        if(ticket.CategoryId!= null && ticket.CategoryId>0)
-                        {
-                            int categoryId = Convert.ToInt32(ticket.CategoryId);
-                            var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
-                            category = etcategory.Code;
-                        }
-
-                        if (ticket.ReasonsId != null && ticket.ReasonsId > 0)
-                        {
-                            int reasonsId = Convert.ToInt32(ticket.ReasonsId);
-                            var etReasons = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
-                            reason = etReasons.Description;
-                        }
-                        var sts =
-                            ctx.TicketAudits.Where(p => p.TicketId == ticket.TicketId && p.TicketStatusId != null)
-                                .ToList();
-
-
-                        var etr =
-                          ctx.TicketExternalReferences.Where(p => p.TicketId == ticket.TicketId )
-                              .ToList();
-
-                        var statusList =
-                            sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId,st.TicketStatus.Value,st.TicketStatus.Description),  st.UserId, null, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
-
-
-                        var externalReferencesList =
-                         etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId,st.UserId,st.RecordDate,st.TicketId,st.Comments,st.TypeCode,st.PayLoad)).ToList();
-
-
-                        var lCommentList =
-                            ctx.Comments.Where(p => p.TicketId == ticket.TicketId).AsNoTracking().ToList();
-                        var commentList = lCommentList.Select(cm => new Comment(ticket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
-                                .ToList();
-
-                        statusCode = statusList.LastOrDefault()?.Status?.StatusCode;
-
-                        var mticket = new MasterTicket(pUserId,
-                            new Ticket(ticket.TicketId, ticket.TicketParentId??0, ticket.CreatedBy,ticket.BankId??0,ticket.ProfileId,ticket.Title,ticket.Description,  ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId,ticket.AssignedToDepartmentId,
-                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, null, externalReferencesList);
-                        lTickets.Add(mticket);
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                    throw ex;
-                }
-
-            }
-            return lTickets;
-        }
-
-        public List<MasterTicket> GeTicketsByCategoryId(string pUserId , int pCategoryId)
-        {
-            var lTickets = new List<MasterTicket>();
-            string category = string.Empty;
-            string statusCode = string.Empty;
-            string reason = string.Empty;
-
-            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
-            {
-                try
-                {
-                    var tickets =
-                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId).Distinct()
-                            .AsNoTracking()
-                            .ToList();
-
-                    if (tickets.Count == 0)
-                        return lTickets;
-
-                    foreach (var ticket in tickets)
-                    {
                         if (ticket.CategoryId != null && ticket.CategoryId > 0)
                         {
                             int categoryId = Convert.ToInt32(ticket.CategoryId);
@@ -180,30 +106,25 @@ namespace Atlas.Core.Logic
                             var etReasons = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
                             reason = etReasons.Description;
                         }
-
-                        var transaction =
-                          ctx.TicketTransactions.Where(p => p.TicketId == ticket.TicketId )
-                              .FirstOrDefault();
-
                         var sts =
                             ctx.TicketAudits.Where(p => p.TicketId == ticket.TicketId && p.TicketStatusId != null)
                                 .ToList();
 
-                        var etr =
-                         ctx.TicketExternalReferences.Where(p => p.TicketId == ticket.TicketId)
-                             .ToList();
 
+                        var etr =
+                          ctx.TicketExternalReferences.Where(p => p.TicketId == ticket.TicketId)
+                              .ToList();
 
                         var statusList =
-                            sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, null, ticket.TicketId, st.TicketAction!= null?st.TicketAction.Description:"")).ToList();
+                            sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, null, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
+
 
                         var externalReferencesList =
-                             etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
-                        
+                         etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
+
 
                         var lCommentList =
                             ctx.Comments.Where(p => p.TicketId == ticket.TicketId).AsNoTracking().ToList();
-
                         var commentList = lCommentList.Select(cm => new Comment(ticket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
                                 .ToList();
 
@@ -212,14 +133,6 @@ namespace Atlas.Core.Logic
                         var mticket = new MasterTicket(pUserId,
                             new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
                                 ticket.CreationDate, ticket.ModifedDate), statusList, commentList, null, externalReferencesList);
-
-                        if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
-                        {
-                            mticket.Ticket.TransactionId = transaction.TransactionId;
-                        }
-
-                        
-
                         lTickets.Add(mticket);
                     }
                 }
@@ -233,8 +146,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-
-        public List<MasterTicket> GeTicketsByProfileId(string pUserId, int pProfiled)
+        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -246,7 +158,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.ProfileId  == pProfiled).Distinct()
+                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -295,14 +207,13 @@ namespace Atlas.Core.Logic
                         var commentList = lCommentList.Select(cm => new Comment(ticket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
                                 .ToList();
 
-                        if (statusList.Last() != null && statusList.Last().Status != null)
-                        {
-                            statusCode = statusList.Last().Status.StatusCode;
-                        }
+                        statusCode = statusList.LastOrDefault()?.Status?.StatusCode;
 
                         var mticket = new MasterTicket(pUserId,
                             new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
-                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, null, externalReferencesList);
+                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
+                                    new Entities.TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.TransactionId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentTypeName, transaction.AccountType, transaction.AccountNumber, transaction.TransactionStatus, transaction.Amount, transaction.TransactionDate, transaction.CurrencyId, transaction.CurrencyCode, transaction.PaymentOptionId, transaction.PaymentTypeName, transaction.BankTransactionId, transaction.PaymentCurrencyId ?? 0)
+                                }, externalReferencesList);
 
                         if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
                         {
@@ -324,7 +235,98 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public MasterTicket GeTicket(long pTicketId,string pUserId)
+
+        public List<MasterTicket> GeTicketsByProfileId(string pUserId, int pProfiled)
+        {
+            var lTickets = new List<MasterTicket>();
+            string category = string.Empty;
+            string statusCode = string.Empty;
+            string reason = string.Empty;
+
+            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+            {
+                try
+                {
+                    var tickets =
+                        ctx.Tickets.Where(p => p.ProfileId == pProfiled).Distinct()
+                            .AsNoTracking()
+                            .ToList();
+
+                    if (tickets.Count == 0)
+                        return lTickets;
+
+                    foreach (var ticket in tickets)
+                    {
+                        if (ticket.CategoryId != null && ticket.CategoryId > 0)
+                        {
+                            int categoryId = Convert.ToInt32(ticket.CategoryId);
+                            var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
+                            category = etcategory.Code;
+                        }
+
+                        if (ticket.ReasonsId != null && ticket.ReasonsId > 0)
+                        {
+                            int reasonsId = Convert.ToInt32(ticket.ReasonsId);
+                            var etReasons = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
+                            reason = etReasons.Description;
+                        }
+
+                        var transaction = ctx.TicketTransactions.FirstOrDefault(p => p.TicketId == ticket.TicketId);
+
+                        var sts =
+                            ctx.TicketAudits.Where(p => p.TicketId == ticket.TicketId && p.TicketStatusId != null)
+                                .ToList();
+
+                        var etr =
+                         ctx.TicketExternalReferences.Where(p => p.TicketId == ticket.TicketId)
+                             .ToList();
+
+
+                        var statusList =
+                            sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, null, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
+
+                        var externalReferencesList =
+                             etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
+
+
+                        var lCommentList =
+                            ctx.Comments.Where(p => p.TicketId == ticket.TicketId).AsNoTracking().ToList();
+
+                        var commentList = lCommentList.Select(cm => new Comment(ticket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
+                                .ToList();
+
+                        if (statusList.Last() != null && statusList.Last().Status != null)
+                        {
+                            statusCode = statusList.Last().Status.StatusCode;
+                        }
+
+                        var mticket = new MasterTicket(pUserId,
+                            new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
+                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
+                                    new Entities.TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.TransactionId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentTypeName, transaction.AccountType, transaction.AccountNumber, transaction.TransactionStatus, transaction.Amount, transaction.TransactionDate, transaction.CurrencyId, transaction.CurrencyCode, transaction.PaymentOptionId, transaction.PaymentTypeName, transaction.BankTransactionId, transaction.PaymentCurrencyId ?? 0)
+                                }, externalReferencesList);
+
+                        if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
+                        {
+                            mticket.Ticket.TransactionId = transaction.TransactionId;
+                        }
+
+
+
+                        lTickets.Add(mticket);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+
+            }
+            return lTickets;
+        }
+
+        public MasterTicket GeTicket(long pTicketId, string pUserId)
         {
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
@@ -358,7 +360,7 @@ namespace Atlas.Core.Logic
                          .ToList();
 
 
-                    var statuses =  ctx.TicketAudits.Where( p => p.TicketId == pTicketId && p.TicketStatusId != null).ToList();
+                    var statuses = ctx.TicketAudits.Where(p => p.TicketId == pTicketId && p.TicketStatusId != null).ToList();
 
                     if (statuses.Count == 0)
                         return null;
@@ -383,8 +385,8 @@ namespace Atlas.Core.Logic
                             .ToList();
 
                     var mticket = new MasterTicket(pUserId,
-                        new Ticket( lTicket.TicketId, lTicket.TicketParentId ?? 0, lTicket.CreatedBy, lTicket.BankId ?? 0, lTicket.ProfileId, lTicket.Title,lTicket.Description, lTicket.ApplicationId ?? 0, lTicket.CategoryId ?? 0, category, lTicket.ReasonsId ?? 0, reason, statusCode
-                        , lTicket.PriorityId,lTicket.AssignedToDepartmentId,lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, null, externalReferencesList);
+                        new Ticket(lTicket.TicketId, lTicket.TicketParentId ?? 0, lTicket.CreatedBy, lTicket.BankId ?? 0, lTicket.ProfileId, lTicket.Title, lTicket.Description, lTicket.ApplicationId ?? 0, lTicket.CategoryId ?? 0, category, lTicket.ReasonsId ?? 0, reason, statusCode
+                        , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, null, externalReferencesList);
                     return mticket;
 
                 }
@@ -397,7 +399,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket GeTicketById(string pUserId ,long pTicketId)
+        public MasterTicket GeTicketById(string pUserId, long pTicketId)
         {
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
@@ -426,7 +428,7 @@ namespace Atlas.Core.Logic
                     }
 
 
-                    var externalReferences =  ctx.TicketExternalReferences.Where(p => p.TicketId == pTicketId).ToList();
+                    var externalReferences = ctx.TicketExternalReferences.Where(p => p.TicketId == pTicketId).ToList();
 
                     var statuses = ctx.TicketAudits.Where(p => p.TicketId == pTicketId && p.TicketStatusId != null).ToList();
 
@@ -448,7 +450,7 @@ namespace Atlas.Core.Logic
 
                     var lTransactionsList =
                         ctx.TicketTransactions.Where(p => p.TicketId == pTicketId).AsNoTracking().ToList();
-                    var transactionsList = lTransactionsList.Select(cm => new Entities.TicketTransaction( cm.TicketId, cm.BankId, cm.BankName, cm.TransactionId, cm.ProviderId, cm.ProviderName, cm.PaymentTypeId, cm.PaymentTypeName, cm.AccountType, cm.AccountNumber, cm.TransactionStatus, cm.Amount, cm.TransactionDate, cm.CurrencyId,cm.CurrencyCode, cm.PaymentOptionId, cm.PaymentTypeName, cm.BankTransactionId)).ToList();
+                    var transactionsList = lTransactionsList.Select(cm => new Entities.TicketTransaction(cm.TicketId, cm.BankId, cm.BankName, cm.TransactionId, cm.ProviderId, cm.ProviderName, cm.PaymentTypeId, cm.PaymentTypeName, cm.AccountType, cm.AccountNumber, cm.TransactionStatus, cm.Amount, cm.TransactionDate, cm.CurrencyId, cm.CurrencyCode, cm.PaymentOptionId, cm.PaymentTypeName, cm.BankTransactionId, cm.PaymentCurrencyId ?? 0)).ToList();
 
 
                     if (statusList.Last() != null && statusList.Last().Status != null)
@@ -458,7 +460,7 @@ namespace Atlas.Core.Logic
 
                     var mticket = new MasterTicket(pUserId,
                         new Ticket(lTicket.TicketId, lTicket.TicketParentId ?? 0, lTicket.CreatedBy, lTicket.BankId ?? 0, lTicket.ProfileId, lTicket.Title, lTicket.Description, lTicket.ApplicationId ?? 0, lTicket.CategoryId ?? 0, category, lTicket.ReasonsId ?? 0, reason, statusCode
-                        , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate),statusList, commentList, transactionsList, externalReferencesList);
+                        , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, transactionsList, externalReferencesList);
                     return mticket;
 
                 }
@@ -471,16 +473,16 @@ namespace Atlas.Core.Logic
             }
         }
 
-       public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction,List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences, string pComment, bool pIsSendEmail, bool pIsSendSMS,out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out string message, out bool isSuccess)
+        public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out string message, out bool isSuccess)
         {
             message = string.Empty;
             isSuccess = true;
-           
+
             MasterTicket tTicket = null;
             try
             {
 
-                if(pComment == null || pComment == "")
+                if (pComment == null || pComment == "")
                 {
                     message = "Error";
                     isSuccess = false;
@@ -493,7 +495,7 @@ namespace Atlas.Core.Logic
 
                 string category = string.Empty;
                 string reason = string.Empty;
-                pActionRouteCode =new List<string>();
+                pActionRouteCode = new List<string>();
                 pActionNotificationCode = new List<string>();
                 var createdStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus;
                 List<TicketExternalReferences> lstTicketExternalReferences = new List<TicketExternalReferences>();
@@ -502,7 +504,7 @@ namespace Atlas.Core.Logic
                 {
                     var ticket = ctx.Tickets.Add(new DM.Ticket
                     {
-                        Title =  pTicket.Title,
+                        Title = pTicket.Title,
                         ApplicationId = pTicket.ApplicationId,
                         CategoryId = pTicket.CategoryId,
                         ReasonsId = pTicket.ReasonsId,
@@ -525,22 +527,22 @@ namespace Atlas.Core.Logic
                         category = etcategory.Code;
 
                         var ationsRoutes = from c in ctx.CategoriesActionsRoutes
-                                                join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
-                                                where  c.CategoryId == categoryId
-                                                select a;
+                                           join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
+                                           where c.CategoryId == categoryId
+                                           select a;
 
 
                         pActionRouteCode = ationsRoutes.ToList().Select(p => p.Code).ToList();
 
-                                             
+
 
                         var ationsNotification = from c in ctx.CategoriesActionsNotifications
-                                           join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                                 join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
                                                  where c.CategoryId == categoryId && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
-                                           select a;
+                                                 select a;
 
 
-                        pActionNotificationCode = ationsNotification.ToList().Select(p => p.Code).ToList();                        
+                        pActionNotificationCode = ationsNotification.ToList().Select(p => p.Code).ToList();
 
                     }
 
@@ -556,20 +558,20 @@ namespace Atlas.Core.Logic
                         UserId = pTicket.UserId,
                         Ticket = ticket,
                         TicketStatusId = createdStatus.StatusId,
-                        ChangeDate = ticket.LastStatusChanged??DateTime.UtcNow
-                        
+                        ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow
+
                     });
 
                     var comment = ctx.Comments.Add(new DM.Comment
                     {
                         Ticket = ticket,
                         UserId = pTicket.UserId,
-                        CommentValue = pComment!=null? pComment: string.Empty,
+                        CommentValue = pComment != null ? pComment : string.Empty,
                         RecordDate = DateTime.UtcNow
                     });
 
 
-                    if(pTransaction!= null)
+                    if (pTransaction != null)
                     {
                         var ticketTransactions = ctx.TicketTransactions.Add(new DM.TicketTransaction
                         {
@@ -590,14 +592,15 @@ namespace Atlas.Core.Logic
                             TransactionStatus = pTransaction.StatusId,
                             BankTransactionId = pTransaction.BankTransactionId,
                             AccountNumber = pTransaction.AccountNumber,
-                            AccountType =pTransaction.AccountType                           
+                            AccountType = pTransaction.AccountType,
+                            PaymentCurrencyId = pTransaction.PaymentCurrencyId
 
                         });
                         ctx.SaveChanges();
-                        lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId,pTransaction.BankId ,pTransaction.BankName , pTransaction.PinPayTransactionId , pTransaction.ProviderId ,pTransaction.ProviderName ,pTransaction.PaymentTypeId ,pTransaction.PaymentType , pTransaction.AccountType, pTransaction.AccountNumber , pTransaction.StatusId , pTransaction.TotalAmount , pTransaction.TransactionDate , pTransaction.CurrencyId , pTransaction.Currency, pTransaction.PaymentOptionId , pTransaction.PaymentOptionName,pTransaction.BankTransactionId ));
+                        lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId, pTransaction.BankId, pTransaction.BankName, pTransaction.PinPayTransactionId, pTransaction.ProviderId, pTransaction.ProviderName, pTransaction.PaymentTypeId, pTransaction.PaymentType, pTransaction.AccountType, pTransaction.AccountNumber, pTransaction.StatusId, pTransaction.TotalAmount, pTransaction.TransactionDate, pTransaction.CurrencyId, pTransaction.Currency, pTransaction.PaymentOptionId, pTransaction.PaymentOptionName, pTransaction.BankTransactionId, pTransaction.PaymentCurrencyId));
                     }
 
-                  
+
                     var commentAudit = ctx.TicketAudits.Add(new DM.TicketAudit
                     {
                         UserId = pTicket.UserId,
@@ -647,7 +650,7 @@ namespace Atlas.Core.Logic
                         , pTicket.DepartmentId
                         , ticket.CreationDate
                         , ticket.ModifedDate)
-                        , new List<Entities.TicketStatus> {new Entities.TicketStatus(createdStatus, status.UserId, status.ChangeDate, ticket.TicketId) }
+                        , new List<Entities.TicketStatus> { new Entities.TicketStatus(createdStatus, status.UserId, status.ChangeDate, ticket.TicketId) }
                         , new List<Comment> { new Comment(ticket.TicketId, comment.CommentId, pTicket.UserId, pComment, ticket.CreationDate) }
                         , lstTicketTransaction
                         , lstTicketExternalReferences
@@ -659,10 +662,10 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }            
+            }
         }
 
-      
+
         public void UpdateTicket(Ticket pTicket, string pComment)
         {
             try
@@ -697,11 +700,11 @@ namespace Atlas.Core.Logic
             {
                 throw ex;
 
-            }           
+            }
         }
 
         public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out long pProfileId, out bool iSuccess)
-        {           
+        {
             try
             {
                 iSuccess = true;
@@ -713,7 +716,7 @@ namespace Atlas.Core.Logic
 
 
                 if (pComment == null || pComment == "")
-                {                   
+                {
                     iSuccess = false;
                     pActionRouteCode = new List<string>();
                     pActionNotificationCode = new List<string>();
@@ -725,10 +728,10 @@ namespace Atlas.Core.Logic
                 pActionNotificationCode = new List<string>();
                 pProfileId = 0;
 
-                 var createdStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus;
+                var createdStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus;
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
-                   var  ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketid);
+                    var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketid);
                     if (ticket == null)
                         if (ticket == null)
                         {
@@ -747,12 +750,12 @@ namespace Atlas.Core.Logic
 
                     var ticketActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesActionsId == ticketCategoryActionsId && p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId).FirstOrDefault();
 
-                                      
-                    if(ticketActions!= null)
+
+                    if (ticketActions != null)
                     {
                         ticketStatusId = Convert.ToInt32(ticketActions.TicketStatusesDestinationId);
-                        ticketCategoriesDestinationId = ticketActions.TicketCategoriesDestinationId != null ?Convert.ToInt32(ticketActions.TicketCategoriesDestinationId):0;
-                        ticketActionsId = ticketActions.TicketActionsId;                       
+                        ticketCategoriesDestinationId = ticketActions.TicketCategoriesDestinationId != null ? Convert.ToInt32(ticketActions.TicketCategoriesDestinationId) : 0;
+                        ticketActionsId = ticketActions.TicketActionsId;
                         pProfileId = Convert.ToInt32(ticket.ProfileId);
                     }
 
@@ -763,7 +766,7 @@ namespace Atlas.Core.Logic
                     }
 
                     if (ticketActions != null && ticketActions.TicketCategoriesActionsId > 0)
-                    {                     
+                    {
                         var ationsRoutes = from c in ctx.TicketCategoriesActionsRoutes
                                            join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
                                            where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId
@@ -810,19 +813,19 @@ namespace Atlas.Core.Logic
                     ticket.Description = "";
                     ctx.SaveChanges();
 
-                    if(ticketCategoriesDestinationId >0)
+                    if (ticketCategoriesDestinationId > 0)
                     {
                         var etTicket = ctx.Tickets.Add(new DM.Ticket
                         {
                             TicketParentId = pTicketid,
-                            ApplicationId = ticket.ApplicationId,                            
+                            ApplicationId = ticket.ApplicationId,
                             CategoryId = ticketCategoriesDestinationId,
                             ProfileId = ticket.ProfileId,
                             TicketStatusId = createdStatus.StatusId,
                             BankId = ticket.BankId,
-                            CreatedBy = pUserId,                     
+                            CreatedBy = pUserId,
                             LastStatusChanged = DateTime.UtcNow,
-                            CreationDate = DateTime.UtcNow,                                                      
+                            CreationDate = DateTime.UtcNow,
                         });
 
                         var etStatus = ctx.TicketAudits.Add(new DM.TicketAudit
@@ -847,7 +850,7 @@ namespace Atlas.Core.Logic
                             UserId = pUserId,
                             Ticket = etTicket,
                             ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow,
-                            Comment = pComment,                           
+                            Comment = pComment,
                         });
 
                         ctx.SaveChanges();
@@ -857,7 +860,7 @@ namespace Atlas.Core.Logic
 
                     return etData;
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -866,7 +869,7 @@ namespace Atlas.Core.Logic
         }
 
         public MasterTicket CloseClaim(long pTicketid, string pUserId, string pComment, out bool iSuccess)
-        {            
+        {
             try
             {
                 iSuccess = false;
@@ -877,7 +880,7 @@ namespace Atlas.Core.Logic
                 if (pComment == null || pComment == "")
                 {
                     iSuccess = false;
-                  
+
                     return etData;
                 }
 
@@ -890,7 +893,7 @@ namespace Atlas.Core.Logic
                         iSuccess = false;
                         return etData;
                     }
-                        
+
 
 
                     var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == pTicketid && p.TicketStatusId != null);
@@ -950,7 +953,7 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }           
+            }
         }
 
         public List<Entities.Department> GetDepartments()
@@ -968,7 +971,7 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }            
+            }
         }
 
         public List<Entities.Priority> GetPriorities()
@@ -987,7 +990,7 @@ namespace Atlas.Core.Logic
             {
                 throw ex;
             }
-           
+
         }
 
         public List<Entities.Category> GetCategories()
@@ -1005,7 +1008,7 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }           
+            }
         }
 
         public List<Entities.TicketCategory> GetTicketCategories()
@@ -1072,7 +1075,7 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }            
+            }
         }
 
         public List<ValueObjects.TicketStatusModel> GetStatuses()
@@ -1090,7 +1093,7 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }           
+            }
 
         }
 
@@ -1134,10 +1137,10 @@ namespace Atlas.Core.Logic
                 }
                 return lResult;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
-            }         
+            }
 
         }
 
@@ -1159,7 +1162,7 @@ namespace Atlas.Core.Logic
             catch (Exception ex)
             {
                 throw ex;
-            }      
+            }
 
         }
     }

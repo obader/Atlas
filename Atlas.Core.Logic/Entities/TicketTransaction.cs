@@ -36,6 +36,8 @@ namespace Atlas.Core.Logic.Entities
 
         public int CurrencyId { get; private set; }
 
+        public int? PaymentCurrencyId { get; private set; }
+
         public string Currency { get; private set; }
 
         public string StatusId { get; private set; }
@@ -69,7 +71,7 @@ namespace Atlas.Core.Logic.Entities
      
 
         public TicketTransaction(long pTicketId,int pBankId, string pBankName, string pPinPayTransactionId, int? pProviderId, string pProviderName, int? pPaymentTypeId, string pPaymentType, string pAccountType, string pAccountNumber,
-            string pStatusId, decimal pTotalAmount, DateTime pTransactionDate, int pCurrencyId,string pCurrencyCode, int? pPaymentOptionId, string pPaymentOptionName, string pBankTransactionId)
+            string pStatusId, decimal pTotalAmount, DateTime pTransactionDate, int pCurrencyId,string pCurrencyCode, int? pPaymentOptionId, string pPaymentOptionName, string pBankTransactionId, int? pPaymentCurrencyId)
         {
             TicketId = pTicketId;
             BankId = pBankId;
@@ -89,6 +91,7 @@ namespace Atlas.Core.Logic.Entities
             PaymentOptionName = pPaymentOptionName;
             Currency = pCurrencyCode;
             BankTransactionId = pBankTransactionId;
+            PaymentCurrencyId = pPaymentCurrencyId;
         }
 
 }

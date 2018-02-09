@@ -34,6 +34,7 @@ namespace Atlas.Core.Logic.DM
         public System.DateTime TransactionDate { get; set; }
         public string TransactionStatus { get; set; }
         public byte[] RowVersion { get; set; }
+        public Nullable<int> PaymentCurrencyId { get; set; }
     
         public virtual Ticket Ticket { get; set; }
     }

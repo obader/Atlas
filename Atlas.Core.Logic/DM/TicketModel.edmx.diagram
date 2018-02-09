@@ -5,7 +5,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="2a2f6a1fe38341a984bd269304f44767" Name="Diagram1">
-        <EntityTypeShape EntityType="TicketingModel.Application" Width="1.5" PointX="3.75" PointY="9.25" />
+        <EntityTypeShape EntityType="TicketingModel.Application" Width="1.5" PointX="5.375" PointY="9.5" />
         <EntityTypeShape EntityType="TicketingModel.Comment" Width="1.5" PointX="8.25" PointY="3.125" />
         <EntityTypeShape EntityType="TicketingModel.TicketAudit" Width="1.5" PointX="3" PointY="5.5" />
         <EntityTypeShape EntityType="TicketingModel.TicketStatus" Width="1.5" PointX="0.75" PointY="5.875" />
