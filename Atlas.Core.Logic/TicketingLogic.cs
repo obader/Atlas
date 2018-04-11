@@ -209,11 +209,26 @@ namespace Atlas.Core.Logic
 
                         statusCode = statusList.LastOrDefault()?.Status?.StatusCode;
 
-                        var mticket = new MasterTicket(pUserId,
-                            new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
-                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
-                                    new Entities.TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.TransactionId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentTypeName, transaction.AccountType, transaction.AccountNumber, transaction.TransactionStatus, transaction.Amount, transaction.TransactionDate, transaction.CurrencyId, transaction.CurrencyCode, transaction.PaymentOptionId, transaction.PaymentTypeName, transaction.BankTransactionId, transaction.PaymentCurrencyId ?? 0)
-                                }, externalReferencesList);
+
+                        MasterTicket mticket = null;
+
+                        if (transaction != null)
+                        {
+                            mticket = new MasterTicket(pUserId,
+                                      new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
+                                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
+                                               new Entities.TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.TransactionId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentTypeName, transaction.AccountType, transaction.AccountNumber, transaction.TransactionStatus, transaction.Amount, transaction.TransactionDate, transaction.CurrencyId, transaction.CurrencyCode, transaction.PaymentOptionId, transaction.PaymentTypeName, transaction.BankTransactionId, transaction.PaymentCurrencyId ?? 0)
+                                              }, externalReferencesList);
+                        }
+                        else
+                        {
+                            mticket = new MasterTicket(pUserId,
+                                      new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
+                                      ticket.CreationDate, ticket.ModifedDate), statusList, commentList,null, externalReferencesList);
+                        }
+
+
+                           
 
                         if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
                         {
@@ -300,11 +315,24 @@ namespace Atlas.Core.Logic
                             statusCode = statusList.Last().Status.StatusCode;
                         }
 
-                        var mticket = new MasterTicket(pUserId,
+                        MasterTicket mticket = null;
+
+                        if(transaction!= null)
+                        {
+                            mticket = new MasterTicket(pUserId,
                             new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
                                 ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
                                     new Entities.TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.TransactionId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentTypeName, transaction.AccountType, transaction.AccountNumber, transaction.TransactionStatus, transaction.Amount, transaction.TransactionDate, transaction.CurrencyId, transaction.CurrencyCode, transaction.PaymentOptionId, transaction.PaymentTypeName, transaction.BankTransactionId, transaction.PaymentCurrencyId ?? 0)
                                 }, externalReferencesList);
+                        }
+                        else
+                        {
+                            mticket = new MasterTicket(pUserId,
+                            new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
+                                ticket.CreationDate, ticket.ModifedDate), statusList, commentList, null, externalReferencesList);
+                        }
+
+                         
 
                         if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
                         {
