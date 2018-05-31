@@ -146,7 +146,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId)
+        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -158,7 +158,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId).Distinct()
+                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId && p.BankId == pBankId).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -182,7 +182,7 @@ namespace Atlas.Core.Logic
                         }
 
                         var transaction =
-                          ctx.TicketTransactions.Where(p => p.TicketId == ticket.TicketId)
+                          ctx.TicketTransactions.Where(p => p.TicketId == ticket.TicketId )
                               .FirstOrDefault();
 
                         var sts =
@@ -251,7 +251,7 @@ namespace Atlas.Core.Logic
         }
 
 
-        public List<MasterTicket> GeTicketsByProfileId(string pUserId, int pProfiled)
+        public List<MasterTicket> GeTicketsByProfileId(string pUserId, int pProfiled, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -263,7 +263,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.ProfileId == pProfiled).Distinct()
+                        ctx.Tickets.Where(p => p.ProfileId == pProfiled && p.BankId == pBankId).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -354,7 +354,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public MasterTicket GeTicket(long pTicketId, string pUserId)
+        public MasterTicket GeTicket(long pTicketId, string pUserId, int pBankId)
         {
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
@@ -364,7 +364,7 @@ namespace Atlas.Core.Logic
 
                 try
                 {
-                    var lTicket = ctx.Tickets.AsNoTracking().FirstOrDefault(p => p.TicketId == pTicketId);
+                    var lTicket = ctx.Tickets.AsNoTracking().FirstOrDefault(p => p.TicketId == pTicketId && p.BankId == pBankId);
                     if (lTicket == null)
                         return null;
 
