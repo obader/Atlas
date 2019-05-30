@@ -38,12 +38,12 @@ namespace Atlas.Core.Logic.DM
         public virtual DbSet<TicketAction> TicketActions { get; set; }
         public virtual DbSet<TicketCategoriesActionsRoute> TicketCategoriesActionsRoutes { get; set; }
         public virtual DbSet<TicketType> TicketTypes { get; set; }
-        public virtual DbSet<TicketTransaction> TicketTransactions { get; set; }
         public virtual DbSet<ActionsNotification> ActionsNotifications { get; set; }
         public virtual DbSet<CategoriesActionsNotification> CategoriesActionsNotifications { get; set; }
         public virtual DbSet<TicketCategoriesActionsNotification> TicketCategoriesActionsNotifications { get; set; }
         public virtual DbSet<TicketCategoriesAction> TicketCategoriesActions { get; set; }
         public virtual DbSet<Ticket> Tickets { get; set; }
         public virtual DbSet<TicketExternalReference> TicketExternalReferences { get; set; }
+        public virtual DbSet<TicketTransaction> TicketTransactions { get; set; }
     }
 }

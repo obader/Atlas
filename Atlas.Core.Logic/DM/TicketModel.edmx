@@ -216,6 +216,7 @@
           <Property Name="BankId" Type="int" Nullable="false" />
           <Property Name="BankName" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="BankTransactionId" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="RequestId" Type="nvarchar" MaxLength="250" />
           <Property Name="AccountNumber" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="AccountType" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="TransactionId" Type="nvarchar" MaxLength="250" Nullable="false" />
@@ -228,7 +229,10 @@
           <Property Name="Amount" Type="decimal" Precision="21" Scale="2" Nullable="false" />
           <Property Name="CurrencyId" Type="int" Nullable="false" />
           <Property Name="CurrencyCode" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="PaymentAmount" Type="decimal" Precision="21" Scale="2" />
           <Property Name="PaymentCurrencyId" Type="int" />
+          <Property Name="SFM" Type="text" />
+          <Property Name="SourceChannel" Type="nvarchar" MaxLength="250" />
           <Property Name="TransactionDate" Type="datetime" Nullable="false" />
           <Property Name="TransactionStatus" Type="nvarchar" MaxLength="5" Nullable="false" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
@@ -426,7 +430,6 @@
             <End Role="TicketAction" EntitySet="TicketActions" />
             <End Role="TicketAudit" EntitySet="TicketAudits" />
           </AssociationSet>
-          <EntitySet Name="TicketTransactions" EntityType="TicketingModel.TicketTransaction" />
           <EntitySet Name="ActionsNotifications" EntityType="TicketingModel.ActionsNotification" />
           <EntitySet Name="CategoriesActionsNotifications" EntityType="TicketingModel.CategoriesActionsNotification" />
           <EntitySet Name="TicketCategoriesActionsNotifications" EntityType="TicketingModel.TicketCategoriesActionsNotification" />
@@ -448,14 +451,15 @@
             <End Role="Ticket" EntitySet="Tickets" />
             <End Role="TicketAudit" EntitySet="TicketAudits" />
           </AssociationSet>
-          <AssociationSet Name="FK_TicketTransactions_Tickets" Association="TicketingModel.FK_TicketTransactions_Tickets">
-            <End Role="Ticket" EntitySet="Tickets" />
-            <End Role="TicketTransaction" EntitySet="TicketTransactions" />
-          </AssociationSet>
           <EntitySet Name="TicketExternalReferences" EntityType="TicketingModel.TicketExternalReference" />
           <AssociationSet Name="FK_ExternalReferences_Tickets" Association="TicketingModel.FK_ExternalReferences_Tickets">
             <End Role="Ticket" EntitySet="Tickets" />
             <End Role="TicketExternalReference" EntitySet="TicketExternalReferences" />
+          </AssociationSet>
+          <EntitySet Name="TicketTransactions" EntityType="TicketingModel.TicketTransaction" />
+          <AssociationSet Name="FK_TicketTransactions_Tickets" Association="TicketingModel.FK_TicketTransactions_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="TicketTransaction" EntitySet="TicketTransactions" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Application">
@@ -650,33 +654,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="TicketTransaction">
-          <Key>
-            <PropertyRef Name="TicketTransactionId" />
-          </Key>
-          <Property Name="TicketTransactionId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TicketId" Type="Int64" Nullable="false" />
-          <Property Name="BankId" Type="Int32" Nullable="false" />
-          <Property Name="BankName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="BankTransactionId" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="AccountNumber" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="AccountType" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="TransactionId" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="ProviderId" Type="Int32" />
-          <Property Name="ProviderName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="PaymentTypeId" Type="Int32" />
-          <Property Name="PaymentTypeName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="PaymentOptionId" Type="Int32" />
-          <Property Name="PaymentOptionName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="Amount" Type="Decimal" Nullable="false" Precision="21" Scale="2" />
-          <Property Name="CurrencyId" Type="Int32" Nullable="false" />
-          <Property Name="CurrencyCode" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
-          <Property Name="TransactionDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="TransactionStatus" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-          <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="TicketTransaction" ToRole="Ticket" />
-          <Property Name="PaymentCurrencyId" Type="Int32" />
-        </EntityType>
         <EntityType Name="ActionsNotification">
           <Key>
             <PropertyRef Name="ActionsNotificationId" />
@@ -746,8 +723,8 @@
           <NavigationProperty Name="Department" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Ticket" ToRole="Department" />
           <NavigationProperty Name="Priority" Relationship="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI" FromRole="Ticket" ToRole="Priority" />
           <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TicketAudits_Tickets" FromRole="Ticket" ToRole="TicketAudit" />
-          <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
           <NavigationProperty Name="TicketExternalReferences" Relationship="TicketingModel.FK_ExternalReferences_Tickets" FromRole="Ticket" ToRole="TicketExternalReference" />
+          <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
         </EntityType>
         <Association Name="FK_Comments_Tickets">
           <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="0..1" />
@@ -797,18 +774,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_TicketTransactions_Tickets">
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
-          <End Type="TicketingModel.TicketTransaction" Role="TicketTransaction" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Ticket">
-              <PropertyRef Name="TicketId" />
-            </Principal>
-            <Dependent Role="TicketTransaction">
-              <PropertyRef Name="TicketId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="TicketExternalReference">
           <Key>
             <PropertyRef Name="TicketExternalReferencesId" />
@@ -831,6 +796,49 @@
               <PropertyRef Name="TicketId" />
             </Principal>
             <Dependent Role="TicketExternalReference">
+              <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="TicketTransaction">
+          <Key>
+            <PropertyRef Name="TicketTransactionId" />
+          </Key>
+          <Property Name="TicketTransactionId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TicketId" Type="Int64" Nullable="false" />
+          <Property Name="BankId" Type="Int32" Nullable="false" />
+          <Property Name="BankName" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="BankTransactionId" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="RequestId" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="AccountNumber" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="AccountType" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="TransactionId" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="ProviderId" Type="Int32" />
+          <Property Name="ProviderName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="PaymentTypeId" Type="Int32" />
+          <Property Name="PaymentTypeName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="PaymentOptionId" Type="Int32" />
+          <Property Name="PaymentOptionName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Amount" Type="Decimal" Nullable="false" Precision="21" Scale="2" />
+          <Property Name="CurrencyId" Type="Int32" Nullable="false" />
+          <Property Name="CurrencyCode" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="PaymentAmount" Type="Decimal" Precision="21" Scale="2" />
+          <Property Name="PaymentCurrencyId" Type="Int32" />
+          <Property Name="SFM" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="SourceChannel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="TransactionDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="TransactionStatus" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="TicketTransaction" ToRole="Ticket" />
+        </EntityType>
+        <Association Name="FK_TicketTransactions_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
+          <End Type="TicketingModel.TicketTransaction" Role="TicketTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketTransaction">
               <PropertyRef Name="TicketId" />
             </Dependent>
           </ReferentialConstraint>
@@ -986,33 +994,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="TicketTransactions">
-            <EntityTypeMapping TypeName="TicketingModel.TicketTransaction">
-              <MappingFragment StoreEntitySet="TicketTransactions">
-                <ScalarProperty Name="PaymentCurrencyId" ColumnName="PaymentCurrencyId" />
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="TransactionStatus" ColumnName="TransactionStatus" />
-                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
-                <ScalarProperty Name="CurrencyCode" ColumnName="CurrencyCode" />
-                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
-                <ScalarProperty Name="Amount" ColumnName="Amount" />
-                <ScalarProperty Name="PaymentOptionName" ColumnName="PaymentOptionName" />
-                <ScalarProperty Name="PaymentOptionId" ColumnName="PaymentOptionId" />
-                <ScalarProperty Name="PaymentTypeName" ColumnName="PaymentTypeName" />
-                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
-                <ScalarProperty Name="ProviderName" ColumnName="ProviderName" />
-                <ScalarProperty Name="ProviderId" ColumnName="ProviderId" />
-                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
-                <ScalarProperty Name="AccountType" ColumnName="AccountType" />
-                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
-                <ScalarProperty Name="BankTransactionId" ColumnName="BankTransactionId" />
-                <ScalarProperty Name="BankName" ColumnName="BankName" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
-                <ScalarProperty Name="TicketTransactionId" ColumnName="TicketTransactionId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ActionsNotifications">
             <EntityTypeMapping TypeName="TicketingModel.ActionsNotification">
               <MappingFragment StoreEntitySet="ActionsNotification">
@@ -1095,6 +1076,37 @@
                 <ScalarProperty Name="TypeCode" ColumnName="TypeCode" />
                 <ScalarProperty Name="TicketId" ColumnName="TicketId" />
                 <ScalarProperty Name="TicketExternalReferencesId" ColumnName="TicketExternalReferencesId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TicketTransactions">
+            <EntityTypeMapping TypeName="TicketingModel.TicketTransaction">
+              <MappingFragment StoreEntitySet="TicketTransactions">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="TransactionStatus" ColumnName="TransactionStatus" />
+                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+                <ScalarProperty Name="SourceChannel" ColumnName="SourceChannel" />
+                <ScalarProperty Name="SFM" ColumnName="SFM" />
+                <ScalarProperty Name="PaymentCurrencyId" ColumnName="PaymentCurrencyId" />
+                <ScalarProperty Name="PaymentAmount" ColumnName="PaymentAmount" />
+                <ScalarProperty Name="CurrencyCode" ColumnName="CurrencyCode" />
+                <ScalarProperty Name="CurrencyId" ColumnName="CurrencyId" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PaymentOptionName" ColumnName="PaymentOptionName" />
+                <ScalarProperty Name="PaymentOptionId" ColumnName="PaymentOptionId" />
+                <ScalarProperty Name="PaymentTypeName" ColumnName="PaymentTypeName" />
+                <ScalarProperty Name="PaymentTypeId" ColumnName="PaymentTypeId" />
+                <ScalarProperty Name="ProviderName" ColumnName="ProviderName" />
+                <ScalarProperty Name="ProviderId" ColumnName="ProviderId" />
+                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
+                <ScalarProperty Name="AccountType" ColumnName="AccountType" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="RequestId" ColumnName="RequestId" />
+                <ScalarProperty Name="BankTransactionId" ColumnName="BankTransactionId" />
+                <ScalarProperty Name="BankName" ColumnName="BankName" />
+                <ScalarProperty Name="BankId" ColumnName="BankId" />
+                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
+                <ScalarProperty Name="TicketTransactionId" ColumnName="TicketTransactionId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

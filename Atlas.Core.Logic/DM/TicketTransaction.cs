@@ -19,6 +19,7 @@ namespace Atlas.Core.Logic.DM
         public int BankId { get; set; }
         public string BankName { get; set; }
         public string BankTransactionId { get; set; }
+        public string RequestId { get; set; }
         public string AccountNumber { get; set; }
         public string AccountType { get; set; }
         public string TransactionId { get; set; }
@@ -31,10 +32,13 @@ namespace Atlas.Core.Logic.DM
         public decimal Amount { get; set; }
         public int CurrencyId { get; set; }
         public string CurrencyCode { get; set; }
+        public Nullable<decimal> PaymentAmount { get; set; }
+        public Nullable<int> PaymentCurrencyId { get; set; }
+        public string SFM { get; set; }
+        public string SourceChannel { get; set; }
         public System.DateTime TransactionDate { get; set; }
         public string TransactionStatus { get; set; }
         public byte[] RowVersion { get; set; }
-        public Nullable<int> PaymentCurrencyId { get; set; }
     
         public virtual Ticket Ticket { get; set; }
     }

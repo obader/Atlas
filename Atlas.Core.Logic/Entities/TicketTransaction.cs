@@ -32,6 +32,8 @@ namespace Atlas.Core.Logic.Entities
 
         public decimal TotalAmount { get; private set; }
 
+        public decimal? PaymentAmount { get; private set; }
+
         public DateTime TransactionDate { get; private set; }
 
         public int CurrencyId { get; private set; }
@@ -47,6 +49,12 @@ namespace Atlas.Core.Logic.Entities
         public string PaymentOptionName { get; private set; }
 
         public string BankTransactionId { get; private set; }
+
+        public string SFM { get; private set; }
+
+        public string SourceChannel { get; private set; }
+
+        public string RequestId { get; private set; }
 
 
         public string Status
@@ -70,13 +78,15 @@ namespace Atlas.Core.Logic.Entities
 
      
 
-        public TicketTransaction(long pTicketId,int pBankId, string pBankName, string pPinPayTransactionId, int? pProviderId, string pProviderName, int? pPaymentTypeId, string pPaymentType, string pAccountType, string pAccountNumber,
-            string pStatusId, decimal pTotalAmount, DateTime pTransactionDate, int pCurrencyId,string pCurrencyCode, int? pPaymentOptionId, string pPaymentOptionName, string pBankTransactionId, int? pPaymentCurrencyId)
+        public TicketTransaction(long pTicketId,int pBankId, string pBankName, string pPinPayTransactionId, string pRequestId, int? pProviderId, string pProviderName, int? pPaymentTypeId, 
+            string pPaymentType, string pAccountType, string pAccountNumber, string pStatusId, decimal pTotalAmount,decimal? pPaymentAmount, DateTime pTransactionDate, int pCurrencyId,string pCurrencyCode, int? pPaymentOptionId, 
+            string pPaymentOptionName,string pSourceChannel, string pSFM, string pBankTransactionId, int? pPaymentCurrencyId)
         {
             TicketId = pTicketId;
             BankId = pBankId;
             BankName = pBankName;
             PinPayTransactionId = pPinPayTransactionId;
+            RequestId = pRequestId;
             ProviderId = pProviderId;
             ProviderName = pProviderName;
             PaymentTypeId = pPaymentTypeId;
@@ -85,13 +95,17 @@ namespace Atlas.Core.Logic.Entities
             AccountNumber  = pAccountNumber;
             StatusId = pStatusId;
             TotalAmount  = pTotalAmount;
+            PaymentAmount = PaymentAmount;
             TransactionDate  = pTransactionDate;
             CurrencyId  = pCurrencyId;
             PaymentOptionId = pPaymentOptionId;
             PaymentOptionName = pPaymentOptionName;
+            SourceChannel = pSourceChannel;
+            SFM = pSFM;
             Currency = pCurrencyCode;
             BankTransactionId = pBankTransactionId;
             PaymentCurrencyId = pPaymentCurrencyId;
+            PaymentAmount = pPaymentAmount;
         }
 
 }
