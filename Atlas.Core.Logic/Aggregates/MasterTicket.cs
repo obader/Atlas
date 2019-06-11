@@ -62,6 +62,13 @@ namespace Atlas.Core.Logic.Aggregates
             LastModifieDate = DateTime.UtcNow;
             UpdateProfile(pProfileId);
         }
+
+        public void UpdateCustomerId(long pCustomerId)
+        {
+            Ticket.CustomerId = pCustomerId;
+            LastModifieDate = DateTime.UtcNow;
+            UpdateCustomer(pCustomerId);
+        }
         private void UpdateDesc(string pDescription)
         {
             using (var ctx = new DM.TicketingEntities())
@@ -119,6 +126,28 @@ namespace Atlas.Core.Logic.Aggregates
                 {
 
                     Comment = "New Profile: " + pProfileId,
+                    ChangeDate = DateTime.UtcNow,
+                    TicketId = Ticket.Id,
+                    UserId = ModifiedByUserId
+                });
+                ctx.SaveChanges();
+            }
+        }
+
+        private void UpdateCustomer(long pCustomerId)
+        {
+            using (var ctx = new DM.TicketingEntities())
+            {
+                var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == Ticket.Id);
+                if (ticket == null)
+                    return;
+                ticket.CustomerId = pCustomerId;
+                ticket.ModifedDate = DateTime.UtcNow;
+                ticket.ModifiedBy = ModifiedByUserId;
+                ctx.TicketAudits.Add(new DM.TicketAudit
+                {
+
+                    Comment = "New Customer: " + pCustomerId,
                     ChangeDate = DateTime.UtcNow,
                     TicketId = Ticket.Id,
                     UserId = ModifiedByUserId

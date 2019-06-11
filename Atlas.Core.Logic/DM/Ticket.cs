@@ -33,6 +33,7 @@ namespace Atlas.Core.Logic.DM
         public long TicketStatusId { get; set; }
         public string Title { get; set; }
         public Nullable<int> BankId { get; set; }
+        public Nullable<long> CustomerId { get; set; }
         public Nullable<long> ProfileId { get; set; }
         public string Description { get; set; }
         public string CreatedBy { get; set; }

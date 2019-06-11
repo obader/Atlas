@@ -20,6 +20,7 @@ namespace Atlas.Core.Logic.Entities
         public string Status { get; set; }
         public int BankId { get; set; }
         public long? ProfileId { get; set; }
+        public long? CustomerId { get; set; }
         public long? PriorityId { get; set; }
         public string TransactionId { get; set; }
         public long? DepartmentId { get; set; }
@@ -30,7 +31,7 @@ namespace Atlas.Core.Logic.Entities
         public Profile Profile { get; set; }
 
 
-        public Ticket(long pTicketId, long pTicketParentId, string pUserId, int pBankId, long? pProfileId, 
+        public Ticket(long pTicketId, long pTicketParentId, string pUserId, int pBankId, long? pProfileId, long? pCustomerId,
             string pTitle, string pDescription, long pApplicationId, long pCategoryId, string pCategoryCode, 
             long pReasonsId, string pReasonsName, string pStatus, long? pPriorityId,
             long? pDepartmentId, DateTime? pCreatedDate, DateTime? pLastChangeDate)
@@ -46,6 +47,7 @@ namespace Atlas.Core.Logic.Entities
             ModifiedDate = pLastChangeDate ?? DateTime.UtcNow;
             BankId = pBankId;
             ProfileId = pProfileId;
+            CustomerId = pCustomerId;
             DepartmentId = pDepartmentId;
             PriorityId = pPriorityId;
             CategoryCode = pCategoryCode;

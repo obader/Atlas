@@ -13,9 +13,9 @@ namespace Atlas.Core.Logic.DTOs
         public long CategoryId { get; set; }
         public string CategoryName { get; set; }
         public int BankId { get; set; }
+        public long? CustomerId { get; set; }
         public long? ProfileId { get; set; }
-        public long PriorityId { get; set; }
-        
+        public long PriorityId { get; set; }        
         public long? DepartmentId { get; set; }
         public string DepartmentName { get; set; }
         public string Description { get; set; }

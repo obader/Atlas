@@ -43,6 +43,7 @@ namespace Atlas.Core.Logic
                                        CategoryName = c.Description,
                                        BankId = t.BankId ?? 0,
                                        ProfileId = t.ProfileId,
+                                       CustomerId = t.CustomerId,
                                        PriorityId = t.PriorityId ?? 0,
                                        DepartmentId = t.AssignedToDepartmentId,
                                        DepartmentName = d.Description,

@@ -38,6 +38,7 @@ namespace AtlasMngr
             var categoryId = (long)((ComboboxItem)cbxCategory.SelectedItem).Value;
             var bankId = (int)((ComboboxItem)cbxBanks.SelectedItem).Value;
             long? profileId = null;
+            long? customerId = null;
 
             long priorityId = (long)((ComboboxItem)cbxPriority.SelectedItem).Value;
             long? departmentId = null;
@@ -47,7 +48,7 @@ namespace AtlasMngr
             profileId = ((WCFProfile.ProfileResponse) tbxCustomerName.Tag).Profile.ProfileInfo.ProfileId;
             if (_ticketId == null)
                 logic.AddNewTicket(
-                    new Ticket(-1, -1, "Al", bankId, profileId, tbxTitle.Text, tbxIssueDescription.Text, appId, categoryId, null, -1, null, null, priorityId, departmentId, DateTime.UtcNow, DateTime.UtcNow),
+                    new Ticket(-1, -1, "Al", bankId, profileId, customerId, tbxTitle.Text, tbxIssueDescription.Text, appId, categoryId, null, -1, null, null, priorityId, departmentId, DateTime.UtcNow, DateTime.UtcNow),
                     null, null, "Initial Entry", false, false
                     );
             else
