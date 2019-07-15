@@ -997,7 +997,42 @@ namespace Atlas.Core.Logic
                             Comment = pComment,
                         });
 
-                        ctx.SaveChanges();
+
+                        var pTransaction = ctx.TicketTransactions.Where(p => p.TicketId == pTicketid).FirstOrDefault();
+
+                        if (pTransaction != null)
+                        {
+                            var ticketTransactions = ctx.TicketTransactions.Add(new DM.TicketTransaction
+                            {
+                                Ticket = etTicket,
+                                Amount = pTransaction.Amount,
+                                BankId = pTransaction.BankId,
+                                BankName = pTransaction.BankName,
+                                CurrencyCode = pTransaction.CurrencyCode,
+                                CurrencyId = pTransaction.CurrencyId,
+                                PaymentOptionId = pTransaction.PaymentOptionId,
+                                PaymentOptionName = pTransaction.PaymentOptionName,
+                                PaymentTypeId = pTransaction.PaymentTypeId,
+                                PaymentTypeName = pTransaction.PaymentTypeName,
+                                ProviderId = pTransaction.ProviderId,
+                                ProviderName = pTransaction.ProviderName,
+                                TransactionId = pTransaction.TransactionId,
+                                TransactionDate = pTransaction.TransactionDate,
+                                TransactionStatus = pTransaction.TransactionStatus,
+                                BankTransactionId = pTransaction.BankTransactionId,
+                                AccountNumber = pTransaction.AccountNumber,
+                                AccountType = pTransaction.AccountType,
+                                PaymentCurrencyId = pTransaction.PaymentCurrencyId,
+                                SFM = pTransaction.SFM,
+                                RequestId = pTransaction.RequestId,
+                                PaymentAmount = pTransaction.PaymentAmount,
+                                SourceChannel = pTransaction.SourceChannel
+
+                            });
+
+                        }
+
+                            ctx.SaveChanges();
                     }
 
                     etData = GeTicketById(pUserId, ticket.TicketId);
