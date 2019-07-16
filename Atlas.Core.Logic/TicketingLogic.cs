@@ -673,7 +673,7 @@ namespace Atlas.Core.Logic
 
                         var ationsNotification = from c in ctx.CategoriesActionsNotifications
                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                 where c.CategoryId == categoryId && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
+                                                 where c.CategoryId == categoryId && ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
                                                  select a;
 
 
@@ -1379,5 +1379,11 @@ namespace Atlas.Core.Logic
         public const string ApprovedRefund = "0006";
         public const string RejectRefund = "0007";
         public const string CloseClaim = "0008";
+    }
+
+    public class ActionsNotification
+    {
+        public const string ClaimAcknowledged = "Claim_Acknowledged_EMAIL";
+        
     }
 }
