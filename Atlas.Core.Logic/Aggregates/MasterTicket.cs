@@ -18,9 +18,10 @@ namespace Atlas.Core.Logic.Aggregates
         public List<Entities.TicketTransaction> Transactions { get; private set; }
         public DateTime LastModifieDate { get; private set; }
         public string ModifiedByUserId { get; private set; }
+        public MasterTicket ParentTicket { get; set; }
 
-      
-        public MasterTicket(string pUserId, Entities.Ticket pTicket, List<Entities.TicketStatus> pStatuses,List<Entities.Comment> pComments, List<Entities.TicketTransaction> pTransactions, List<Entities.TicketExternalReferences> pExternalReferences)
+        public MasterTicket(string pUserId, Entities.Ticket pTicket, List<Entities.TicketStatus> pStatuses,List<Entities.Comment> pComments, List<Entities.TicketTransaction> pTransactions, List<Entities.TicketExternalReferences> pExternalReferences,
+            MasterTicket pParentTicket)
         {
             Ticket = pTicket;
             Statuses = pStatuses;
@@ -28,6 +29,7 @@ namespace Atlas.Core.Logic.Aggregates
             Comments = pComments;
             Transactions = pTransactions;
             ExternalReferences = pExternalReferences;
+            ParentTicket = pParentTicket;
         }
 
         public ValueObjects.TicketStatusModel GetCurrentStatus()
