@@ -83,11 +83,9 @@ namespace Atlas.Core.Logic
                         return lTickets;
 
                     var tickets =
-                        ctx.Tickets.Where(p => (p.BankId == pBankId) && (pCategoryId == 0 || pCategoryId == p.CategoryId) && ticketIds.Contains(p.TicketId) && (pCustomerId == 0 || pCustomerId == p.CustomerId) && (pProfileId == 0 || pProfileId == p.ProfileId) && !statusesIds.Contains(p.TicketStatusId)).Distinct()
+                        ctx.Tickets.Where(p => (p.BankId == pBankId) && (pCategoryId == 0 || pCategoryId == p.CategoryId) && ticketIds.Contains(p.TicketId) && (pCustomerId == 0 || pCustomerId == p.CustomerId) && !statusesIds.Contains(p.TicketStatusId)).Distinct()
                             .AsNoTracking()
                             .ToList();
-
-
 
                     if (tickets.Count == 0)
                         return lTickets;
@@ -905,7 +903,6 @@ namespace Atlas.Core.Logic
                 throw ex;
             }
         }
-
 
         public void UpdateTicket(Ticket pTicket, string pComment)
         {
