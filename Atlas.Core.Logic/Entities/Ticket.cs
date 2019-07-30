@@ -29,7 +29,7 @@ namespace Atlas.Core.Logic.Entities
         public DateTime CreationDate { get; private set; }
         public DateTime ModifiedDate { get; private set; }
         public Profile Profile { get; set; }
-
+        public string BankName { get; set; }
 
         public Ticket(long pTicketId, long pTicketParentId, string pUserId, int pBankId, long? pProfileId, long? pCustomerId,
             string pTitle, string pDescription, long pApplicationId, long pCategoryId, string pCategoryCode, 
