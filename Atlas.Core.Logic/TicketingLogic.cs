@@ -83,7 +83,7 @@ namespace Atlas.Core.Logic
                         return lTickets;
 
                     var tickets =
-                        ctx.Tickets.Where(p => (p.BankId == pBankId) && (pCategoryId == 0 || pCategoryId == p.CategoryId) && ticketIds.Contains(p.TicketId) && (pCustomerId == 0 || pCustomerId == p.CustomerId) && !statusesIds.Contains(p.TicketStatusId)).Distinct()
+                        ctx.Tickets.Where(p => (pBankId == 0 ||(pBankId>0 && p.BankId == pBankId )) && (pCategoryId == 0 || pCategoryId == p.CategoryId) && ticketIds.Contains(p.TicketId) && (pCustomerId == 0 || pCustomerId == p.CustomerId) && !statusesIds.Contains(p.TicketStatusId)).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -162,7 +162,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId && p.BankId == pBankId).Distinct()
+                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId && (pBankId == 0 || (pBankId > 0 &&  p.BankId == pBankId))).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -345,7 +345,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.ProfileId == pProfiled && p.BankId == pBankId).Distinct()
+                        ctx.Tickets.Where(p => p.ProfileId == pProfiled && (pBankId == 0 || (pBankId >0 && p.BankId == pBankId))).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -452,7 +452,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.CustomerId == pCustomerd && p.BankId == pBankId).Distinct()
+                        ctx.Tickets.Where(p => p.CustomerId == pCustomerd && (pBankId == 0 || (pBankId > 0 && p.BankId == pBankId))).Distinct()
                             .AsNoTracking()
                             .ToList();
 
@@ -558,7 +558,7 @@ namespace Atlas.Core.Logic
 
                 try
                 {
-                    var lTicket = ctx.Tickets.AsNoTracking().FirstOrDefault(p => p.TicketId == pTicketId && p.BankId == pBankId);
+                    var lTicket = ctx.Tickets.AsNoTracking().FirstOrDefault(p => p.TicketId == pTicketId && (pBankId == 0 ||(p.BankId>0 && p.BankId == pBankId)));
                     if (lTicket == null)
                         return null;
 
