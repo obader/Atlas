@@ -150,7 +150,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId)
+        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -162,13 +162,20 @@ namespace Atlas.Core.Logic
             {
                 try
                 {
-                    var tickets =
-                        ctx.Tickets.Where(p => p.CategoryId == pCategoryId && (pBankId == 0 || (pBankId > 0 && p.BankId == pBankId))).Distinct()
-                            .AsNoTracking()
-                            .ToList();
+                    var ticketsQuery =
+                         (from ticket in ctx.Tickets
+                          orderby ticket.CreationDate descending
+                          where ticket.CategoryId == pCategoryId
+                          && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                          && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
+                          select ticket
+                          );
 
-                    if (tickets.Count == 0)
-                        return lTickets;
+                    if (page != 0 && itemsPerPage != 0)
+                        ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
+                    
+
+                    List<DM.Ticket> tickets = ticketsQuery.ToList();
 
                     foreach (var ticket in tickets)
                     {
@@ -250,6 +257,36 @@ namespace Atlas.Core.Logic
                 }
             }
             return lTickets;
+        }
+
+        public int GeTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage)
+        {
+            var lTickets = new List<MasterTicket>();
+            string category = string.Empty;
+            string statusCode = string.Empty;
+            string reason = string.Empty;
+
+            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+            {
+                try
+                {
+                    var ticketsQuery =
+                         (from ticket in ctx.Tickets
+                          orderby ticket.CreationDate descending
+                          where ticket.CategoryId == pCategoryId
+                          && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                          && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
+                          select ticket
+                          );
+
+                    return ticketsQuery.Count();
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+            }
         }
 
         private MasterTicket GetTicketParent(long ticketId, string pUserId)
