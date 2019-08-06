@@ -1590,7 +1590,7 @@ namespace Atlas.Core.Logic
 
         }
 
-        public List<MasterTicket> GetTransactionTicketsByCustomerId(string pUserId, int pCustomerd, int pBankId)
+        public List<MasterTicket> GetTransactionTicketsByCustomerId(string pUserId, int pCustomerId, int pProfileId, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -1603,7 +1603,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                        ctx.Tickets.Where(p => p.CustomerId == pCustomerd && (pBankId == 0 || (pBankId > 0 && p.BankId == pBankId))).Distinct()
+                       ctx.Tickets.Where(p => (pBankId == 0 && p.ProfileId == pProfileId) || (pBankId > 0 && p.BankId == pBankId && p.CustomerId == p.CustomerId)).Distinct()
                             .AsNoTracking()
                             .ToList();
 
