@@ -168,7 +168,7 @@ namespace Atlas.Core.Logic
                     if (transactionId > 0)
                     {
                         ticketsQuery = (from ticketTransaction in ctx.TicketTransactions
-                                        orderby ticketTransaction.Ticket.CreationDate descending
+                                        orderby ticketTransaction.Ticket.LastStatusChanged descending
                                         where ticketTransaction.Ticket.CategoryId == pCategoryId
                                         && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
                                         && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketStatusId == statusId))
@@ -182,7 +182,7 @@ namespace Atlas.Core.Logic
                     {
                         ticketsQuery =
                              (from ticket in ctx.Tickets
-                              orderby ticket.CreationDate descending
+                              orderby ticket.LastStatusChanged descending
                               where ticket.CategoryId == pCategoryId
                               && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
                               && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
@@ -297,7 +297,6 @@ namespace Atlas.Core.Logic
                     if (transactionId > 0)
                     {
                         ticketsQuery = (from ticketTransaction in ctx.TicketTransactions
-                                        orderby ticketTransaction.Ticket.CreationDate descending
                                         where ticketTransaction.Ticket.CategoryId == pCategoryId
                                         && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
                                         && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketStatusId == statusId))
