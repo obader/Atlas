@@ -150,30 +150,52 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage)
+        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
+            long ticketId, long transactionId, long profileId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
             string statusCode = string.Empty;
             string reason = string.Empty;
             MasterTicket parentTicket = null;
+            IQueryable<DM.Ticket> ticketsQuery = null;
 
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
                 try
                 {
-                    var ticketsQuery =
-                         (from ticket in ctx.Tickets
-                          orderby ticket.CreationDate descending
-                          where ticket.CategoryId == pCategoryId
-                          && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
-                          && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
-                          select ticket
-                          );
+                    
+                    if (transactionId > 0)
+                    {
+                        ticketsQuery = (from ticketTransaction in ctx.TicketTransactions
+                                        orderby ticketTransaction.Ticket.CreationDate descending
+                                        where ticketTransaction.Ticket.CategoryId == pCategoryId
+                                        && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
+                                        && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketStatusId == statusId))
+                                        && (ticketId == 0 || (ticketId > 0 && ticketTransaction.Ticket.TicketId == ticketId))
+                                        && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
+                                        && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
+                                        select ticketTransaction.Ticket
+                              );
+                    }
+                    else
+                    {
+                        ticketsQuery =
+                             (from ticket in ctx.Tickets
+                              orderby ticket.CreationDate descending
+                              where ticket.CategoryId == pCategoryId
+                              && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                              && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
+                              && (ticketId == 0 || (ticketId > 0 && ticket.TicketId == ticketId))
+                              && (transactionId == 0 || (transactionId > 0 && ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
+                              && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
+                              select ticket
+                              );
+                    }
 
                     if (page != 0 && itemsPerPage != 0)
                         ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
-                    
+
 
                     List<DM.Ticket> tickets = ticketsQuery.ToList();
 
@@ -259,25 +281,46 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public int GeTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage)
+        public int GeTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
+            long ticketId, long transactionId, long profileId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
             string statusCode = string.Empty;
             string reason = string.Empty;
+            IQueryable<DM.Ticket> ticketsQuery = null;
 
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
                 try
                 {
-                    var ticketsQuery =
+                    if (transactionId > 0)
+                    {
+                        ticketsQuery = (from ticketTransaction in ctx.TicketTransactions
+                                        orderby ticketTransaction.Ticket.CreationDate descending
+                                        where ticketTransaction.Ticket.CategoryId == pCategoryId
+                                        && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
+                                        && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketStatusId == statusId))
+                                        && (ticketId == 0 || (ticketId > 0 && ticketTransaction.Ticket.TicketId == ticketId))
+                                        && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
+                                        && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
+                                        select ticketTransaction.Ticket
+                              );
+                    }
+                    else
+                    {
+                        ticketsQuery =
                          (from ticket in ctx.Tickets
                           orderby ticket.CreationDate descending
                           where ticket.CategoryId == pCategoryId
                           && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
                           && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
+                           && (ticketId == 0 || (ticketId > 0 && ticket.TicketId == ticketId))
+                          && (transactionId == 0 || (transactionId > 0 && ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
+                          && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
                           select ticket
                           );
+                    }
 
                     return ticketsQuery.Count();
                 }
@@ -288,6 +331,7 @@ namespace Atlas.Core.Logic
                 }
             }
         }
+
 
         private MasterTicket GetTicketParent(long ticketId, string pUserId)
         {
