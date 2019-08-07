@@ -12,13 +12,11 @@ namespace Atlas.Core.Logic.DM
     using System;
     using System.Collections.Generic;
     
-    public partial class CategoriesActionsNotification
+    public partial class Channel
     {
-        public long CategoriesActionsNotificationId { get; set; }
-        public long CategoryId { get; set; }
-        public long ActionsNotificationId { get; set; }
+        public long ChannelId { get; set; }
+        public string ChannelCode { get; set; }
+        public string ChannelDescription { get; set; }
         public byte[] RowVersion { get; set; }
-        public Nullable<long> BankId { get; set; }
-        public Nullable<long> ChannelId { get; set; }
     }
 }
