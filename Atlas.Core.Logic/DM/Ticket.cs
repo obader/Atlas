@@ -42,6 +42,7 @@ namespace Atlas.Core.Logic.DM
         public Nullable<System.DateTime> ModifedDate { get; set; }
         public Nullable<System.DateTime> LastStatusChanged { get; set; }
         public byte[] RowVersion { get; set; }
+        public Nullable<long> ChannelId { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Comment> Comments { get; set; }

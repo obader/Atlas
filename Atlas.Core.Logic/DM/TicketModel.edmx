@@ -55,7 +55,7 @@
           <Property Name="CategoriesActionsNotificationId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="CategoryId" Type="bigint" Nullable="false" />
           <Property Name="ActionsNotificationId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
+          <Property Name="BankId" Type="int" />
           <Property Name="ChannelId" Type="bigint" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
@@ -66,7 +66,7 @@
           <Property Name="CategoriesActionsRouteId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="CategoryId" Type="bigint" Nullable="false" />
           <Property Name="ActionsRouteId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
+          <Property Name="BankId" Type="int" />
           <Property Name="ChannelId" Type="bigint" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
@@ -99,7 +99,7 @@
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="Name" Type="nvarchar" MaxLength="500" Nullable="false" />
           <Property Name="Email" Type="nvarchar" MaxLength="500" />
-          <Property Name="BankId" Type="bigint" />
+          <Property Name="BankId" Type="int" />
           <Property Name="ChannelId" Type="bigint" />
         </EntityType>
         <EntityType Name="Priorities">
@@ -118,7 +118,7 @@
           <Property Name="ReasonsId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Code" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="CategoryId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
+          <Property Name="BankId" Type="int" />
           <Property Name="ChannelId" Type="bigint" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
@@ -158,7 +158,7 @@
           <Property Name="TicketCategoriesDestinationId" Type="bigint" />
           <Property Name="TicketStatusesDestinationId" Type="bigint" />
           <Property Name="TicketActionsId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
+          <Property Name="BankId" Type="int" />
           <Property Name="ChannelId" Type="bigint" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
@@ -208,6 +208,7 @@
           <Property Name="TicketStatusId" Type="bigint" Nullable="false" />
           <Property Name="Title" Type="nvarchar" MaxLength="250" />
           <Property Name="BankId" Type="int" />
+          <Property Name="ChannelId" Type="bigint" />
           <Property Name="CustomerId" Type="bigint" />
           <Property Name="ProfileId" Type="bigint" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
@@ -782,6 +783,7 @@
           <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TicketAudits_Tickets" FromRole="Ticket" ToRole="TicketAudit" />
           <NavigationProperty Name="TicketExternalReferences" Relationship="TicketingModel.FK_ExternalReferences_Tickets" FromRole="Ticket" ToRole="TicketExternalReference" />
           <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
+          <Property Name="ChannelId" Type="Int64" />
         </EntityType>
         <Association Name="FK_Comments_Tickets">
           <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="0..1" />
@@ -1118,6 +1120,7 @@
           <EntitySetMapping Name="Tickets">
             <EntityTypeMapping TypeName="TicketingModel.Ticket">
               <MappingFragment StoreEntitySet="Tickets">
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
                 <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
                 <ScalarProperty Name="LastStatusChanged" ColumnName="LastStatusChanged" />
                 <ScalarProperty Name="ModifedDate" ColumnName="ModifedDate" />

@@ -797,7 +797,6 @@ namespace Atlas.Core.Logic
             MasterTicket tTicket = null;
             try
             {
-
                 if (pComment == null || pComment == "")
                 {
                     message = "Error";
@@ -806,9 +805,8 @@ namespace Atlas.Core.Logic
                     pActionNotificationCode = new List<string>();
                     return tTicket;
                 }
-
-
-
+                
+                long pChannelId = 0;
                 string category = string.Empty;
                 string reason = string.Empty;
                 pActionRouteCode = new List<string>();
@@ -818,6 +816,7 @@ namespace Atlas.Core.Logic
                 List<TicketTransaction> lstTicketTransaction = new List<TicketTransaction>();
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
+                    
                     var ticket = ctx.Tickets.Add(new DM.Ticket
                     {
                         Title = pTicket.Title,
@@ -832,10 +831,20 @@ namespace Atlas.Core.Logic
                         ModifedDate = pTicket.ModifiedDate,
                         ProfileId = pTicket.ProfileId,
                         CustomerId = pTicket.CustomerId,
-                        BankId = pTicket.BankId,
+                        BankId = pTicket.BankId,                    
                         PriorityId = pTicket.PriorityId,
                         AssignedToDepartmentId = pTicket.DepartmentId
                     });
+                    if (pTransaction != null)
+                    {
+                        var channel = ctx.Channels.Where(p => p.ChannelCode == pTransaction.SourceChannel).FirstOrDefault();
+                        if (channel != null)
+                            pChannelId = channel.ChannelId;
+
+                        if (pChannelId > 0)
+                            ticket.ChannelId = pChannelId;
+                    }
+
 
                     if (pTicket.CategoryId > 0)
                     {
@@ -845,7 +854,7 @@ namespace Atlas.Core.Logic
 
                         var ationsRoutes = from c in ctx.CategoriesActionsRoutes
                                            join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
-                                           where c.CategoryId == categoryId
+                                           where c.CategoryId == categoryId && c.BankId == ticket.BankId && (pChannelId == 0 && c.ChannelId == null || (pChannelId > 0 && c.ChannelId == pChannelId))
                                            select a;
 
 
@@ -855,7 +864,7 @@ namespace Atlas.Core.Logic
 
                         var ationsNotification = from c in ctx.CategoriesActionsNotifications
                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                 where c.CategoryId == categoryId && ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
+                                                 where c.CategoryId == categoryId && c.BankId == ticket.BankId && (pChannelId == 0 && c.ChannelId == null || (pChannelId > 0 && c.ChannelId == pChannelId)) && ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
                                                  select a;
 
 
@@ -1154,6 +1163,7 @@ namespace Atlas.Core.Logic
                             CustomerId = ticket.CustomerId,
                             TicketStatusId = createdStatus.StatusId,
                             BankId = ticket.BankId,
+                            ChannelId = ticket.ChannelId,
                             CreatedBy = pUserId,
                             LastStatusChanged = DateTime.UtcNow,
                             CreationDate = DateTime.UtcNow,
@@ -1393,7 +1403,7 @@ namespace Atlas.Core.Logic
 
         }
 
-        public List<Entities.Reason> GetReasonsByCategoryId(long pCategoryId)
+        public List<Entities.Reason> GetReasonsByCategoryId(long pCategoryId, long pChannelId, int pBankId)
         {
             try
             {
@@ -1403,7 +1413,7 @@ namespace Atlas.Core.Logic
                     var list = ctx.Reasons.AsNoTracking().ToList();
 
                     if (pCategoryId > 0 && list.Count > 0)
-                        list = list.Where(p => p.CategoryId == pCategoryId).ToList();
+                        list = list.Where(p => p.CategoryId == pCategoryId && (pChannelId == 0 || (pChannelId>0 && p.ChannelId == pChannelId)) && (pBankId == 0 || (pBankId >0 && p.BankId == pBankId))).ToList();
 
                     lResult.AddRange(list.Select(priority => new Reason(priority.ReasonsId, priority.Code, priority.Description)));
                 }
@@ -1434,7 +1444,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public List<Entities.TicketCategory> GetTicketCategories()
+        public List<Entities.TicketCategory> GetTicketCategories( long pChannelId, int pBankId)
         {
             try
             {
@@ -1449,8 +1459,8 @@ namespace Atlas.Core.Logic
                         var lResultReason = new List<Reason>();
 
                         long idCategories = list[i].CategoryId;
-                        var listCategories = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == idCategories).ToList();
-                        var listReasons = ctx.Reasons.Where(p => p.CategoryId == idCategories).ToList();
+                        var listCategories = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == idCategories && (pBankId == 0 || (pBankId >0 && p.BankId == pBankId)) && (pChannelId == 0 && p.ChannelId == null || (pChannelId > 0 && p.ChannelId == pChannelId))).ToList();
+                        var listReasons = ctx.Reasons.Where(p => p.CategoryId == idCategories && (pBankId == 0 || (pBankId > 0 && p.BankId == pBankId))).ToList();
 
 
                         List<long> listStatus = listCategories.Where(p => p.TicketCategoriesId == idCategories).Select(p => p.TicketStatusesId).Distinct().ToList();
@@ -1538,14 +1548,14 @@ namespace Atlas.Core.Logic
                     if (ticketAudits == null)
                         return lResult;
 
-                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId).FirstOrDefault();
+                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId && p.BankId == ticket.BankId && p.ChannelId == ticket.ChannelId).FirstOrDefault();
 
                     if (ticketOld != null)
                     {
                         ticketParentId = Convert.ToInt16(ticketOld.TicketCategoriesActionsId);
                     }
 
-                    var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
+                    var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId && p.BankId == ticket.BankId && p.ChannelId == ticket.ChannelId && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
 
 
 
