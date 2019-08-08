@@ -23,7 +23,5 @@ namespace Atlas.Core.Logic.DM
         public long TicketActionsId { get; set; }
         public string Description { get; set; }
         public byte[] RowVersion { get; set; }
-        public Nullable<long> BankId { get; set; }
-        public Nullable<long> ChannelId { get; set; }
     }
 }

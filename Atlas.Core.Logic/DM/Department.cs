@@ -17,7 +17,6 @@ namespace Atlas.Core.Logic.DM
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Department()
         {
-            this.TicketAudits = new HashSet<TicketAudit>();
             this.Tickets = new HashSet<Ticket>();
         }
     
@@ -26,11 +25,7 @@ namespace Atlas.Core.Logic.DM
         public string Description { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public Nullable<long> BankId { get; set; }
-        public Nullable<long> ChannelId { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TicketAudit> TicketAudits { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Ticket> Tickets { get; set; }
     }

@@ -26,7 +26,6 @@ namespace Atlas.Core.Logic.DM
         public Nullable<long> TicketActionsId { get; set; }
     
         public virtual TicketStatus TicketStatus { get; set; }
-        public virtual Department Department { get; set; }
         public virtual Priority Priority { get; set; }
         public virtual TicketAction TicketAction { get; set; }
         public virtual Ticket Ticket { get; set; }

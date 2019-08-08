@@ -55,8 +55,6 @@
           <Property Name="CategoriesActionsNotificationId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="CategoryId" Type="bigint" Nullable="false" />
           <Property Name="ActionsNotificationId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
-          <Property Name="ChannelId" Type="bigint" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
         <EntityType Name="CategoriesActionsRoute">
@@ -66,17 +64,6 @@
           <Property Name="CategoriesActionsRouteId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="CategoryId" Type="bigint" Nullable="false" />
           <Property Name="ActionsRouteId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
-          <Property Name="ChannelId" Type="bigint" />
-          <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Channels">
-          <Key>
-            <PropertyRef Name="ChannelId" />
-          </Key>
-          <Property Name="ChannelId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ChannelCode" Type="nvarchar" MaxLength="250" />
-          <Property Name="ChannelDescription" Type="nvarchar" MaxLength="500" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
         <EntityType Name="Comments">
@@ -99,8 +86,6 @@
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="Name" Type="nvarchar" MaxLength="500" Nullable="false" />
           <Property Name="Email" Type="nvarchar" MaxLength="500" />
-          <Property Name="BankId" Type="bigint" />
-          <Property Name="ChannelId" Type="bigint" />
         </EntityType>
         <EntityType Name="Priorities">
           <Key>
@@ -118,8 +103,6 @@
           <Property Name="ReasonsId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Code" Type="nvarchar" MaxLength="250" Nullable="false" />
           <Property Name="CategoryId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
-          <Property Name="ChannelId" Type="bigint" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
@@ -158,8 +141,6 @@
           <Property Name="TicketCategoriesDestinationId" Type="bigint" />
           <Property Name="TicketStatusesDestinationId" Type="bigint" />
           <Property Name="TicketActionsId" Type="bigint" Nullable="false" />
-          <Property Name="BankId" Type="bigint" />
-          <Property Name="ChannelId" Type="bigint" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
@@ -369,7 +350,6 @@
           <EntitySet Name="Categories" EntityType="Self.Categories" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="CategoriesActionsNotification" EntityType="Self.CategoriesActionsNotification" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="CategoriesActionsRoute" EntityType="Self.CategoriesActionsRoute" Schema="Ticketing" store:Type="Tables" />
-          <EntitySet Name="Channels" EntityType="Self.Channels" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Comments" EntityType="Self.Comments" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Departments" EntityType="Self.Departments" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Priorities" EntityType="Self.Priorities" Schema="Ticketing" store:Type="Tables" />
@@ -430,19 +410,13 @@
             <End Role="TicketStatus" EntitySet="TicketStatuses" />
             <End Role="TicketAudit" EntitySet="TicketAudits" />
           </AssociationSet>
-          <EntitySet Name="Departments" EntityType="TicketingModel.Department" />
           <EntitySet Name="Priorities" EntityType="TicketingModel.Priority" />
-          <AssociationSet Name="FK_TICKETAU_REFERENCE_DEPARTME" Association="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME">
-            <End Role="Department" EntitySet="Departments" />
-            <End Role="TicketAudit" EntitySet="TicketAudits" />
-          </AssociationSet>
           <AssociationSet Name="FK_TICKETAU_REFERENCE_PRIORITI" Association="TicketingModel.FK_TICKETAU_REFERENCE_PRIORITI">
             <End Role="Priority" EntitySet="Priorities" />
             <End Role="TicketAudit" EntitySet="TicketAudits" />
           </AssociationSet>
           <EntitySet Name="Categories" EntityType="TicketingModel.Category" />
           <EntitySet Name="ActionsRoutes" EntityType="TicketingModel.ActionsRoute" />
-          <EntitySet Name="CategoriesActionsRoutes" EntityType="TicketingModel.CategoriesActionsRoute" />
           <EntitySet Name="TicketActions" EntityType="TicketingModel.TicketAction" />
           <EntitySet Name="TicketTypes" EntityType="TicketingModel.TicketType" />
           <AssociationSet Name="FK_TICKETAU_REFERENCE_DEPARTME1" Association="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME1">
@@ -450,11 +424,15 @@
             <End Role="TicketAudit" EntitySet="TicketAudits" />
           </AssociationSet>
           <EntitySet Name="ActionsNotifications" EntityType="TicketingModel.ActionsNotification" />
-          <EntitySet Name="CategoriesActionsNotifications" EntityType="TicketingModel.CategoriesActionsNotification" />
           <EntitySet Name="TicketCategoriesActionsNotifications" EntityType="TicketingModel.TicketCategoriesActionsNotification" />
-          <EntitySet Name="TicketCategoriesActions" EntityType="TicketingModel.TicketCategoriesAction" />
           <EntitySet Name="TicketExternalReferences" EntityType="TicketingModel.TicketExternalReference" />
           <EntitySet Name="TicketTransactions" EntityType="TicketingModel.TicketTransaction" />
+          <EntitySet Name="TicketCategoriesActionsRoutes" EntityType="TicketingModel.TicketCategoriesActionsRoute" />
+          <EntitySet Name="CategoriesActionsNotifications" EntityType="TicketingModel.CategoriesActionsNotification" />
+          <EntitySet Name="CategoriesActionsRoutes" EntityType="TicketingModel.CategoriesActionsRoute" />
+          <EntitySet Name="Departments" EntityType="TicketingModel.Department" />
+          <EntitySet Name="Reasons" EntityType="TicketingModel.Reason" />
+          <EntitySet Name="TicketCategoriesActions" EntityType="TicketingModel.TicketCategoriesAction" />
           <EntitySet Name="Tickets" EntityType="TicketingModel.Ticket" />
           <AssociationSet Name="FK_Comments_Tickets" Association="TicketingModel.FK_Comments_Tickets">
             <End Role="Ticket" EntitySet="Tickets" />
@@ -480,9 +458,6 @@
             <End Role="Ticket" EntitySet="Tickets" />
             <End Role="TicketTransaction" EntitySet="TicketTransactions" />
           </AssociationSet>
-          <EntitySet Name="Channels" EntityType="TicketingModel.Channel" />
-          <EntitySet Name="Reasons" EntityType="TicketingModel.Reason" />
-          <EntitySet Name="TicketCategoriesActionsRoutes" EntityType="TicketingModel.TicketCategoriesActionsRoute" />
         </EntityContainer>
         <EntityType Name="Application">
           <Key>
@@ -520,7 +495,6 @@
           <NavigationProperty Name="TicketStatus" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_TICKETST" FromRole="TicketAudit" ToRole="TicketStatus" />
           <Property Name="PriorityId" Type="Int64" />
           <Property Name="DepartmentId" Type="Int64" />
-          <NavigationProperty Name="Department" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME" FromRole="TicketAudit" ToRole="Department" />
           <NavigationProperty Name="Priority" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_PRIORITI" FromRole="TicketAudit" ToRole="Priority" />
           <Property Name="TicketActionsId" Type="Int64" />
           <NavigationProperty Name="TicketAction" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME1" FromRole="TicketAudit" ToRole="TicketAction" />
@@ -548,20 +522,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="Department">
-          <Key>
-            <PropertyRef Name="DepartmentId" />
-          </Key>
-          <Property Name="DepartmentId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Code" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="Email" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_DEPARTME" FromRole="Department" ToRole="TicketAudit" />
-          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Department" ToRole="Ticket" />
-          <Property Name="BankId" Type="Int64" />
-          <Property Name="ChannelId" Type="Int64" />
-        </EntityType>
         <EntityType Name="Priority">
           <Key>
             <PropertyRef Name="PriorityId" />
@@ -573,18 +533,6 @@
           <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_PRIORITI" FromRole="Priority" ToRole="TicketAudit" />
           <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI" FromRole="Priority" ToRole="Ticket" />
         </EntityType>
-        <Association Name="FK_TICKETAU_REFERENCE_DEPARTME">
-          <End Type="TicketingModel.Department" Role="Department" Multiplicity="0..1" />
-          <End Type="TicketingModel.TicketAudit" Role="TicketAudit" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Department">
-              <PropertyRef Name="DepartmentId" />
-            </Principal>
-            <Dependent Role="TicketAudit">
-              <PropertyRef Name="DepartmentId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_TICKETAU_REFERENCE_PRIORITI">
           <End Type="TicketingModel.Priority" Role="Priority" Multiplicity="0..1" />
           <End Type="TicketingModel.TicketAudit" Role="TicketAudit" Multiplicity="*" />
@@ -618,17 +566,6 @@
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Enable" Type="Boolean" Nullable="false" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-        </EntityType>
-        <EntityType Name="CategoriesActionsRoute">
-          <Key>
-            <PropertyRef Name="CategoriesActionsRouteId" />
-          </Key>
-          <Property Name="CategoriesActionsRouteId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CategoryId" Type="Int64" Nullable="false" />
-          <Property Name="ActionsRouteId" Type="Int64" Nullable="false" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-          <Property Name="BankId" Type="Int64" />
-          <Property Name="ChannelId" Type="Int64" />
         </EntityType>
         <EntityType Name="TicketAction">
           <Key>
@@ -672,17 +609,6 @@
           <Property Name="Enable" Type="Boolean" Nullable="false" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
         </EntityType>
-        <EntityType Name="CategoriesActionsNotification">
-          <Key>
-            <PropertyRef Name="CategoriesActionsNotificationId" />
-          </Key>
-          <Property Name="CategoriesActionsNotificationId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CategoryId" Type="Int64" Nullable="false" />
-          <Property Name="ActionsNotificationId" Type="Int64" Nullable="false" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-          <Property Name="BankId" Type="Int64" />
-          <Property Name="ChannelId" Type="Int64" />
-        </EntityType>
         <EntityType Name="TicketCategoriesActionsNotification">
           <Key>
             <PropertyRef Name="TicketCategoriesActionsNotificationsId" />
@@ -691,22 +617,6 @@
           <Property Name="TicketCategoriesActionsId" Type="Int64" Nullable="false" />
           <Property Name="ActionsNotificationId" Type="Int64" Nullable="false" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-        </EntityType>
-        <EntityType Name="TicketCategoriesAction">
-          <Key>
-            <PropertyRef Name="TicketCategoriesActionsId" />
-          </Key>
-          <Property Name="TicketCategoriesActionsId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TicketParentId" Type="Int64" />
-          <Property Name="TicketCategoriesId" Type="Int64" Nullable="false" />
-          <Property Name="TicketStatusesId" Type="Int64" Nullable="false" />
-          <Property Name="TicketCategoriesDestinationId" Type="Int64" />
-          <Property Name="TicketStatusesDestinationId" Type="Int64" />
-          <Property Name="TicketActionsId" Type="Int64" Nullable="false" />
-          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-          <Property Name="BankId" Type="Int64" />
-          <Property Name="ChannelId" Type="Int64" />
         </EntityType>
         <EntityType Name="TicketExternalReference">
           <Key>
@@ -752,6 +662,68 @@
           <Property Name="TransactionStatus" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
           <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="TicketTransaction" ToRole="Ticket" />
+        </EntityType>
+        <EntityType Name="TicketCategoriesActionsRoute">
+          <Key>
+            <PropertyRef Name="TicketCategoriesActionsRouteId" />
+          </Key>
+          <Property Name="TicketCategoriesActionsRouteId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TicketCategoriesActionsId" Type="Int64" Nullable="false" />
+          <Property Name="ActionsRouteId" Type="Int64" Nullable="false" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="CategoriesActionsNotification">
+          <Key>
+            <PropertyRef Name="CategoriesActionsNotificationId" />
+          </Key>
+          <Property Name="CategoriesActionsNotificationId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CategoryId" Type="Int64" Nullable="false" />
+          <Property Name="ActionsNotificationId" Type="Int64" Nullable="false" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="CategoriesActionsRoute">
+          <Key>
+            <PropertyRef Name="CategoriesActionsRouteId" />
+          </Key>
+          <Property Name="CategoriesActionsRouteId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CategoryId" Type="Int64" Nullable="false" />
+          <Property Name="ActionsRouteId" Type="Int64" Nullable="false" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="DepartmentId" />
+          </Key>
+          <Property Name="DepartmentId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Department" ToRole="Ticket" />
+        </EntityType>
+        <EntityType Name="Reason">
+          <Key>
+            <PropertyRef Name="ReasonsId" />
+          </Key>
+          <Property Name="ReasonsId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="CategoryId" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="TicketCategoriesAction">
+          <Key>
+            <PropertyRef Name="TicketCategoriesActionsId" />
+          </Key>
+          <Property Name="TicketCategoriesActionsId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TicketParentId" Type="Int64" />
+          <Property Name="TicketCategoriesId" Type="Int64" Nullable="false" />
+          <Property Name="TicketStatusesId" Type="Int64" Nullable="false" />
+          <Property Name="TicketCategoriesDestinationId" Type="Int64" />
+          <Property Name="TicketStatusesDestinationId" Type="Int64" />
+          <Property Name="TicketActionsId" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
         </EntityType>
         <EntityType Name="Ticket">
           <Key>
@@ -855,36 +827,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="Channel">
-          <Key>
-            <PropertyRef Name="ChannelId" />
-          </Key>
-          <Property Name="ChannelId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ChannelCode" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="ChannelDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-        </EntityType>
-        <EntityType Name="Reason">
-          <Key>
-            <PropertyRef Name="ReasonsId" />
-          </Key>
-          <Property Name="ReasonsId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Code" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="CategoryId" Type="Int64" Nullable="false" />
-          <Property Name="BankId" Type="Int64" />
-          <Property Name="ChannelId" Type="Int64" />
-          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-        </EntityType>
-        <EntityType Name="TicketCategoriesActionsRoute">
-          <Key>
-            <PropertyRef Name="TicketCategoriesActionsRouteId" />
-          </Key>
-          <Property Name="TicketCategoriesActionsRouteId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TicketCategoriesActionsId" Type="Int64" Nullable="false" />
-          <Property Name="ActionsRouteId" Type="Int64" Nullable="false" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -940,19 +882,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Departments">
-            <EntityTypeMapping TypeName="TicketingModel.Department">
-              <MappingFragment StoreEntitySet="Departments">
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Code" ColumnName="Code" />
-                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Priorities">
             <EntityTypeMapping TypeName="TicketingModel.Priority">
               <MappingFragment StoreEntitySet="Priorities">
@@ -984,18 +913,6 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Code" ColumnName="Code" />
                 <ScalarProperty Name="ActionsRouteId" ColumnName="ActionsRouteId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CategoriesActionsRoutes">
-            <EntityTypeMapping TypeName="TicketingModel.CategoriesActionsRoute">
-              <MappingFragment StoreEntitySet="CategoriesActionsRoute">
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="ActionsRouteId" ColumnName="ActionsRouteId" />
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="CategoriesActionsRouteId" ColumnName="CategoriesActionsRouteId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1031,18 +948,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="CategoriesActionsNotifications">
-            <EntityTypeMapping TypeName="TicketingModel.CategoriesActionsNotification">
-              <MappingFragment StoreEntitySet="CategoriesActionsNotification">
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="ActionsNotificationId" ColumnName="ActionsNotificationId" />
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="CategoriesActionsNotificationId" ColumnName="CategoriesActionsNotificationId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="TicketCategoriesActionsNotifications">
             <EntityTypeMapping TypeName="TicketingModel.TicketCategoriesActionsNotification">
               <MappingFragment StoreEntitySet="TicketCategoriesActionsNotifications">
@@ -1050,23 +955,6 @@
                 <ScalarProperty Name="ActionsNotificationId" ColumnName="ActionsNotificationId" />
                 <ScalarProperty Name="TicketCategoriesActionsId" ColumnName="TicketCategoriesActionsId" />
                 <ScalarProperty Name="TicketCategoriesActionsNotificationsId" ColumnName="TicketCategoriesActionsNotificationsId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TicketCategoriesActions">
-            <EntityTypeMapping TypeName="TicketingModel.TicketCategoriesAction">
-              <MappingFragment StoreEntitySet="TicketCategoriesActions">
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="TicketActionsId" ColumnName="TicketActionsId" />
-                <ScalarProperty Name="TicketStatusesDestinationId" ColumnName="TicketStatusesDestinationId" />
-                <ScalarProperty Name="TicketCategoriesDestinationId" ColumnName="TicketCategoriesDestinationId" />
-                <ScalarProperty Name="TicketStatusesId" ColumnName="TicketStatusesId" />
-                <ScalarProperty Name="TicketCategoriesId" ColumnName="TicketCategoriesId" />
-                <ScalarProperty Name="TicketParentId" ColumnName="TicketParentId" />
-                <ScalarProperty Name="TicketCategoriesActionsId" ColumnName="TicketCategoriesActionsId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1115,6 +1003,73 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="TicketCategoriesActionsRoutes">
+            <EntityTypeMapping TypeName="TicketingModel.TicketCategoriesActionsRoute">
+              <MappingFragment StoreEntitySet="TicketCategoriesActionsRoute">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="ActionsRouteId" ColumnName="ActionsRouteId" />
+                <ScalarProperty Name="TicketCategoriesActionsId" ColumnName="TicketCategoriesActionsId" />
+                <ScalarProperty Name="TicketCategoriesActionsRouteId" ColumnName="TicketCategoriesActionsRouteId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CategoriesActionsNotifications">
+            <EntityTypeMapping TypeName="TicketingModel.CategoriesActionsNotification">
+              <MappingFragment StoreEntitySet="CategoriesActionsNotification">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="ActionsNotificationId" ColumnName="ActionsNotificationId" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
+                <ScalarProperty Name="CategoriesActionsNotificationId" ColumnName="CategoriesActionsNotificationId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CategoriesActionsRoutes">
+            <EntityTypeMapping TypeName="TicketingModel.CategoriesActionsRoute">
+              <MappingFragment StoreEntitySet="CategoriesActionsRoute">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="ActionsRouteId" ColumnName="ActionsRouteId" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
+                <ScalarProperty Name="CategoriesActionsRouteId" ColumnName="CategoriesActionsRouteId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="TicketingModel.Department">
+              <MappingFragment StoreEntitySet="Departments">
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Reasons">
+            <EntityTypeMapping TypeName="TicketingModel.Reason">
+              <MappingFragment StoreEntitySet="Reasons">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="ReasonsId" ColumnName="ReasonsId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TicketCategoriesActions">
+            <EntityTypeMapping TypeName="TicketingModel.TicketCategoriesAction">
+              <MappingFragment StoreEntitySet="TicketCategoriesActions">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="TicketActionsId" ColumnName="TicketActionsId" />
+                <ScalarProperty Name="TicketStatusesDestinationId" ColumnName="TicketStatusesDestinationId" />
+                <ScalarProperty Name="TicketCategoriesDestinationId" ColumnName="TicketCategoriesDestinationId" />
+                <ScalarProperty Name="TicketStatusesId" ColumnName="TicketStatusesId" />
+                <ScalarProperty Name="TicketCategoriesId" ColumnName="TicketCategoriesId" />
+                <ScalarProperty Name="TicketParentId" ColumnName="TicketParentId" />
+                <ScalarProperty Name="TicketCategoriesActionsId" ColumnName="TicketCategoriesActionsId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Tickets">
             <EntityTypeMapping TypeName="TicketingModel.Ticket">
               <MappingFragment StoreEntitySet="Tickets">
@@ -1137,39 +1092,6 @@
                 <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
                 <ScalarProperty Name="TicketParentId" ColumnName="TicketParentId" />
                 <ScalarProperty Name="TicketId" ColumnName="TicketId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Channels">
-            <EntityTypeMapping TypeName="TicketingModel.Channel">
-              <MappingFragment StoreEntitySet="Channels">
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="ChannelDescription" ColumnName="ChannelDescription" />
-                <ScalarProperty Name="ChannelCode" ColumnName="ChannelCode" />
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Reasons">
-            <EntityTypeMapping TypeName="TicketingModel.Reason">
-              <MappingFragment StoreEntitySet="Reasons">
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="Code" ColumnName="Code" />
-                <ScalarProperty Name="ReasonsId" ColumnName="ReasonsId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TicketCategoriesActionsRoutes">
-            <EntityTypeMapping TypeName="TicketingModel.TicketCategoriesActionsRoute">
-              <MappingFragment StoreEntitySet="TicketCategoriesActionsRoute">
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="ActionsRouteId" ColumnName="ActionsRouteId" />
-                <ScalarProperty Name="TicketCategoriesActionsId" ColumnName="TicketCategoriesActionsId" />
-                <ScalarProperty Name="TicketCategoriesActionsRouteId" ColumnName="TicketCategoriesActionsRouteId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
