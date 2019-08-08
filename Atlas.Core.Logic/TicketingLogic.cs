@@ -1602,7 +1602,7 @@ namespace Atlas.Core.Logic
                 try
                 {
                     var tickets =
-                       ctx.Tickets.Where(p => (pBankId == 0 && p.ProfileId == pProfileId) || (pBankId > 0 && p.BankId == pBankId && p.CustomerId == p.CustomerId)).Distinct()
+                       ctx.Tickets.Where(p => (pBankId == 0 && p.ProfileId == pProfileId) || (pBankId > 0 && p.BankId == pBankId && p.CustomerId == pCustomerId)).Distinct()
                             .AsNoTracking()
                             .ToList();
 
