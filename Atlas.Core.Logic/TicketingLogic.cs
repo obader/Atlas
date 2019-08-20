@@ -1607,7 +1607,7 @@ namespace Atlas.Core.Logic
                     ).ToList();
 
                     if (ticket != null)                  
-                        ticktId = string.Join(",", ticket);                 
+                        ticktId = string.Join(",", ticket.FirstOrDefault().TicketId);                 
                 }
 
                 return ticktId;
