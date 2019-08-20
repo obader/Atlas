@@ -1590,7 +1590,7 @@ namespace Atlas.Core.Logic
 
         }
 
-        public string  GetTicketByTransactionId(int pTransactionId)
+        public string  GetTicketByTransactionId(string pTransactionId)
         {
             string ticktId = string.Empty;
 
@@ -1602,7 +1602,7 @@ namespace Atlas.Core.Logic
                     var ticket =
                     (from tr in ctx.TicketTransactions
                      let tk = ctx.TicketAudits.OrderByDescending(p=>p.TicketAuditId).FirstOrDefault(c =>c.TicketId == tr.TicketId &&  c.TicketStatusId >0)                 
-                     where tr.TransactionId == pTransactionId.ToString() && tk.TicketStatusId != TicketStatusModel.ClosedTicketStatus.StatusId && tk.TicketStatusId != TicketStatusModel.ResolvedTicketStatus.StatusId
+                     where tr.TransactionId == pTransactionId && tk.TicketStatusId != TicketStatusModel.ClosedTicketStatus.StatusId && tk.TicketStatusId != TicketStatusModel.ResolvedTicketStatus.StatusId
                      select tk
                     ).ToList();
 
