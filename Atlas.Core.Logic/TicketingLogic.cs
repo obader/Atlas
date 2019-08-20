@@ -10,6 +10,7 @@ using TicketTransaction = Atlas.Core.Logic.Entities.TicketTransaction;
 using PinPayObjects.BaseObjects;
 using System.Data;
 using static Atlas.Core.Logic.Entities.Enums;
+using Atlas.Core.Logic.ValueObjects;
 
 namespace Atlas.Core.Logic
 {
@@ -1581,6 +1582,35 @@ namespace Atlas.Core.Logic
                     else
                         return false;
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string  GetTicketByTransactionId(int pTransactionId)
+        {
+            string ticktId = string.Empty;
+
+            try
+            {
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+
+                    var ticket =
+                    (from tr in ctx.TicketTransactions
+                     let tk = ctx.TicketAudits.OrderByDescending(p=>p.TicketAuditId).FirstOrDefault(c =>c.TicketId == tr.TicketId &&  c.TicketStatusId >0)                 
+                     where tr.TransactionId == pTransactionId.ToString() && tk.TicketStatusId != TicketStatusModel.ClosedTicketStatus.StatusId && tk.TicketStatusId != TicketStatusModel.ResolvedTicketStatus.StatusId
+                     select tk
+                    ).ToList();
+
+                    if (ticket != null)                  
+                        ticktId = string.Join(",", ticket);                 
+                }
+
+                return ticktId;
             }
             catch (Exception ex)
             {
