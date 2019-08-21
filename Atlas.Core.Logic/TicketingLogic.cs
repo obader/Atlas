@@ -1305,6 +1305,11 @@ namespace Atlas.Core.Logic
                     }
 
 
+                    ticket.LastStatusChanged = DateTime.UtcNow;
+                    ticket.TicketStatusId = 5;
+                    if (ticket.TicketParentId != null)
+                        CloseParentClaim(ticket.TicketParentId.Value, pUserId, pComment);
+
                     var status = ctx.TicketAudits.Add(new DM.TicketAudit
                     {
                         UserId = pUserId,
@@ -1338,6 +1343,55 @@ namespace Atlas.Core.Logic
                 throw ex;
             }
         }
+
+        private void CloseParentClaim(long pTicketid, string pUserId, string pComment)
+        {
+            try
+            {           
+                MasterTicket etData = null;
+                var closedTicketStatus = ValueObjects.TicketStatusModel.ClosedTicketStatus;
+
+
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+                    var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketid);
+                    ticket.LastStatusChanged = DateTime.UtcNow;
+                    ticket.TicketStatusId = 5;
+
+
+                    var status = ctx.TicketAudits.Add(new DM.TicketAudit
+                    {
+                        UserId = pUserId,
+                        Ticket = ticket,
+                        ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow,
+                        Comment = pComment,
+                        TicketActionsId = 7,
+                        TicketStatusId = 5
+                    });
+
+                    var comment = ctx.Comments.Add(new DM.Comment
+                    {
+                        Ticket = ticket,
+                        UserId = pUserId,
+                        CommentValue = pComment,
+                        RecordDate = DateTime.UtcNow
+                    });
+                    ticket.ModifedDate = DateTime.UtcNow;
+                    ticket.ModifiedBy = pUserId;
+                    ticket.Description = "";
+                    ctx.SaveChanges();
+
+                    if (ticket.TicketParentId != null)
+                        CloseParentClaim(ticket.TicketParentId.Value, pUserId, pComment);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         public List<Entities.Application> GetApplications()
         {
