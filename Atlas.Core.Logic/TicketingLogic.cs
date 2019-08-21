@@ -1606,7 +1606,7 @@ namespace Atlas.Core.Logic
                      select tk
                     ).ToList();
 
-                    if (ticket != null)                  
+                    if (ticket != null && ticket.Count>0)                  
                         ticktId = string.Join(",", ticket.FirstOrDefault().TicketId);                 
                 }
 
