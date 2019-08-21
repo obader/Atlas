@@ -173,7 +173,7 @@ namespace Atlas.Core.Logic
                                         where ticketTransaction.Ticket.CategoryId == pCategoryId
                                         && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
                                         && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                                        && (ticketId == 0 || (ticketId > 0 && ticketTransaction.Ticket.TicketId == ticketId))
+                                        && (ticketId == 0 || (ticketId > 0 && (ticketTransaction.Ticket.TicketId == ticketId || ticketTransaction.Ticket.TicketParentId == ticketId)))
                                         && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
                                         && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
                                         select ticketTransaction.Ticket
@@ -187,7 +187,7 @@ namespace Atlas.Core.Logic
                               where ticket.CategoryId == pCategoryId
                               && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
                               && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault()!= null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p=>p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                              && (ticketId == 0 || (ticketId > 0 && ticket.TicketId == ticketId))
+                              && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || ticket.TicketParentId == ticketId)))
                               && (transactionId == 0 || (transactionId > 0 && ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
                               && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
                               select ticket
@@ -301,7 +301,7 @@ namespace Atlas.Core.Logic
                                         where ticketTransaction.Ticket.CategoryId == pCategoryId
                                         && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
                                         && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketAudits.Where(p=>p.TicketStatusId!= null).FirstOrDefault() != null && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                                        && (ticketId == 0 || (ticketId > 0 && ticketTransaction.Ticket.TicketId == ticketId))
+                                         && (ticketId == 0 || (ticketId > 0 && (ticketTransaction.Ticket.TicketId == ticketId || ticketTransaction.Ticket.TicketParentId == ticketId)))
                                         && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
                                         && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
                                         select ticketTransaction.Ticket
@@ -315,7 +315,7 @@ namespace Atlas.Core.Logic
                           where ticket.CategoryId == pCategoryId
                           && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
                           && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                          && (ticketId == 0 || (ticketId > 0 && ticket.TicketId == ticketId))
+                          && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || ticket.TicketParentId == ticketId)))
                           && (transactionId == 0 || (transactionId > 0 && ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
                           && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
                           select ticket
