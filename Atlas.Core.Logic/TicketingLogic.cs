@@ -1029,7 +1029,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out long pProfileId, out long pCustomerId, out bool iSuccess)
+        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out long pProfileId, out long pCustomerId, out bool iSuccess, out long  ticketParentId)
         {
             try
             {
@@ -1039,7 +1039,7 @@ namespace Atlas.Core.Logic
                 long ticketCategoryActionsId = Convert.ToInt32(pticketCategoryActionsId);
                 long ticketActionsId = 0;
                 MasterTicket etData = null;
-
+                ticketParentId = 0;
 
                 if (pComment == null || pComment == "")
                 {
@@ -1119,7 +1119,7 @@ namespace Atlas.Core.Logic
                     ticket.LastStatusChanged = DateTime.UtcNow;
                     ticket.TicketStatusId = ticketStatusId;
                     if (ticket.TicketParentId != null && ticketStatusId == 4)
-                        UpdateParentTicketStatus(ticket.TicketParentId.Value, ticketStatusId, pUserId, pComment, ticketActionsId);
+                        UpdateParentTicketStatus(ticket.TicketParentId.Value, ticketStatusId, pUserId, pComment, ticketActionsId, out ticketParentId);
 
                     var status = ctx.TicketAudits.Add(new DM.TicketAudit
                     {
@@ -1235,13 +1235,15 @@ namespace Atlas.Core.Logic
             }
         }
 
-        private void UpdateParentTicketStatus(long ticketId, long ticketStatusId, string pUserId, string pComment, long ticketActionsId)
+        private void UpdateParentTicketStatus(long ticketId, long ticketStatusId, string pUserId, string pComment, long ticketActionsId, out long ticketParentId)
         {
+            ticketParentId = 0;
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
                 var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == ticketId);
                 ticket.TicketStatusId = ticketStatusId;
                 ticket.LastStatusChanged = DateTime.UtcNow;
+                ticketParentId = ticketId;
                 var status = ctx.TicketAudits.Add(new DM.TicketAudit
                 {
                     UserId = pUserId,
@@ -1265,7 +1267,7 @@ namespace Atlas.Core.Logic
                 ctx.SaveChanges();
 
                 if (ticket.TicketParentId != null)
-                    UpdateParentTicketStatus(ticket.TicketParentId.Value, ticketStatusId, pUserId, pComment, ticketActionsId);
+                    UpdateParentTicketStatus(ticket.TicketParentId.Value, ticketStatusId, pUserId, pComment, ticketActionsId, out ticketParentId);
             }
         }
 
