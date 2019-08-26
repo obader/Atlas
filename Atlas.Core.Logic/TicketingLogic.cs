@@ -1790,6 +1790,13 @@ namespace Atlas.Core.Logic
             }
             return lTickets;
         }
+
+        public MasterTicket CreateIssueTicket(Ticket ticket,out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out string message, out bool isSuccess)
+        {
+            //get reasonid by category
+            //add new ticket and additional info of the issue
+            throw new NotImplementedException();
+        }
     }
 
     public class TicketActions
