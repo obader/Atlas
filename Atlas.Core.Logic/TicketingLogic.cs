@@ -790,10 +790,11 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out string message, out bool isSuccess)
+        public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string>> pActionNotificationCode, out string message, out bool isSuccess)
         {
             message = string.Empty;
             isSuccess = true;
+            List<Tuple<string, string, string>> list = new List<Tuple<string, string, string>>();
             MasterTicket parentTicket = null;
             MasterTicket tTicket = null;
             try
@@ -804,7 +805,7 @@ namespace Atlas.Core.Logic
                     message = "Error";
                     isSuccess = false;
                     pActionRouteCode = new List<string>();
-                    pActionNotificationCode = new List<string>();
+                    pActionNotificationCode = new List<Tuple<string, string, string>>();
                     return tTicket;
                 }
 
@@ -813,7 +814,7 @@ namespace Atlas.Core.Logic
                 string category = string.Empty;
                 string reason = string.Empty;
                 pActionRouteCode = new List<string>();
-                pActionNotificationCode = new List<string>();
+                pActionNotificationCode = new List<Tuple<string, string, string>>();
                 var createdStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus;
                 List<TicketExternalReferences> lstTicketExternalReferences = new List<TicketExternalReferences>();
                 List<TicketTransaction> lstTicketTransaction = new List<TicketTransaction>();
@@ -862,13 +863,18 @@ namespace Atlas.Core.Logic
 
                         pActionRouteCode = ationsRoutes.ToList().Select(p => p.Code).ToList();
 
-                        var ationsNotification = from c in ctx.CategoriesActionsNotifications
+                        var ationsNotification = (from c in ctx.CategoriesActionsNotifications
                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
                                                  where c.CategoryId == categoryId & c.BankId == ticket.BankId && (pChannelId == 0 && c.ChannelId == null || (pChannelId > 0 && c.ChannelId == pChannelId)) && ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
-                                                 select a;
+                                                 select new 
+                                                 {
+                                                     a.Code,
+                                                     c.BankId,
+                                                     c.ChannelId,
+                                                 }).ToList();
 
-
-                        pActionNotificationCode = ationsNotification.ToList().Select(p => p.Code).ToList();
+                        for(int i=0; i < ationsNotification.Count; i++ )
+                            pActionNotificationCode.Add(new Tuple<string, string, string>(ationsNotification[i].Code, ationsNotification[i].BankId.ToString(), ationsNotification[i].ChannelId.ToString()));                      
 
                     }
 
@@ -1037,10 +1043,11 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out long pProfileId, out long pCustomerId, out bool iSuccess, out long  ticketParentId)
+        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string>> pActionNotificationCode, out long pProfileId, out long pCustomerId, out bool iSuccess, out long  ticketParentId)
         {
             try
             {
+                pActionNotificationCode = new List<Tuple<string, string, string>>();
                 iSuccess = true;
                 long ticketStatusId = 0;
                 long ticketCategoriesDestinationId = 0;
@@ -1053,14 +1060,14 @@ namespace Atlas.Core.Logic
                 {
                     iSuccess = false;
                     pActionRouteCode = new List<string>();
-                    pActionNotificationCode = new List<string>();
+                    pActionNotificationCode = new List<Tuple<string, string, string>>();
                     pProfileId = 0;
                     pCustomerId = 0;
                     return etData;
                 }
 
                 pActionRouteCode = new List<string>();
-                pActionNotificationCode = new List<string>();
+                pActionNotificationCode = new List<Tuple<string, string, string>>();
                 pProfileId = 0;
                 pCustomerId = 0;
 
@@ -1113,14 +1120,19 @@ namespace Atlas.Core.Logic
                         pActionRouteCode = ationsRoutes.ToList().Select(p => p.Code).ToList();
 
 
-                        var ationsNotification = from c in ctx.TicketCategoriesActionsNotifications
+                        var ationsNotification = (from c in ctx.TicketCategoriesActionsNotifications
                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                                 join t in ctx.TicketCategoriesActions on c.TicketCategoriesActionsId equals t.TicketCategoriesActionsId
                                                  where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
-                                                 select a;
+                                                 select new
+                                                 {
+                                                     a.Code,
+                                                     t.BankId,
+                                                     t.ChannelId
+                                                 }).ToList();                       
 
-
-                        pActionNotificationCode = ationsNotification.ToList().Select(p => p.Code).ToList();
-
+                        for (int i = 0; i < ationsNotification.Count; i++)
+                            pActionNotificationCode.Add(new Tuple<string, string, string>(ationsNotification[i].Code, ationsNotification[i].BankId.ToString(), ationsNotification[i].ChannelId.ToString()));
 
                     }
 
