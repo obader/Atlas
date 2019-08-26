@@ -70,6 +70,15 @@
           <Property Name="BankId" Type="int" />
           <Property Name="ChannelId" Type="bigint" />
         </EntityType>
+        <EntityType Name="Channels">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ChannelCode" Type="nvarchar" MaxLength="250" />
+          <Property Name="ChannelDescription" Type="nvarchar" MaxLength="500" />
+          <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
+        </EntityType>
         <EntityType Name="Comments">
           <Key>
             <PropertyRef Name="CommentId" />
@@ -373,6 +382,7 @@
           <EntitySet Name="Categories" EntityType="Self.Categories" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="CategoriesActionsNotification" EntityType="Self.CategoriesActionsNotification" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="CategoriesActionsRoute" EntityType="Self.CategoriesActionsRoute" Schema="Ticketing" store:Type="Tables" />
+          <EntitySet Name="Channels" EntityType="Self.Channels" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Comments" EntityType="Self.Comments" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Departments" EntityType="Self.Departments" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Priorities" EntityType="Self.Priorities" Schema="Ticketing" store:Type="Tables" />
@@ -485,6 +495,7 @@
             <End Role="Ticket" EntitySet="Tickets" />
             <End Role="TicketTransaction" EntitySet="TicketTransactions" />
           </AssociationSet>
+          <EntitySet Name="Channels" EntityType="TicketingModel.Channel" />
           <AssociationSet Name="FK_Categories_TicketType" Association="TicketingModel.FK_Categories_TicketType">
             <End Role="TicketType" EntitySet="TicketTypes" />
             <End Role="Category" EntitySet="Categories" />
@@ -871,6 +882,15 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Channel">
+          <Key>
+            <PropertyRef Name="ChannelId" />
+          </Key>
+          <Property Name="ChannelId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ChannelCode" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="ChannelDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
         <Association Name="FK_Categories_TicketType">
           <End Type="TicketingModel.TicketType" Role="TicketType" Multiplicity="1" />
           <End Type="TicketingModel.Category" Role="Category" Multiplicity="*" />
@@ -1159,6 +1179,16 @@
                 <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
                 <ScalarProperty Name="TicketParentId" ColumnName="TicketParentId" />
                 <ScalarProperty Name="TicketId" ColumnName="TicketId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Channels">
+            <EntityTypeMapping TypeName="TicketingModel.Channel">
+              <MappingFragment StoreEntitySet="Channels">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="ChannelDescription" ColumnName="ChannelDescription" />
+                <ScalarProperty Name="ChannelCode" ColumnName="ChannelCode" />
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
