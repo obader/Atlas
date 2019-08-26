@@ -1134,14 +1134,14 @@ namespace Atlas.Core.Logic
                         var ationsNotification = (from c in ctx.TicketCategoriesActionsNotifications
                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
                                                  join t in ctx.TicketCategoriesActions on c.TicketCategoriesActionsId equals t.TicketCategoriesActionsId
-                                                 let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == t.ChannelId)                                              
+                                                // let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == t.ChannelId)                                              
                                                  where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
                                                  select new
                                                  {
                                                      a.Code,
                                                      t.BankId,
-                                                     t.ChannelId,
-                                                     channel = ch!= null?ch.ChannelDescription:"",
+                                                     ChannelId= 0, //t.ChannelId,
+                                                     channel ="", //ch!= null?ch.ChannelDescription:"",
                                                  }).ToList();                       
 
                         for (int i = 0; i < ationsNotification.Count; i++)
