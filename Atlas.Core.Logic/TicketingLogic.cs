@@ -790,10 +790,11 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string,string>> pActionNotificationCode, out string message, out bool isSuccess)
+        public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string,string>> pActionNotificationCode,out string pChannel,  out string message, out bool isSuccess)
         {
             message = string.Empty;
             isSuccess = true;
+            pChannel = string.Empty;
             List<Tuple<string, string, string,string>> list = new List<Tuple<string, string, string,string>>();
             MasterTicket parentTicket = null;
             MasterTicket tTicket = null;
@@ -841,6 +842,7 @@ namespace Atlas.Core.Logic
 
                     if (pTransaction != null)
                     {
+                        pChannel = pTransaction.SourceChannel;
                         var channel = ctx.Channels.Where(p => p.ChannelCode == pTransaction.SourceChannel).FirstOrDefault();
                         if (channel != null)
                             pChannelId = channel.ChannelId;
@@ -1045,12 +1047,13 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode, out long pProfileId, out long pCustomerId, out bool iSuccess, out long  ticketParentId)
+        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode, out long pProfileId, out long pCustomerId, out string pChannel, out bool iSuccess, out long  ticketParentId)
         {
             try
             {
                 pActionNotificationCode = new List<Tuple<string, string, string, string>>();
                 iSuccess = true;
+                pChannel = string.Empty;
                 long ticketStatusId = 0;
                 long ticketCategoriesDestinationId = 0;
                 long ticketCategoryActionsId = Convert.ToInt32(pticketCategoryActionsId);
@@ -1210,6 +1213,10 @@ namespace Atlas.Core.Logic
                             Comment = pComment,
                         });
 
+
+                        var Channel = ctx.Channels.Where(p => p.ChannelId == ticket.ChannelId).FirstOrDefault();
+                        if (Channel != null)
+                            pChannel = Channel.ChannelCode;
 
                         var pTransaction = ctx.TicketTransactions.Where(p => p.TicketId == pTicketid).FirstOrDefault();
 
@@ -1619,14 +1626,18 @@ namespace Atlas.Core.Logic
                     if (ticketAudits == null)
                         return lResult;
 
-                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId && (ticket.BankId == 0 || (ticket.BankId > 0 && p.BankId == ticket.BankId)) && (ticket.ChannelId == 0 || (ticket.ChannelId > 0 && p.ChannelId == ticket.ChannelId))).FirstOrDefault();
+                  //  var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId && (ticket.BankId == 0 || (ticket.BankId > 0 && p.BankId == ticket.BankId)) && (ticket.ChannelId == 0 || (ticket.ChannelId > 0 && p.ChannelId == ticket.ChannelId))).FirstOrDefault();
+
+                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId).FirstOrDefault();
+
 
                     if (ticketOld != null)
                     {
                         ticketParentId = Convert.ToInt16(ticketOld.TicketCategoriesActionsId);
                     }
+                    //var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId && (ticket.BankId == 0 || (ticket.BankId > 0 && p.BankId == ticket.BankId)) && (ticket.ChannelId == 0 || (ticket.ChannelId > 0 && p.ChannelId == ticket.ChannelId)) && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
 
-                    var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId && (ticket.BankId == 0 || (ticket.BankId > 0 && p.BankId == ticket.BankId)) && (ticket.ChannelId == 0 || (ticket.ChannelId > 0 && p.ChannelId == ticket.ChannelId)) && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
+                    var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId  && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
 
 
 
