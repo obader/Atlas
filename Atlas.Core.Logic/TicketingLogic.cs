@@ -1619,14 +1619,14 @@ namespace Atlas.Core.Logic
                     if (ticketAudits == null)
                         return lResult;
 
-                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId && p.BankId == ticket.BankId && p.ChannelId == ticket.ChannelId).FirstOrDefault();
+                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId && (ticket.BankId == 0 || (ticket.BankId > 0 && p.BankId == ticket.BankId)) && (ticket.BankId == 0 || (ticket.ChannelId > 0 && p.ChannelId == ticket.ChannelId))).FirstOrDefault();
 
                     if (ticketOld != null)
                     {
                         ticketParentId = Convert.ToInt16(ticketOld.TicketCategoriesActionsId);
                     }
 
-                    var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId && p.BankId == ticket.BankId && p.ChannelId == ticket.ChannelId && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
+                    var ticketCategoriesActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId && (ticket.BankId == 0 || (ticket.BankId > 0 && p.BankId == ticket.BankId)) && (ticket.BankId == 0 || (ticket.ChannelId > 0 && p.ChannelId == ticket.ChannelId)) && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
 
 
 
