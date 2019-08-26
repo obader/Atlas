@@ -82,6 +82,9 @@
     <Compile Include="DM\Category.cs">
       <DependentUpon>TicketModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DM\Channel.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DM\Comment.cs">
       <DependentUpon>TicketModel.tt</DependentUpon>
     </Compile>
