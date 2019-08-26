@@ -12,16 +12,11 @@ namespace Atlas.Core.Logic.DM
     using System;
     using System.Collections.Generic;
     
-    public partial class Category
+    public partial class Channel
     {
-        public long CategoryId { get; set; }
-        public string Code { get; set; }
-        public bool Enable { get; set; }
-        public bool HasTransaction { get; set; }
-        public string Description { get; set; }
+        public long ChannelId { get; set; }
+        public string ChannelCode { get; set; }
+        public string ChannelDescription { get; set; }
         public byte[] RowVersion { get; set; }
-        public long TicketTypeId { get; set; }
-    
-        public virtual TicketType TicketType { get; set; }
     }
 }

@@ -45,5 +45,6 @@ namespace Atlas.Core.Logic.DM
         public virtual DbSet<Reason> Reasons { get; set; }
         public virtual DbSet<TicketCategoriesAction> TicketCategoriesActions { get; set; }
         public virtual DbSet<Ticket> Tickets { get; set; }
+        public virtual DbSet<Channel> Channels { get; set; }
     }
 }
