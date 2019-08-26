@@ -1699,24 +1699,6 @@ namespace Atlas.Core.Logic
 
         }
 
-        public List<Entities.Category> GetReportIssueCategories()
-        {
-            try
-            {
-                var lResult = new List<Category>();
-                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
-                {
-                    var list = ctx.Categories.AsNoTracking().Where(p => p.Enable == true && p.TicketType.Code == "0060").ToList();
-                    lResult.AddRange(list.Select(application => new Category(application.CategoryId, application.Code, application.Description)));
-                }
-                return lResult;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
         public List<MasterTicket> GetTransactionTicketsByCustomerId(string pUserId, int pCustomerId, int pProfileId, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
@@ -1813,6 +1795,31 @@ namespace Atlas.Core.Logic
 
             }
             return lTickets;
+        }
+
+        public List<Entities.Category> GetReportIssueCategories()
+        {
+            try
+            {
+                var lResult = new List<Category>();
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+                    var list = ctx.Categories.AsNoTracking().Where(p => p.Enable == true && p.TicketType.Code == "0060").ToList();
+                    lResult.AddRange(list.Select(application => new Category(application.CategoryId, application.Code, application.Description)));
+                }
+                return lResult;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public MasterTicket CreateIssueTicket(Ticket ticket,out List<string> pActionRouteCode, out List<string> pActionNotificationCode, out string message, out bool isSuccess)
+        {
+            //get reasonid by category
+            //add new ticket and additional info of the issue
+            throw new NotImplementedException();
         }
     }
 
