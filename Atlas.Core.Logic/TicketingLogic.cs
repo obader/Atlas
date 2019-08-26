@@ -1088,6 +1088,12 @@ namespace Atlas.Core.Logic
                         }
 
 
+
+                    var Channel = ctx.Channels.Where(p => p.ChannelId == ticket.ChannelId).FirstOrDefault();
+                    if (Channel != null)
+                        pChannel = Channel.ChannelCode;
+
+
                     var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == pTicketid && p.TicketStatusId != null);
                     if (ticketAudits == null)
                         if (ticket == null)
@@ -1214,9 +1220,7 @@ namespace Atlas.Core.Logic
                         });
 
 
-                        var Channel = ctx.Channels.Where(p => p.ChannelId == ticket.ChannelId).FirstOrDefault();
-                        if (Channel != null)
-                            pChannel = Channel.ChannelCode;
+                       
 
                         var pTransaction = ctx.TicketTransactions.Where(p => p.TicketId == pTicketid).FirstOrDefault();
 
