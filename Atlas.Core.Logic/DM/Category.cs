@@ -21,5 +21,7 @@ namespace Atlas.Core.Logic.DM
         public string Description { get; set; }
         public byte[] RowVersion { get; set; }
         public long TicketTypeId { get; set; }
+    
+        public virtual TicketType TicketType { get; set; }
     }
 }

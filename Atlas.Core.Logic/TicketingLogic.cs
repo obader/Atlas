@@ -1682,7 +1682,7 @@ namespace Atlas.Core.Logic
                 var lResult = new List<Category>();
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
-                    var list = ctx.Categories.AsNoTracking().Where(p => p.Enable == true && p.TicketTypeId == 6).ToList();
+                    var list = ctx.Categories.AsNoTracking().Where(p => p.Enable == true && p.TicketType.Code == "0060").ToList();
                     lResult.AddRange(list.Select(application => new Category(application.CategoryId, application.Code, application.Description)));
                 }
                 return lResult;

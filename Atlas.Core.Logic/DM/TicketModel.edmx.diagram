@@ -34,6 +34,7 @@
         <AssociationConnector Association="TicketingModel.FK_TicketAudits_Tickets" />
         <AssociationConnector Association="TicketingModel.FK_ExternalReferences_Tickets" />
         <AssociationConnector Association="TicketingModel.FK_TicketTransactions_Tickets" />
+        <AssociationConnector Association="TicketingModel.FK_Categories_TicketType" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
