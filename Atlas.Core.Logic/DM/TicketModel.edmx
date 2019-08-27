@@ -279,6 +279,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_CategoriesActionsRoute_ActionsRoute">
+          <End Role="ActionsRoute" Type="Self.ActionsRoute" Multiplicity="1" />
+          <End Role="CategoriesActionsRoute" Type="Self.CategoriesActionsRoute" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ActionsRoute">
+              <PropertyRef Name="ActionsRouteId" />
+            </Principal>
+            <Dependent Role="CategoriesActionsRoute">
+              <PropertyRef Name="ActionsRouteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Comments_Tickets">
           <End Role="Tickets" Type="Self.Tickets" Multiplicity="0..1" />
           <End Role="Comments" Type="Self.Comments" Multiplicity="*" />
@@ -401,6 +413,10 @@
             <End Role="TicketType" EntitySet="TicketType" />
             <End Role="Categories" EntitySet="Categories" />
           </AssociationSet>
+          <AssociationSet Name="FK_CategoriesActionsRoute_ActionsRoute" Association="Self.FK_CategoriesActionsRoute_ActionsRoute">
+            <End Role="ActionsRoute" EntitySet="ActionsRoute" />
+            <End Role="CategoriesActionsRoute" EntitySet="CategoriesActionsRoute" />
+          </AssociationSet>
           <AssociationSet Name="FK_Comments_Tickets" Association="Self.FK_Comments_Tickets">
             <End Role="Tickets" EntitySet="Tickets" />
             <End Role="Comments" EntitySet="Comments" />
@@ -499,6 +515,10 @@
           <AssociationSet Name="FK_Categories_TicketType" Association="TicketingModel.FK_Categories_TicketType">
             <End Role="TicketType" EntitySet="TicketTypes" />
             <End Role="Category" EntitySet="Categories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CategoriesActionsRoute_ActionsRoute" Association="TicketingModel.FK_CategoriesActionsRoute_ActionsRoute">
+            <End Role="ActionsRoute" EntitySet="ActionsRoutes" />
+            <End Role="CategoriesActionsRoute" EntitySet="CategoriesActionsRoutes" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Application">
@@ -609,6 +629,7 @@
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Enable" Type="Boolean" Nullable="false" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="CategoriesActionsRoutes" Relationship="TicketingModel.FK_CategoriesActionsRoute_ActionsRoute" FromRole="ActionsRoute" ToRole="CategoriesActionsRoute" />
         </EntityType>
         <EntityType Name="TicketAction">
           <Key>
@@ -737,6 +758,7 @@
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
           <Property Name="BankId" Type="Int32" />
           <Property Name="ChannelId" Type="Int64" />
+          <NavigationProperty Name="ActionsRoute" Relationship="TicketingModel.FK_CategoriesActionsRoute_ActionsRoute" FromRole="CategoriesActionsRoute" ToRole="ActionsRoute" />
         </EntityType>
         <EntityType Name="Department">
           <Key>
@@ -900,6 +922,18 @@
             </Principal>
             <Dependent Role="Category">
               <PropertyRef Name="TicketTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CategoriesActionsRoute_ActionsRoute">
+          <End Type="TicketingModel.ActionsRoute" Role="ActionsRoute" Multiplicity="1" />
+          <End Type="TicketingModel.CategoriesActionsRoute" Role="CategoriesActionsRoute" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ActionsRoute">
+              <PropertyRef Name="ActionsRouteId" />
+            </Principal>
+            <Dependent Role="CategoriesActionsRoute">
+              <PropertyRef Name="ActionsRouteId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>

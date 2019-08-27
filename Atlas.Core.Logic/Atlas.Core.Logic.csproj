@@ -143,6 +143,7 @@
     <Compile Include="DM\TicketType.cs">
       <DependentUpon>TicketModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DTOs\ActionNotificationDynamic.cs" />
     <Compile Include="DTOs\AuditObject.cs" />
     <Compile Include="DTOs\CommentObject.cs" />
     <Compile Include="DTOs\FullTicketInfo.cs" />

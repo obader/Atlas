@@ -36,6 +36,7 @@
         <AssociationConnector Association="TicketingModel.FK_TicketTransactions_Tickets" />
         <EntityTypeShape EntityType="TicketingModel.Channel" Width="1.5" PointX="13.375" PointY="3.75" />
         <AssociationConnector Association="TicketingModel.FK_Categories_TicketType" />
+        <AssociationConnector Association="TicketingModel.FK_CategoriesActionsRoute_ActionsRoute" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
