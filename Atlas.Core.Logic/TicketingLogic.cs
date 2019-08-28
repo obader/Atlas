@@ -804,7 +804,6 @@ namespace Atlas.Core.Logic
             MasterTicket tTicket = null;
             try
             {
-
                 if (pComment == null || pComment == "")
                 {
                     message = "Error";
@@ -864,8 +863,6 @@ namespace Atlas.Core.Logic
                         var catActionsRoutes = from c in ctx.CategoriesActionsRoutes
                                            join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
                                            where c.CategoryId == categoryId
-                                           //&& ((c.BankId == ticket.BankId) || c.BankId == null)
-                                           //&& ((c.ChannelId == pChannelId) || c.ChannelId == null)
                                            select c;
 
                         List<string> filtered = null;
@@ -879,29 +876,27 @@ namespace Atlas.Core.Logic
 
                         pActionRouteCode = filtered;
 
-                        var ationsNotification = (from c in ctx.CategoriesActionsNotifications
+                        var actionsNotification = (from c in ctx.CategoriesActionsNotifications
                                                   join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
                                                   let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                                   where c.CategoryId == categoryId
-                                                  //&& (c.BankId == ticket.BankId || c.BankId == null)
-                                                  //&& ((c.ChannelId == pChannelId) || c.ChannelId == null)
                                                   && ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
                                                   select new ActionNotificationDynamic()
                                                   {
                                                      Code = a.Code,
                                                       BankId = c.BankId,
                                                       ChannelId = c.ChannelId,
-                                                      Channel = ch != null ? ch.ChannelDescription : "",
+                                                      Channel = ch != null ? ch.ChannelDescription : string.Empty,
                                                   });
 
                         List<ActionNotificationDynamic> filtered2 = null;
-                        filtered2 = ationsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == ticket.ChannelId).ToList();
+                        filtered2 = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == ticket.ChannelId).ToList();
                         if (filtered2.Count == 0)
-                            filtered2 = ationsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
+                            filtered2 = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
                         if (filtered2.Count == 0)
-                            filtered2 = ationsNotification.Where(w => w.BankId == null && w.BankId == ticket.ChannelId).ToList();
+                            filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == ticket.ChannelId).ToList();
                         if (filtered2.Count == 0)
-                            filtered2 = ationsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
+                            filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
 
                         for (int i = 0; i < filtered2.Count; i++)
                             pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered2[i].Code, filtered2[i].BankId.ToString(),
@@ -1113,8 +1108,6 @@ namespace Atlas.Core.Logic
                             return etData;
                         }
 
-
-
                     var Channel = ctx.Channels.Where(p => p.ChannelId == ticket.ChannelId).FirstOrDefault();
                     if (Channel != null)
                         pChannel = Channel.ChannelCode;
@@ -1139,7 +1132,6 @@ namespace Atlas.Core.Logic
                         pProfileId = Convert.ToInt32(ticket.ProfileId);
                         pCustomerId = Convert.ToInt32(ticket.CustomerId);
                     }
-
                     else
                     {
                         iSuccess = false;
@@ -1148,30 +1140,38 @@ namespace Atlas.Core.Logic
 
                     if (ticketActions != null && ticketActions.TicketCategoriesActionsId > 0)
                     {
-                        var ationsRoutes = from c in ctx.TicketCategoriesActionsRoutes
-                                           join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
-                                           where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId
-                                           select a;
+                        var actionsRoutes = from c in ctx.TicketCategoriesActionsRoutes
+                                            join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
+                                            where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId
+                                            select a;
 
+                        pActionRouteCode = actionsRoutes.ToList().Select(p => p.Code).ToList();
 
-                        pActionRouteCode = ationsRoutes.ToList().Select(p => p.Code).ToList();
+                        var actionsNotification = (from c in ctx.TicketCategoriesActionsNotifications
+                                                   join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                                   join t in ctx.TicketCategoriesActions on c.TicketCategoriesActionsId equals t.TicketCategoriesActionsId
+                                                   let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == t.ChannelId)
+                                                   where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId
+                                                  && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
+                                                   select new ActionNotificationDynamic()
+                                                   {
+                                                       Code = a.Code,
+                                                       BankId = t.BankId,
+                                                       ChannelId = t.ChannelId,
+                                                       Channel = ch != null ? ch.ChannelDescription : string.Empty,
+                                                   });
 
+                        List<ActionNotificationDynamic> filtered = null;
+                        filtered = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == ticket.ChannelId).ToList();
+                        if (filtered.Count == 0)
+                            filtered = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
+                        if (filtered.Count == 0)
+                            filtered = actionsNotification.Where(w => w.BankId == null && w.BankId == ticket.ChannelId).ToList();
+                        if (filtered.Count == 0)
+                            filtered = actionsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
 
-                        var ationsNotification = (from c in ctx.TicketCategoriesActionsNotifications
-                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                  join t in ctx.TicketCategoriesActions on c.TicketCategoriesActionsId equals t.TicketCategoriesActionsId
-                                                  // let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == t.ChannelId)                                              
-                                                  where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
-                                                  select new
-                                                  {
-                                                      a.Code,
-                                                      t.BankId,
-                                                      ChannelId = 0, //t.ChannelId,
-                                                      channel = "", //ch!= null?ch.ChannelDescription:"",
-                                                  }).ToList();
-
-                        for (int i = 0; i < ationsNotification.Count; i++)
-                            pActionNotificationCode.Add(new Tuple<string, string, string, string>(ationsNotification[i].Code, ationsNotification[i].BankId.ToString(), ationsNotification[i].ChannelId.ToString(), ationsNotification[i].channel));
+                        for (int i = 0; i < filtered.Count; i++)
+                            pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered[i].Code, filtered[i].BankId.ToString(), filtered[i].ChannelId.ToString(), filtered[i].Channel));
 
                     }
 
@@ -1860,7 +1860,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket CreateIssueTicket(Ticket ticket, string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
+        public MasterTicket CreateIssueTicket(Ticket ticket, string ticketIssueDescription, string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
         {
             pActionNotificationCode = new List<Tuple<string, string, string, string>>();
 
@@ -1893,29 +1893,47 @@ namespace Atlas.Core.Logic
                 var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
                 string category = etcategory.Code;
 
-                var ationsRoutes = from c in ctx.CategoriesActionsRoutes
-                                   join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
-                                   where c.CategoryId == categoryId
-                                   && ((c.BankId == ticket.BankId) || c.BankId == null)
-                                   select a;
-                pActionRouteCode = ationsRoutes.ToList().Select(p => p.Code).ToList();
+                var catActionsRoutes = from c in ctx.CategoriesActionsRoutes
+                                       join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
+                                       where c.CategoryId == categoryId
+                                       select c;
+
+                List<string> filtered = null;
+                filtered = catActionsRoutes.Where(w => w.BankId == ticket.BankId && w.ChannelId == createdTicket.ChannelId).Select(p => p.ActionsRoute.Code).ToList();
+                if (filtered.Count == 0)
+                    filtered = catActionsRoutes.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).Select(p => p.ActionsRoute.Code).ToList();
+                if (filtered.Count == 0)
+                    filtered = catActionsRoutes.Where(w => w.BankId == null && w.BankId == createdTicket.ChannelId).Select(p => p.ActionsRoute.Code).ToList();
+                if (filtered.Count == 0)
+                    filtered = catActionsRoutes.Where(w => w.BankId == null && w.BankId == null).Select(p => p.ActionsRoute.Code).ToList();
+                pActionRouteCode = filtered;
+
 
                 var ationsNotification = (from c in ctx.CategoriesActionsNotifications
                                           join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
                                           let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                           where c.CategoryId == categoryId
-                                          && (c.BankId == ticket.BankId || c.BankId == null)
-                                          select new
+                                          //&& ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
+                                          select new ActionNotificationDynamic()
                                           {
-                                              a.Code,
-                                              c.BankId,
-                                              c.ChannelId,
-                                              channel = ch != null ? ch.ChannelDescription : "",
-                                          }).ToList();
+                                              Code = a.Code,
+                                              BankId = c.BankId,
+                                              ChannelId = c.ChannelId,
+                                              Channel = ch != null ? ch.ChannelDescription : string.Empty,
+                                          });
 
-                for (int i = 0; i < ationsNotification.Count; i++)
-                    pActionNotificationCode.Add(new Tuple<string, string, string, string>(ationsNotification[i].Code,
-                        ationsNotification[i].BankId.ToString(), ationsNotification[i].ChannelId.ToString(), ationsNotification[i].channel));
+                List<ActionNotificationDynamic> filtered2 = null;
+                filtered2 = ationsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == createdTicket.ChannelId).ToList();
+                if (filtered2.Count == 0)
+                    filtered2 = ationsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
+                if (filtered2.Count == 0)
+                    filtered2 = ationsNotification.Where(w => w.BankId == null && w.BankId == createdTicket.ChannelId).ToList();
+                if (filtered2.Count == 0)
+                    filtered2 = ationsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
+
+                for (int i = 0; i < filtered2.Count; i++)
+                    pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered2[i].Code, filtered2[i].BankId.ToString(),
+                        filtered2[i].ChannelId.ToString(), filtered2[i].Channel));
 
 
                 int reasonsId = Convert.ToInt32(createdTicket.ReasonsId);
@@ -1949,6 +1967,13 @@ namespace Atlas.Core.Logic
                     DepartmentId = ticket.DepartmentId
                 });
 
+                //add issue
+                DM.TicketIssue ticketIssue = new DM.TicketIssue()
+                {
+                    IssueDescription = ticketIssueDescription,
+                    TicketId = createdTicket.TicketId
+                };
+                ctx.TicketIssues.Add(ticketIssue);
                 ctx.SaveChanges();
 
                 var mticket = new MasterTicket(

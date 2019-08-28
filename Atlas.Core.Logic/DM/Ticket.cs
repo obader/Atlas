@@ -21,6 +21,7 @@ namespace Atlas.Core.Logic.DM
             this.TicketAudits = new HashSet<TicketAudit>();
             this.TicketExternalReferences = new HashSet<TicketExternalReference>();
             this.TicketTransactions = new HashSet<TicketTransaction>();
+            this.TicketIssues = new HashSet<TicketIssue>();
         }
     
         public long TicketId { get; set; }
@@ -43,6 +44,7 @@ namespace Atlas.Core.Logic.DM
         public Nullable<System.DateTime> LastStatusChanged { get; set; }
         public byte[] RowVersion { get; set; }
         public Nullable<long> ChannelId { get; set; }
+        public Nullable<bool> HasIssue { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Comment> Comments { get; set; }
@@ -54,5 +56,7 @@ namespace Atlas.Core.Logic.DM
         public virtual ICollection<TicketExternalReference> TicketExternalReferences { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TicketTransaction> TicketTransactions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketIssue> TicketIssues { get; set; }
     }
 }

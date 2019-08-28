@@ -118,6 +118,9 @@
     <Compile Include="DM\TicketExternalReference.cs">
       <DependentUpon>TicketModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DM\TicketIssue.cs">
+      <DependentUpon>TicketModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DM\TicketModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

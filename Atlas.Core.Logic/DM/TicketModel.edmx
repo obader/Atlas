@@ -194,6 +194,15 @@
           <Property Name="RecordDate" Type="datetime" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
+        <EntityType Name="TicketIssues">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TicketId" Type="bigint" Nullable="false" />
+          <Property Name="IssueDescription" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
+        </EntityType>
         <EntityType Name="Tickets">
           <Key>
             <PropertyRef Name="TicketId" />
@@ -218,6 +227,7 @@
           <Property Name="LastStatusChanged" Type="datetime" />
           <Property Name="RowVersion" Type="timestamp" StoreGeneratedPattern="Computed" Nullable="false" />
           <Property Name="ChannelId" Type="bigint" />
+          <Property Name="HasIssue" Type="bit" />
         </EntityType>
         <EntityType Name="TicketStatuses">
           <Key>
@@ -351,6 +361,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_TicketIssues_Tickets">
+          <End Role="Tickets" Type="Self.Tickets" Multiplicity="1" />
+          <End Role="TicketIssues" Type="Self.TicketIssues" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tickets">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketIssues">
+              <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_TICKETS_REFERENCE_DEPARTME">
           <End Role="Departments" Type="Self.Departments" Multiplicity="0..1" />
           <End Role="Tickets" Type="Self.Tickets" Multiplicity="*" />
@@ -405,6 +427,7 @@
           <EntitySet Name="TicketCategoriesActionsNotifications" EntityType="Self.TicketCategoriesActionsNotifications" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="TicketCategoriesActionsRoute" EntityType="Self.TicketCategoriesActionsRoute" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="TicketExternalReferences" EntityType="Self.TicketExternalReferences" Schema="Ticketing" store:Type="Tables" />
+          <EntitySet Name="TicketIssues" EntityType="Self.TicketIssues" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="Tickets" EntityType="Self.Tickets" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="TicketStatuses" EntityType="Self.TicketStatuses" Schema="Ticketing" store:Type="Tables" />
           <EntitySet Name="TicketTransactions" EntityType="Self.TicketTransactions" Schema="Ticketing" store:Type="Tables" />
@@ -436,6 +459,10 @@
           <AssociationSet Name="FK_TicketAudits_Tickets" Association="Self.FK_TicketAudits_Tickets">
             <End Role="Tickets" EntitySet="Tickets" />
             <End Role="TicketAudits" EntitySet="TicketAudits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketIssues_Tickets" Association="Self.FK_TicketIssues_Tickets">
+            <End Role="Tickets" EntitySet="Tickets" />
+            <End Role="TicketIssues" EntitySet="TicketIssues" />
           </AssociationSet>
           <AssociationSet Name="FK_TICKETS_REFERENCE_DEPARTME" Association="Self.FK_TICKETS_REFERENCE_DEPARTME">
             <End Role="Departments" EntitySet="Departments" />
@@ -519,6 +546,11 @@
           <AssociationSet Name="FK_CategoriesActionsRoute_ActionsRoute" Association="TicketingModel.FK_CategoriesActionsRoute_ActionsRoute">
             <End Role="ActionsRoute" EntitySet="ActionsRoutes" />
             <End Role="CategoriesActionsRoute" EntitySet="CategoriesActionsRoutes" />
+          </AssociationSet>
+          <EntitySet Name="TicketIssues" EntityType="TicketingModel.TicketIssue" />
+          <AssociationSet Name="FK_TicketIssues_Tickets" Association="TicketingModel.FK_TicketIssues_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="TicketIssue" EntitySet="TicketIssues" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Application">
@@ -831,6 +863,8 @@
           <NavigationProperty Name="TicketExternalReferences" Relationship="TicketingModel.FK_ExternalReferences_Tickets" FromRole="Ticket" ToRole="TicketExternalReference" />
           <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
           <Property Name="ChannelId" Type="Int64" />
+          <Property Name="HasIssue" Type="Boolean" />
+          <NavigationProperty Name="TicketIssues" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="Ticket" ToRole="TicketIssue" />
         </EntityType>
         <Association Name="FK_Comments_Tickets">
           <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="0..1" />
@@ -934,6 +968,28 @@
             </Principal>
             <Dependent Role="CategoriesActionsRoute">
               <PropertyRef Name="ActionsRouteId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="TicketIssue">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TicketId" Type="Int64" Nullable="false" />
+          <Property Name="IssueDescription" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="TicketIssue" ToRole="Ticket" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <Association Name="FK_TicketIssues_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
+          <End Type="TicketingModel.TicketIssue" Role="TicketIssue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketIssue">
+              <PropertyRef Name="TicketId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1193,6 +1249,7 @@
           <EntitySetMapping Name="Tickets">
             <EntityTypeMapping TypeName="TicketingModel.Ticket">
               <MappingFragment StoreEntitySet="Tickets">
+                <ScalarProperty Name="HasIssue" ColumnName="HasIssue" />
                 <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
                 <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
                 <ScalarProperty Name="LastStatusChanged" ColumnName="LastStatusChanged" />
@@ -1223,6 +1280,16 @@
                 <ScalarProperty Name="ChannelDescription" ColumnName="ChannelDescription" />
                 <ScalarProperty Name="ChannelCode" ColumnName="ChannelCode" />
                 <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TicketIssues">
+            <EntityTypeMapping TypeName="TicketingModel.TicketIssue">
+              <MappingFragment StoreEntitySet="TicketIssues">
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="IssueDescription" ColumnName="IssueDescription" />
+                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
