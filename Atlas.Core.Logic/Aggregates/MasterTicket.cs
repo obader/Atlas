@@ -15,10 +15,12 @@ namespace Atlas.Core.Logic.Aggregates
         public List<Entities.TicketExternalReferences> ExternalReferences { get; private set; }
         public List<Entities.Comment> Comments { get; private set; }
 
-        public List<Entities.TicketTransaction> Transactions { get; private set; }
+        public List<Entities.TicketTransaction> Transactions { get; set; }
         public DateTime LastModifieDate { get; private set; }
         public string ModifiedByUserId { get; private set; }
         public MasterTicket ParentTicket { get; set; }
+        public bool HasIssue { get; set; }
+        public string IssueDescription { get; set; }
 
         public MasterTicket(string pUserId, Entities.Ticket pTicket, List<Entities.TicketStatus> pStatuses,List<Entities.Comment> pComments, List<Entities.TicketTransaction> pTransactions, List<Entities.TicketExternalReferences> pExternalReferences,
             MasterTicket pParentTicket)

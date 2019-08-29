@@ -755,8 +755,6 @@ namespace Atlas.Core.Logic
                     var externalReferencesList =
                          externalReferences.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
 
-
-
                     var lCommentList =
                         ctx.Comments.Where(p => p.TicketId == pTicketId).AsNoTracking().ToList();
                     var commentList = lCommentList.Select(cm => new Entities.Comment(lTicket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
@@ -779,6 +777,10 @@ namespace Atlas.Core.Logic
                     var mticket = new MasterTicket(pUserId,
                         new Ticket(lTicket.TicketId, lTicket.TicketParentId ?? 0, lTicket.CreatedBy, lTicket.BankId ?? 0, lTicket.ProfileId, lTicket.CustomerId, lTicket.Title, lTicket.Description, lTicket.ApplicationId ?? 0, lTicket.CategoryId ?? 0, category, lTicket.ReasonsId ?? 0, reason, statusCode
                         , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, transactionsList, externalReferencesList, parentTicket);
+
+                    mticket.HasIssue = lTicket.HasIssue != null ? lTicket.HasIssue.Value : false;
+                    mticket.IssueDescription = lTicket.TicketIssues.Count() != 0 ? lTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+
                     return mticket;
 
                 }
@@ -1860,13 +1862,16 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket CreateIssueTicket(Ticket ticket, string ticketIssueDescription, string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
+        public MasterTicket CreateIssueTicket(Ticket ticket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, string ticketIssueDescription,
+            string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
         {
             pActionNotificationCode = new List<Tuple<string, string, string, string>>();
 
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
                 long reasonId = ctx.Reasons.Where(w => w.CategoryId == ticket.CategoryId).FirstOrDefault().ReasonsId;
+                var categoryDescription = ctx.Categories.Where(w => w.CategoryId == ticket.CategoryId).FirstOrDefault().Description;
+                long channelId = ctx.Channels.Where(w => w.ChannelCode.Contains(categoryDescription)).FirstOrDefault().ChannelId;
                 ticket.ReasonsId = reasonId;
                 long ticketStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus.StatusId;
                 var createdTicket = ctx.Tickets.Add(new DM.Ticket
@@ -1885,9 +1890,10 @@ namespace Atlas.Core.Logic
                     CustomerId = ticket.CustomerId,
                     BankId = ticket.BankId,
                     PriorityId = ticket.PriorityId,
-                    AssignedToDepartmentId = ticket.DepartmentId
+                    AssignedToDepartmentId = ticket.DepartmentId,
+                    ChannelId = channelId,
+                    HasIssue = true
                 });
-
 
                 int categoryId = Convert.ToInt32(createdTicket.CategoryId);
                 var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
@@ -1967,6 +1973,41 @@ namespace Atlas.Core.Logic
                     DepartmentId = ticket.DepartmentId
                 });
 
+                List<TicketTransaction> lstTicketTransaction = null;
+                if (pTransaction != null)
+                {
+                    lstTicketTransaction = new List<TicketTransaction>();
+                    var ticketTransactions = ctx.TicketTransactions.Add(new DM.TicketTransaction
+                    {
+                        Ticket = createdTicket,
+                        Amount = pTransaction.TotalAmount,
+                        BankId = pTransaction.BankId,
+                        BankName = pTransaction.BankName,
+                        CurrencyCode = pTransaction.Currency,
+                        CurrencyId = pTransaction.CurrencyId,
+                        PaymentOptionId = pTransaction.PaymentOptionId,
+                        PaymentOptionName = pTransaction.PaymentOptionName,
+                        PaymentTypeId = pTransaction.PaymentTypeId,
+                        PaymentTypeName = pTransaction.PaymentType,
+                        ProviderId = pTransaction.ProviderId,
+                        ProviderName = pTransaction.ProviderName,
+                        TransactionId = pTransaction.PinPayTransactionId,
+                        TransactionDate = pTransaction.TransactionDate,
+                        TransactionStatus = pTransaction.StatusId,
+                        BankTransactionId = pTransaction.BankTransactionId,
+                        AccountNumber = pTransaction.AccountNumber,
+                        AccountType = pTransaction.AccountType,
+                        PaymentCurrencyId = pTransaction.PaymentCurrencyId,
+                        SFM = pTransaction.SFM,
+                        RequestId = pTransaction.RequestId,
+                        PaymentAmount = pTransaction.PaymentAmount,
+                        SourceChannel = pTransaction.SourceChannel
+
+                    });
+                    ctx.SaveChanges();
+                    lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId, pTransaction.BankId, pTransaction.BankName, pTransaction.PinPayTransactionId, pTransaction.RequestId, pTransaction.ProviderId, pTransaction.ProviderName, pTransaction.PaymentTypeId, pTransaction.PaymentType, pTransaction.AccountType, pTransaction.AccountNumber, pTransaction.StatusId, pTransaction.TotalAmount, pTransaction.PaymentAmount, pTransaction.TransactionDate, pTransaction.CurrencyId, pTransaction.Currency, pTransaction.PaymentOptionId, pTransaction.PaymentOptionName, pTransaction.SourceChannel, pTransaction.SFM, pTransaction.BankTransactionId, pTransaction.PaymentCurrencyId));
+                }
+
                 //add issue
                 DM.TicketIssue ticketIssue = new DM.TicketIssue()
                 {
@@ -1999,7 +2040,7 @@ namespace Atlas.Core.Logic
                     , createdTicket.ModifedDate)
                     , new List<Entities.TicketStatus> { new Entities.TicketStatus(ValueObjects.TicketStatusModel.CreatedTicketStatus, status.UserId, status.ChangeDate, createdTicket.TicketId) }
                     , new List<Comment> { new Comment(createdTicket.TicketId, createdComment.CommentId, ticket.UserId, comment, ticket.CreationDate) }
-                    , null
+                    , lstTicketTransaction
                     , null
                     , null
                     );
