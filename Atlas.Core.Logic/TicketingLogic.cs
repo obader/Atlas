@@ -237,8 +237,8 @@ namespace Atlas.Core.Logic
                         ationRouteCodes = filtered;
 
                         var actionsNotification = (from c in ctx.CategoriesActionsNotifications
-                                                    //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                    //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
+                                                       //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                                       //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                                    where c.CategoryId == categoryId
                                                    && ((c.ActionsNotification.Code == ActionsNotification.ClaimAcknowledged && c.ActionsNotification.Type == 1)
                                                    || (sendEmail == true && c.ActionsNotification.Type == 1) || (sendSMS == true && c.ActionsNotification.Type == 2))
@@ -1380,7 +1380,7 @@ namespace Atlas.Core.Logic
                                 SourceChannel = pTransaction.SourceChannel
                             });
                         }
-                        
+
                     }
                     ctx.SaveChanges();
                     masterTicket = GeTicketById(pUserId, ticket.TicketId);
@@ -1921,8 +1921,8 @@ namespace Atlas.Core.Logic
 
 
                 var ationsNotification = (from c in ctx.CategoriesActionsNotifications
-                                          //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                          //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
+                                              //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                              //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                           where c.CategoryId == categoryId
                                           //&& ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
                                           select new ActionNotificationDynamic()
@@ -2009,8 +2009,10 @@ namespace Atlas.Core.Logic
                         SourceChannel = pTransaction.SourceChannel
 
                     });
-                    ctx.SaveChanges();
-                    lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId, pTransaction.BankId, pTransaction.BankName, pTransaction.PinPayTransactionId, pTransaction.RequestId, pTransaction.ProviderId, pTransaction.ProviderName, pTransaction.PaymentTypeId, pTransaction.PaymentType, pTransaction.AccountType, pTransaction.AccountNumber, pTransaction.StatusId, pTransaction.TotalAmount, pTransaction.PaymentAmount, pTransaction.TransactionDate, pTransaction.CurrencyId, pTransaction.Currency, pTransaction.PaymentOptionId, pTransaction.PaymentOptionName, pTransaction.SourceChannel, pTransaction.SFM, pTransaction.BankTransactionId, pTransaction.PaymentCurrencyId));
+                    lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId, pTransaction.BankId, pTransaction.BankName, pTransaction.PinPayTransactionId, pTransaction.RequestId,
+                        pTransaction.ProviderId, pTransaction.ProviderName, pTransaction.PaymentTypeId, pTransaction.PaymentType, pTransaction.AccountType, pTransaction.AccountNumber, pTransaction.StatusId,
+                        pTransaction.TotalAmount, pTransaction.PaymentAmount, pTransaction.TransactionDate, pTransaction.CurrencyId, pTransaction.Currency, pTransaction.PaymentOptionId,
+                        pTransaction.PaymentOptionName, pTransaction.SourceChannel, pTransaction.SFM, pTransaction.BankTransactionId, pTransaction.PaymentCurrencyId));
                 }
 
                 //add issue
@@ -2020,6 +2022,7 @@ namespace Atlas.Core.Logic
                     TicketId = createdTicket.TicketId
                 };
                 ctx.TicketIssues.Add(ticketIssue);
+
                 ctx.SaveChanges();
 
                 var mticket = new MasterTicket(
