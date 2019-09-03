@@ -237,8 +237,8 @@ namespace Atlas.Core.Logic
                         ationRouteCodes = filtered;
 
                         var actionsNotification = (from c in ctx.CategoriesActionsNotifications
-                                                       //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                       //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
+                                                    //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                                    //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                                    where c.CategoryId == categoryId
                                                    && ((c.ActionsNotification.Code == ActionsNotification.ClaimAcknowledged && c.ActionsNotification.Type == 1)
                                                    || (sendEmail == true && c.ActionsNotification.Type == 1) || (sendSMS == true && c.ActionsNotification.Type == 2))
@@ -1868,7 +1868,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket CreateIssueTicket(Ticket ticket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction, string ticketIssueDescription,
+        public MasterTicket CreateIssueTicket(Ticket ticket, TicketTransaction pTransaction, string ticketIssueDescription,
             string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
         {
             pActionNotificationCode = new List<Tuple<string, string, string, string>>();
@@ -1906,7 +1906,6 @@ namespace Atlas.Core.Logic
                 string category = etcategory.Code;
 
                 var catActionsRoutes = from c in ctx.CategoriesActionsRoutes
-                                       join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
                                        where c.CategoryId == categoryId
                                        select c;
 
@@ -1922,16 +1921,16 @@ namespace Atlas.Core.Logic
 
 
                 var ationsNotification = (from c in ctx.CategoriesActionsNotifications
-                                          join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                          let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
+                                          //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                          //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                           where c.CategoryId == categoryId
                                           //&& ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
                                           select new ActionNotificationDynamic()
                                           {
-                                              Code = a.Code,
+                                              Code = c.ActionsNotification.Code,
                                               BankId = c.BankId,
                                               ChannelId = c.ChannelId,
-                                              Channel = ch != null ? ch.ChannelDescription : string.Empty,
+                                              Channel = c.Channel != null ? c.Channel.ChannelDescription : string.Empty,
                                           });
 
                 List<ActionNotificationDynamic> filtered2 = null;
