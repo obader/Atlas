@@ -21,5 +21,8 @@ namespace Atlas.Core.Logic.DM
         public byte[] RowVersion { get; set; }
         public Nullable<int> BankId { get; set; }
         public Nullable<long> ChannelId { get; set; }
+    
+        public virtual Category Category { get; set; }
+        public virtual Channel Channel { get; set; }
     }
 }

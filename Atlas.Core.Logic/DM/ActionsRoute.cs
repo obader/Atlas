@@ -18,6 +18,7 @@ namespace Atlas.Core.Logic.DM
         public ActionsRoute()
         {
             this.CategoriesActionsRoutes = new HashSet<CategoriesActionsRoute>();
+            this.TicketCategoriesActionsRoutes = new HashSet<TicketCategoriesActionsRoute>();
         }
     
         public long ActionsRouteId { get; set; }
@@ -28,5 +29,7 @@ namespace Atlas.Core.Logic.DM
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CategoriesActionsRoute> CategoriesActionsRoutes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketCategoriesActionsRoute> TicketCategoriesActionsRoutes { get; set; }
     }
 }

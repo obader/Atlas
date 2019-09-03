@@ -18,6 +18,7 @@ namespace Atlas.Core.Logic.DM
         public TicketAction()
         {
             this.TicketAudits = new HashSet<TicketAudit>();
+            this.TicketCategoriesActions = new HashSet<TicketCategoriesAction>();
         }
     
         public long TicketActionsId { get; set; }
@@ -27,5 +28,7 @@ namespace Atlas.Core.Logic.DM
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TicketAudit> TicketAudits { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketCategoriesAction> TicketCategoriesActions { get; set; }
     }
 }

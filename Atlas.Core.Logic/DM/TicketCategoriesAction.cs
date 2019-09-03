@@ -14,6 +14,12 @@ namespace Atlas.Core.Logic.DM
     
     public partial class TicketCategoriesAction
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public TicketCategoriesAction()
+        {
+            this.TicketCategoriesActionsRoutes = new HashSet<TicketCategoriesActionsRoute>();
+        }
+    
         public long TicketCategoriesActionsId { get; set; }
         public Nullable<long> TicketParentId { get; set; }
         public long TicketCategoriesId { get; set; }
@@ -25,5 +31,13 @@ namespace Atlas.Core.Logic.DM
         public byte[] RowVersion { get; set; }
         public Nullable<int> BankId { get; set; }
         public Nullable<long> ChannelId { get; set; }
+    
+        public virtual Category Category { get; set; }
+        public virtual TicketAction TicketAction { get; set; }
+        public virtual TicketStatus TicketStatus { get; set; }
+        public virtual TicketStatus TicketStatus1 { get; set; }
+        public virtual Channel Channel { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketCategoriesActionsRoute> TicketCategoriesActionsRoutes { get; set; }
     }
 }

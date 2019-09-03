@@ -28,6 +28,354 @@ namespace Atlas.Core.Logic
             _connectionInfo = new DBConnectionInfo(host, catalog, user, pass, winAuth);
         }
 
+        public string GetTicketByTransactionId(string pTransactionId)
+        {
+            string ticketId = string.Empty;
+
+            try
+            {
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+                    var ticket =
+                    (from ticketTransaction in ctx.TicketTransactions
+                     where ticketTransaction.TransactionId == pTransactionId
+                     && ticketTransaction.Ticket.TicketAudits.OrderByDescending(p => p.TicketAuditId).FirstOrDefault(c => c.TicketId == ticketTransaction.TicketId && c.TicketStatusId > 0)
+                     .TicketStatusId != TicketStatusModel.ClosedTicketStatus.StatusId
+                     && ticketTransaction.Ticket.TicketAudits.OrderByDescending(p => p.TicketAuditId).FirstOrDefault(c => c.TicketId == ticketTransaction.TicketId && c.TicketStatusId > 0)
+                     .TicketStatusId != TicketStatusModel.ResolvedTicketStatus.StatusId
+                     select ticketTransaction
+                    ).ToList();
+
+                    if (ticket != null && ticket.Count > 0)
+                        ticketId = string.Join(",", ticket.FirstOrDefault().TicketId);
+                }
+
+                return ticketId;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public List<TicketCategory> GetTicketCategories(long channelId, int bankId)
+        {
+            try
+            {
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+                    var ticketCategories = new List<TicketCategory>();
+
+                    //get all categories
+                    var categories = ctx.Categories.AsNoTracking().Where(p => p.Enable == true).ToList();
+                    for (int i = 0; i < categories.Count(); i++)
+                    {
+                        var category = categories[i];
+                        //get category reasons
+                        var reasons = category.Reasons
+                            .Where(w =>
+                           (bankId == 0 || (bankId > 0 && w.BankId == bankId)
+                           && (channelId == 0 && w.ChannelId == null || (channelId > 0 && w.ChannelId == channelId))
+                           )
+                            ).ToList();
+                        //get category ticketCategoriesActions
+                        var ticketCategoriesActions = category.TicketCategoriesActions
+                            .Where(w =>
+                            (bankId == 0 || (bankId > 0 && w.BankId == bankId)
+                            && (channelId == 0 && w.ChannelId == null || (channelId > 0 && w.ChannelId == channelId))
+                            )
+                            ).ToList();
+
+                        //set return reasons
+                        var lstReasons = new List<Reason>();
+                        for (int j = 0; j < reasons.Count(); j++)
+                        {
+                            var reason = reasons[j];
+                            lstReasons.Add(
+                                new Reason(
+                                    reason.ReasonsId,
+                                    reason.Code,
+                                    reason.Description
+                                    )
+                                );
+                        }
+
+                        //get ticketaction for each status
+                        var resolutions = new List<Resolution>();
+                        var statuses = ticketCategoriesActions.GroupBy(g => g.TicketStatusesId).Select(p => p.First()).ToList();
+                        var actionsList = new List<Entities.Action>();
+                        for (int k = 0; k < statuses.Count(); k++)
+                        {
+                            var status = statuses[k];
+                            var ticketActions = ticketCategoriesActions.Where(w => w.TicketStatusesId == status.TicketStatus.TicketStatusId).Select(s => s.TicketAction).ToList();
+
+                            for (int l = 0; l < ticketActions.Count(); l++)
+                            {
+                                var ticketAction = ticketActions[l];
+                                actionsList.Add(new Entities.Action(ticketAction.TicketActionsId, ticketAction.Value, ticketAction.Description));
+                            }
+                            resolutions.Add(
+                                new Resolution(
+                                    status.TicketStatus.Value,
+                                    status.TicketStatus.Description,
+                                    actionsList
+                                ));
+                        }
+
+                        ticketCategories.Add(new TicketCategory(category.CategoryId, category.Code, category.Description, resolutions, lstReasons));
+                    }
+                    return ticketCategories;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public MasterTicket AddNewTicket(Ticket ticket, TicketTransaction transaction, List<TicketExternalReferences> externalReferences, string comment, bool sendEmail, bool sendSMS,
+            out List<string> ationRouteCodes, out List<Tuple<string, string, string, string>> actionNotificationCodes, out string channel, out string message, out bool isSuccess)
+        {
+            MasterTicket parentTicket = null;
+            MasterTicket masterTicket = null;
+
+            try
+            {
+                message = string.Empty;
+                isSuccess = true;
+                channel = string.Empty;
+
+                if (string.IsNullOrEmpty(comment))
+                {
+                    message = "Error";
+                    isSuccess = false;
+                    channel = string.Empty;
+                    ationRouteCodes = new List<string>();
+                    actionNotificationCodes = new List<Tuple<string, string, string, string>>();
+                    return masterTicket;
+                }
+
+                string category = string.Empty;
+                string reason = string.Empty;
+                ationRouteCodes = new List<string>();
+                actionNotificationCodes = new List<Tuple<string, string, string, string>>();
+                var createdStatus = TicketStatusModel.CreatedTicketStatus;
+
+                List<TicketExternalReferences> lstTicketExternalReferences = new List<TicketExternalReferences>();
+                List<TicketTransaction> lstTicketTransaction = new List<TicketTransaction>();
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+                    long channelId = 0;
+
+                    if (transaction != null)
+                    {
+                        var dbChannel = ctx.Channels.Where(p => p.ChannelCode == transaction.SourceChannel).FirstOrDefault();
+                        if (dbChannel != null)
+                        {
+                            channelId = dbChannel.ChannelId;
+                            channel = dbChannel.ChannelCode;
+                        }
+                    }
+
+                    var createdTicket = ctx.Tickets.Add(
+                    new DM.Ticket
+                    {
+                        Title = ticket.Title,
+                        ApplicationId = ticket.ApplicationId,
+                        CategoryId = ticket.CategoryId,
+                        ReasonsId = ticket.ReasonsId,
+                        CreatedBy = ticket.UserId,
+                        Description = ticket.Title,
+                        LastStatusChanged = DateTime.UtcNow,
+                        TicketStatusId = createdStatus.StatusId,
+                        CreationDate = ticket.CreationDate,
+                        ModifedDate = ticket.ModifiedDate,
+                        ProfileId = ticket.ProfileId,
+                        CustomerId = ticket.CustomerId,
+                        BankId = ticket.BankId,
+                        PriorityId = ticket.PriorityId,
+                        AssignedToDepartmentId = ticket.DepartmentId,
+                        ChannelId = channelId
+                    });
+
+                    var cmt = ctx.Comments.Add(
+                    new DM.Comment
+                    {
+                        Ticket = createdTicket,
+                        UserId = ticket.UserId,
+                        CommentValue = comment != null ? comment : string.Empty,
+                        RecordDate = DateTime.UtcNow
+                    });
+
+                    if (ticket.ReasonsId > 0)
+                    {
+                        int reasonsId = Convert.ToInt32(ticket.ReasonsId);
+                        var dbReason = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
+                        reason = dbReason.Description;
+                    }
+
+                    if (ticket.CategoryId > 0)
+                    {
+                        int categoryId = Convert.ToInt32(ticket.CategoryId);
+                        var dbCategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
+                        category = dbCategory.Code;
+
+                        var catActionsRoutes = from c in ctx.CategoriesActionsRoutes
+                                               where c.CategoryId == categoryId
+                                               select c;
+
+                        List<string> filtered = null;
+                        filtered = catActionsRoutes.Where(w => w.BankId == createdTicket.BankId && w.ChannelId == createdTicket.ChannelId).Select(p => p.ActionsRoute.Code).ToList();
+                        if (filtered.Count == 0)
+                            filtered = catActionsRoutes.Where(w => w.BankId == createdTicket.BankId && w.ChannelId == null).Select(p => p.ActionsRoute.Code).ToList();
+                        if (filtered.Count == 0)
+                            filtered = catActionsRoutes.Where(w => w.BankId == null && w.BankId == createdTicket.ChannelId).Select(p => p.ActionsRoute.Code).ToList();
+                        if (filtered.Count == 0)
+                            filtered = catActionsRoutes.Where(w => w.BankId == null && w.BankId == null).Select(p => p.ActionsRoute.Code).ToList();
+
+                        ationRouteCodes = filtered;
+
+                        var actionsNotification = (from c in ctx.CategoriesActionsNotifications
+                                                       //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
+                                                       //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
+                                                   where c.CategoryId == categoryId
+                                                   && ((c.ActionsNotification.Code == ActionsNotification.ClaimAcknowledged && c.ActionsNotification.Type == 1)
+                                                   || (sendEmail == true && c.ActionsNotification.Type == 1) || (sendSMS == true && c.ActionsNotification.Type == 2))
+                                                   select new ActionNotificationDynamic()
+                                                   {
+                                                       Code = c.ActionsNotification.Code,
+                                                       BankId = c.BankId,
+                                                       ChannelId = c.ChannelId,
+                                                       Channel = c.Channel != null ? c.Channel.ChannelDescription : string.Empty,
+                                                   });
+
+                        List<ActionNotificationDynamic> filtered2 = null;
+                        filtered2 = actionsNotification.Where(w => w.BankId == createdTicket.BankId && w.ChannelId == createdTicket.ChannelId).ToList();
+                        if (filtered2.Count == 0)
+                            filtered2 = actionsNotification.Where(w => w.BankId == createdTicket.BankId && w.ChannelId == null).ToList();
+                        if (filtered2.Count == 0)
+                            filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == createdTicket.ChannelId).ToList();
+                        if (filtered2.Count == 0)
+                            filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
+
+                        for (int i = 0; i < filtered2.Count; i++)
+                            actionNotificationCodes.Add(new Tuple<string, string, string, string>(filtered2[i].Code, filtered2[i].BankId.ToString(),
+                                filtered2[i].ChannelId.ToString(), filtered2[i].Channel));
+                    }
+
+                    if (transaction != null)
+                    {
+                        var ticketTransactions = ctx.TicketTransactions.Add(
+                        new DM.TicketTransaction
+                        {
+                            Ticket = createdTicket,
+                            Amount = transaction.TotalAmount,
+                            BankId = transaction.BankId,
+                            BankName = transaction.BankName,
+                            CurrencyCode = transaction.Currency,
+                            CurrencyId = transaction.CurrencyId,
+                            PaymentOptionId = transaction.PaymentOptionId,
+                            PaymentOptionName = transaction.PaymentOptionName,
+                            PaymentTypeId = transaction.PaymentTypeId,
+                            PaymentTypeName = transaction.PaymentType,
+                            ProviderId = transaction.ProviderId,
+                            ProviderName = transaction.ProviderName,
+                            TransactionId = transaction.PinPayTransactionId,
+                            TransactionDate = transaction.TransactionDate,
+                            TransactionStatus = transaction.StatusId,
+                            BankTransactionId = transaction.BankTransactionId,
+                            AccountNumber = transaction.AccountNumber,
+                            AccountType = transaction.AccountType,
+                            PaymentCurrencyId = transaction.PaymentCurrencyId,
+                            SFM = transaction.SFM,
+                            RequestId = transaction.RequestId,
+                            PaymentAmount = transaction.PaymentAmount,
+                            SourceChannel = transaction.SourceChannel
+                        });
+
+                        //ctx.SaveChanges();
+                        lstTicketTransaction.Add(new TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.PinPayTransactionId, transaction.RequestId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentType, transaction.AccountType, transaction.AccountNumber, transaction.StatusId, transaction.TotalAmount, transaction.PaymentAmount, transaction.TransactionDate, transaction.CurrencyId, transaction.Currency, transaction.PaymentOptionId, transaction.PaymentOptionName, transaction.SourceChannel, transaction.SFM, transaction.BankTransactionId, transaction.PaymentCurrencyId));
+                    }
+
+                    var audit = ctx.TicketAudits.Add(new DM.TicketAudit
+                    {
+                        UserId = ticket.UserId,
+                        Ticket = createdTicket,
+                        TicketStatusId = createdStatus.StatusId,
+                        ChangeDate = createdTicket.LastStatusChanged ?? DateTime.UtcNow,
+                    });
+
+                    var commentAudit = ctx.TicketAudits.Add(new DM.TicketAudit
+                    {
+                        UserId = ticket.UserId,
+                        Ticket = createdTicket,
+                        ChangeDate = createdTicket.LastStatusChanged ?? DateTime.UtcNow,
+                        Comment = comment,
+                        PriorityId = createdTicket.PriorityId,
+                        DepartmentId = ticket.DepartmentId
+                    });
+
+                    if (externalReferences != null && externalReferences.Count > 0)
+                    {
+                        for (int i = 0; i < externalReferences.Count; i++)
+                        {
+                            var ticketExternalReferences = ctx.TicketExternalReferences.Add(
+                            new DM.TicketExternalReference
+                            {
+                                Comments = externalReferences[i].Comments,
+                                PayLoad = externalReferences[i].PayLoad,
+                                RecordDate = DateTime.UtcNow,
+                                TicketId = createdTicket.TicketId,
+                                TypeCode = externalReferences[i].TypeCode
+                            });
+                            lstTicketExternalReferences.Add(
+                                new TicketExternalReferences(externalReferences[i].Id, externalReferences[i].UserId, externalReferences[i].Date,
+                                createdTicket.TicketId, externalReferences[i].Comments, externalReferences[i].TypeCode, externalReferences[i].PayLoad));
+                        }
+                    }
+
+                    if (createdTicket.TicketParentId != null)
+                        parentTicket = GetTicketParent(createdTicket.TicketParentId.Value, string.Empty);
+
+                    ctx.SaveChanges();
+
+                    masterTicket = new MasterTicket(ticket.UserId
+                        , new Ticket(
+                          createdTicket.TicketId
+                        , createdTicket.TicketParentId != null ? createdTicket.TicketParentId.Value : 0
+                        , ticket.UserId
+                        , ticket.BankId
+                        , createdTicket.ProfileId
+                        , createdTicket.CustomerId
+                        , createdTicket.Title
+                        , createdTicket.Description
+                        , ticket.ApplicationId
+                        , ticket.CategoryId
+                        , category
+                        , ticket.ReasonsId
+                        , reason
+                        , TicketType.Profile
+                        , ticket.PriorityId
+                        , ticket.DepartmentId
+                        , ticket.CreationDate
+                        , createdTicket.ModifedDate)
+                        , new List<Entities.TicketStatus> { new Entities.TicketStatus(createdStatus, audit.UserId, audit.ChangeDate, createdTicket.TicketId) }
+                        , new List<Comment> { new Comment(createdTicket.TicketId, cmt.CommentId, ticket.UserId, comment, ticket.CreationDate) }
+                        , lstTicketTransaction
+                        , lstTicketExternalReferences
+                        , parentTicket
+                        );
+
+                    return masterTicket;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public bool CheckDb()
         {
             bool lResult = false;
@@ -741,7 +1089,6 @@ namespace Atlas.Core.Logic
                         reason = etReasons.Description;
                     }
 
-
                     var externalReferences = ctx.TicketExternalReferences.Where(p => p.TicketId == pTicketId).ToList();
 
                     var statuses = ctx.TicketAudits.Where(p => p.TicketId == pTicketId && p.TicketStatusId != null).ToList();
@@ -750,20 +1097,25 @@ namespace Atlas.Core.Logic
                         return null;
 
                     var statusList =
-                        statuses.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, st.ChangeDate, lTicket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
+                        statuses.Select(st => new Entities.TicketStatus(new TicketStatusModel
+                        (st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description),
+                        st.UserId, st.ChangeDate, lTicket.TicketId, st.TicketAction != null ? st.TicketAction.Description : string.Empty)).ToList();
 
                     var externalReferencesList =
-                         externalReferences.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
+                         externalReferences.Select(st => new TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId,
+                         st.Comments, st.TypeCode, st.PayLoad)).ToList();
 
                     var lCommentList =
                         ctx.Comments.Where(p => p.TicketId == pTicketId).AsNoTracking().ToList();
-                    var commentList = lCommentList.Select(cm => new Entities.Comment(lTicket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
+                    var commentList = lCommentList.Select(cm => new Comment(lTicket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
                             .ToList();
 
                     var lTransactionsList =
                         ctx.TicketTransactions.Where(p => p.TicketId == pTicketId).AsNoTracking().ToList();
-                    var transactionsList = lTransactionsList.Select(cm => new Entities.TicketTransaction(cm.TicketId, cm.BankId, cm.BankName, cm.TransactionId, cm.RequestId, cm.ProviderId, cm.ProviderName, cm.PaymentTypeId, cm.PaymentTypeName, cm.AccountType, cm.AccountNumber, cm.TransactionStatus, cm.Amount, cm.PaymentAmount, cm.TransactionDate, cm.CurrencyId, cm.CurrencyCode, cm.PaymentOptionId, cm.PaymentOptionName, cm.SourceChannel, cm.SFM, cm.BankTransactionId, cm.PaymentCurrencyId ?? 0)).ToList();
-
+                    var transactionsList = lTransactionsList.Select(cm => new Entities.TicketTransaction(cm.TicketId, cm.BankId, cm.BankName, cm.TransactionId,
+                        cm.RequestId, cm.ProviderId, cm.ProviderName, cm.PaymentTypeId, cm.PaymentTypeName, cm.AccountType, cm.AccountNumber,
+                        cm.TransactionStatus, cm.Amount, cm.PaymentAmount, cm.TransactionDate, cm.CurrencyId, cm.CurrencyCode, cm.PaymentOptionId,
+                        cm.PaymentOptionName, cm.SourceChannel, cm.SFM, cm.BankTransactionId, cm.PaymentCurrencyId ?? 0)).ToList();
 
                     if (statusList.Last() != null && statusList.Last().Status != null)
                     {
@@ -775,261 +1127,20 @@ namespace Atlas.Core.Logic
                         parentTicket = GetTicketParent(lTicket.TicketParentId.Value, string.Empty);
 
                     var mticket = new MasterTicket(pUserId,
-                        new Ticket(lTicket.TicketId, lTicket.TicketParentId ?? 0, lTicket.CreatedBy, lTicket.BankId ?? 0, lTicket.ProfileId, lTicket.CustomerId, lTicket.Title, lTicket.Description, lTicket.ApplicationId ?? 0, lTicket.CategoryId ?? 0, category, lTicket.ReasonsId ?? 0, reason, statusCode
-                        , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, transactionsList, externalReferencesList, parentTicket);
+                        new Ticket(lTicket.TicketId, lTicket.TicketParentId ?? 0, lTicket.CreatedBy, lTicket.BankId ?? 0, lTicket.ProfileId, lTicket.CustomerId, lTicket.Title,
+                        lTicket.Description, lTicket.ApplicationId ?? 0, lTicket.CategoryId ?? 0, category, lTicket.ReasonsId ?? 0, reason, statusCode
+                        , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, transactionsList,
+                        externalReferencesList, parentTicket);
 
                     mticket.HasIssue = lTicket.HasIssue != null ? lTicket.HasIssue.Value : false;
                     mticket.IssueDescription = lTicket.TicketIssues.Count() != 0 ? lTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
-
                     return mticket;
 
                 }
                 catch (Exception ex)
                 {
-
                     throw ex;
                 }
-
-            }
-        }
-
-        public MasterTicket AddNewTicket(Ticket pTicket, Atlas.Core.Logic.Entities.TicketTransaction pTransaction,
-            List<Atlas.Core.Logic.Entities.TicketExternalReferences> pExternalReferences,
-            string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode,
-            out List<Tuple<string, string, string, string>> pActionNotificationCode, out string pChannel, out string message, out bool isSuccess)
-        {
-            message = string.Empty;
-            isSuccess = true;
-            pChannel = string.Empty;
-            List<Tuple<string, string, string, string>> list = new List<Tuple<string, string, string, string>>();
-            MasterTicket parentTicket = null;
-            MasterTicket tTicket = null;
-            try
-            {
-                if (pComment == null || pComment == "")
-                {
-                    message = "Error";
-                    isSuccess = false;
-                    pActionRouteCode = new List<string>();
-                    pActionNotificationCode = new List<Tuple<string, string, string, string>>();
-                    return tTicket;
-                }
-
-                long pChannelId = 0;
-
-                string category = string.Empty;
-                string reason = string.Empty;
-                pActionRouteCode = new List<string>();
-                pActionNotificationCode = new List<Tuple<string, string, string, string>>();
-                var createdStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus;
-                List<TicketExternalReferences> lstTicketExternalReferences = new List<TicketExternalReferences>();
-                List<TicketTransaction> lstTicketTransaction = new List<TicketTransaction>();
-                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
-                {
-                    var ticket = ctx.Tickets.Add(new DM.Ticket
-                    {
-                        Title = pTicket.Title,
-                        ApplicationId = pTicket.ApplicationId,
-                        CategoryId = pTicket.CategoryId,
-                        ReasonsId = pTicket.ReasonsId,
-                        CreatedBy = pTicket.UserId,
-                        Description = pTicket.Description,
-                        LastStatusChanged = DateTime.UtcNow,
-                        TicketStatusId = createdStatus.StatusId,
-                        CreationDate = pTicket.CreationDate,
-                        ModifedDate = pTicket.ModifiedDate,
-                        ProfileId = pTicket.ProfileId,
-                        CustomerId = pTicket.CustomerId,
-                        BankId = pTicket.BankId,
-                        PriorityId = pTicket.PriorityId,
-                        AssignedToDepartmentId = pTicket.DepartmentId
-                    });
-
-                    if (pTransaction != null)
-                    {
-                        pChannel = pTransaction.SourceChannel;
-                        var channel = ctx.Channels.Where(p => p.ChannelCode == pTransaction.SourceChannel).FirstOrDefault();
-                        if (channel != null)
-                            pChannelId = channel.ChannelId;
-
-                        if (pChannelId > 0)
-                            ticket.ChannelId = pChannelId;
-                    }
-
-                    if (pTicket.CategoryId > 0)
-                    {
-                        int categoryId = Convert.ToInt32(pTicket.CategoryId);
-                        var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
-                        category = etcategory.Code;
-
-                        var catActionsRoutes = from c in ctx.CategoriesActionsRoutes
-                                           join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
-                                           where c.CategoryId == categoryId
-                                           select c;
-
-                        List<string> filtered = null;
-                        filtered = catActionsRoutes.Where(w => w.BankId == ticket.BankId && w.ChannelId == ticket.ChannelId).Select(p => p.ActionsRoute.Code).ToList();
-                        if (filtered.Count == 0)
-                            filtered = catActionsRoutes.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).Select(p => p.ActionsRoute.Code).ToList();
-                        if (filtered.Count == 0)
-                            filtered = catActionsRoutes.Where(w => w.BankId == null && w.BankId == ticket.ChannelId).Select(p => p.ActionsRoute.Code).ToList();
-                        if (filtered.Count == 0)
-                            filtered = catActionsRoutes.Where(w => w.BankId == null && w.BankId == null).Select(p => p.ActionsRoute.Code).ToList();
-
-                        pActionRouteCode = filtered;
-
-                        var actionsNotification = (from c in ctx.CategoriesActionsNotifications
-                                                  join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                  let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
-                                                  where c.CategoryId == categoryId
-                                                  && ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
-                                                  select new ActionNotificationDynamic()
-                                                  {
-                                                     Code = a.Code,
-                                                      BankId = c.BankId,
-                                                      ChannelId = c.ChannelId,
-                                                      Channel = ch != null ? ch.ChannelDescription : string.Empty,
-                                                  });
-
-                        List<ActionNotificationDynamic> filtered2 = null;
-                        filtered2 = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == ticket.ChannelId).ToList();
-                        if (filtered2.Count == 0)
-                            filtered2 = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
-                        if (filtered2.Count == 0)
-                            filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == ticket.ChannelId).ToList();
-                        if (filtered2.Count == 0)
-                            filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
-
-                        for (int i = 0; i < filtered2.Count; i++)
-                            pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered2[i].Code, filtered2[i].BankId.ToString(),
-                                filtered2[i].ChannelId.ToString(), filtered2[i].Channel));
-                    }
-
-                    if (pTicket.ReasonsId > 0)
-                    {
-                        int reasonsId = Convert.ToInt32(pTicket.ReasonsId);
-                        var etReasons = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
-                        reason = etReasons.Description;
-                    }
-
-                    var status = ctx.TicketAudits.Add(new DM.TicketAudit
-                    {
-                        UserId = pTicket.UserId,
-                        Ticket = ticket,
-                        TicketStatusId = createdStatus.StatusId,
-                        ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow
-
-                    });
-
-                    var comment = ctx.Comments.Add(new DM.Comment
-                    {
-                        Ticket = ticket,
-                        UserId = pTicket.UserId,
-                        CommentValue = pComment != null ? pComment : string.Empty,
-                        RecordDate = DateTime.UtcNow
-                    });
-
-
-                    if (pTransaction != null)
-                    {
-                        var ticketTransactions = ctx.TicketTransactions.Add(new DM.TicketTransaction
-                        {
-                            Ticket = ticket,
-                            Amount = pTransaction.TotalAmount,
-                            BankId = pTransaction.BankId,
-                            BankName = pTransaction.BankName,
-                            CurrencyCode = pTransaction.Currency,
-                            CurrencyId = pTransaction.CurrencyId,
-                            PaymentOptionId = pTransaction.PaymentOptionId,
-                            PaymentOptionName = pTransaction.PaymentOptionName,
-                            PaymentTypeId = pTransaction.PaymentTypeId,
-                            PaymentTypeName = pTransaction.PaymentType,
-                            ProviderId = pTransaction.ProviderId,
-                            ProviderName = pTransaction.ProviderName,
-                            TransactionId = pTransaction.PinPayTransactionId,
-                            TransactionDate = pTransaction.TransactionDate,
-                            TransactionStatus = pTransaction.StatusId,
-                            BankTransactionId = pTransaction.BankTransactionId,
-                            AccountNumber = pTransaction.AccountNumber,
-                            AccountType = pTransaction.AccountType,
-                            PaymentCurrencyId = pTransaction.PaymentCurrencyId,
-                            SFM = pTransaction.SFM,
-                            RequestId = pTransaction.RequestId,
-                            PaymentAmount = pTransaction.PaymentAmount,
-                            SourceChannel = pTransaction.SourceChannel
-
-                        });
-                        ctx.SaveChanges();
-                        lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId, pTransaction.BankId, pTransaction.BankName, pTransaction.PinPayTransactionId, pTransaction.RequestId, pTransaction.ProviderId, pTransaction.ProviderName, pTransaction.PaymentTypeId, pTransaction.PaymentType, pTransaction.AccountType, pTransaction.AccountNumber, pTransaction.StatusId, pTransaction.TotalAmount, pTransaction.PaymentAmount, pTransaction.TransactionDate, pTransaction.CurrencyId, pTransaction.Currency, pTransaction.PaymentOptionId, pTransaction.PaymentOptionName, pTransaction.SourceChannel, pTransaction.SFM, pTransaction.BankTransactionId, pTransaction.PaymentCurrencyId));
-                    }
-
-
-                    var commentAudit = ctx.TicketAudits.Add(new DM.TicketAudit
-                    {
-                        UserId = pTicket.UserId,
-                        Ticket = ticket,
-                        ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow,
-                        Comment = pComment,
-                        PriorityId = pTicket.PriorityId,
-                        DepartmentId = pTicket.DepartmentId
-                    });
-
-                    ctx.SaveChanges();
-
-                    if (pExternalReferences != null && pExternalReferences.Count > 0)
-                    {
-                        for (int i = 0; i < pExternalReferences.Count; i++)
-                        {
-
-                            var ticketExternalReferences = ctx.TicketExternalReferences.Add(new DM.TicketExternalReference
-                            {
-                                Comments = pExternalReferences[i].Comments,
-                                PayLoad = pExternalReferences[i].PayLoad,
-                                RecordDate = DateTime.UtcNow,
-                                TicketId = ticket.TicketId,
-                                TypeCode = pExternalReferences[i].TypeCode
-                            });
-                            ctx.SaveChanges();
-                            lstTicketExternalReferences.Add(new TicketExternalReferences(pExternalReferences[i].Id, pExternalReferences[i].UserId, pExternalReferences[i].Date, ticket.TicketId, pExternalReferences[i].Comments, pExternalReferences[i].TypeCode, pExternalReferences[i].PayLoad));
-                        }
-                    }
-
-                    if (ticket.TicketParentId != null)
-                        parentTicket = GetTicketParent(ticket.TicketParentId.Value, string.Empty);
-
-                    var mticket = new MasterTicket(pTicket.UserId
-                        , new Ticket(
-                          ticket.TicketId
-                        , pTicket.TicketParentId
-                        , pTicket.UserId
-                        , pTicket.BankId
-                        , pTicket.ProfileId
-                        , pTicket.CustomerId
-                        , pTicket.Title
-                        , pTicket.Description
-                        , pTicket.ApplicationId
-                        , pTicket.CategoryId
-                        , category
-                        , pTicket.ReasonsId
-                        , reason
-                        , TicketType.Profile
-                        , pTicket.PriorityId
-                        , pTicket.DepartmentId
-                        , ticket.CreationDate
-                        , ticket.ModifedDate)
-                        , new List<Entities.TicketStatus> { new Entities.TicketStatus(createdStatus, status.UserId, status.ChangeDate, ticket.TicketId) }
-                        , new List<Comment> { new Comment(ticket.TicketId, comment.CommentId, pTicket.UserId, pComment, ticket.CreationDate) }
-                        , lstTicketTransaction
-                        , lstTicketExternalReferences
-                        , parentTicket
-                        );
-
-                    return mticket;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
         }
 
@@ -1070,97 +1181,89 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket UpdateTicketStatus(long pTicketid, string pticketCategoryActionsId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode, out long pProfileId, out long pCustomerId, out string pChannel, out bool iSuccess, out long ticketParentId)
+        public MasterTicket UpdateTicketStatus(long pTicketid, int ticketCategoryActionId, string pUserId, string pComment, bool pIsSendEmail, bool pIsSendSMS,
+            out List<string> actionRouteCodes, out List<Tuple<string, string, string, string>> actionNotificationCodes, out long profileId,
+            out long customerId, out string channel, out bool isSuccess, out long ticketParentId)
         {
+            MasterTicket masterTicket = null;
+            int ticketStatusId = 0;
+            int ticketCategoriesDestinationId = 0;
+            int ticketActionsId = 0;
+
             try
             {
-                pActionNotificationCode = new List<Tuple<string, string, string, string>>();
-                iSuccess = true;
-                pChannel = string.Empty;
-                long ticketStatusId = 0;
-                long ticketCategoriesDestinationId = 0;
-                long ticketCategoryActionsId = Convert.ToInt32(pticketCategoryActionsId);
-                long ticketActionsId = 0;
-                MasterTicket etData = null;
+                isSuccess = true;
+                channel = string.Empty;
+                profileId = 0;
+                customerId = 0;
                 ticketParentId = 0;
 
-                if (pComment == null || pComment == "")
+                if (string.IsNullOrEmpty(pComment))
                 {
-                    iSuccess = false;
-                    pActionRouteCode = new List<string>();
-                    pActionNotificationCode = new List<Tuple<string, string, string, string>>();
-                    pProfileId = 0;
-                    pCustomerId = 0;
-                    return etData;
+                    isSuccess = false;
+                    channel = string.Empty;
+                    actionRouteCodes = new List<string>();
+                    actionNotificationCodes = new List<Tuple<string, string, string, string>>();
+                    return masterTicket;
                 }
 
-                pActionRouteCode = new List<string>();
-                pActionNotificationCode = new List<Tuple<string, string, string, string>>();
-                pProfileId = 0;
-                pCustomerId = 0;
+                actionRouteCodes = new List<string>();
+                actionNotificationCodes = new List<Tuple<string, string, string, string>>();
+                var createdStatus = TicketStatusModel.CreatedTicketStatus;
 
-                var createdStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus;
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
                     var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketid);
                     if (ticket == null)
-                        if (ticket == null)
-                        {
-                            iSuccess = false;
-                            return etData;
-                        }
+                    {
+                        isSuccess = false;
+                        return masterTicket;
+                    }
 
-                    var Channel = ctx.Channels.Where(p => p.ChannelId == ticket.ChannelId).FirstOrDefault();
-                    if (Channel != null)
-                        pChannel = Channel.ChannelCode;
-
+                    var dbChannel = ctx.Channels.Where(p => p.ChannelId == ticket.ChannelId).FirstOrDefault();
+                    if (dbChannel != null)
+                        channel = dbChannel.ChannelCode;
 
                     var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == pTicketid && p.TicketStatusId != null);
                     if (ticketAudits == null)
-                        if (ticket == null)
-                        {
-                            iSuccess = false;
-                            return etData;
-                        }
-
-                    var ticketActions = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesActionsId == ticketCategoryActionsId && p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesId == ticketAudits.TicketStatusId).FirstOrDefault();
-
-
-                    if (ticketActions != null)
                     {
-                        ticketStatusId = Convert.ToInt32(ticketActions.TicketStatusesDestinationId);
-                        ticketCategoriesDestinationId = ticketActions.TicketCategoriesDestinationId != null ? Convert.ToInt32(ticketActions.TicketCategoriesDestinationId) : 0;
-                        ticketActionsId = ticketActions.TicketActionsId;
-                        pProfileId = Convert.ToInt32(ticket.ProfileId);
-                        pCustomerId = Convert.ToInt32(ticket.CustomerId);
+                        isSuccess = false;
+                        return masterTicket;
+                    }
+
+                    var ticketCategoryAction = ctx.TicketCategoriesActions
+                        .Where(p => p.TicketCategoriesActionsId == ticketCategoryActionId
+                        //&& p.TicketCategoriesId == ticket.CategoryId
+                        //&& p.TicketStatusesId == ticketAudits.TicketStatusId
+                        ).FirstOrDefault();
+
+                    if (ticketCategoryAction != null)
+                    {
+                        ticketStatusId = Convert.ToInt32(ticketCategoryAction.TicketStatusesDestinationId);
+                        ticketCategoriesDestinationId = ticketCategoryAction.TicketCategoriesDestinationId != null ? Convert.ToInt32(ticketCategoryAction.TicketCategoriesDestinationId) : 0;
+                        ticketActionsId = Convert.ToInt32(ticketCategoryAction.TicketActionsId);
+                        profileId = Convert.ToInt32(ticket.ProfileId);
+                        customerId = Convert.ToInt32(ticket.CustomerId);
                     }
                     else
                     {
-                        iSuccess = false;
-                        return etData;
+                        isSuccess = false;
+                        return masterTicket;
                     }
 
-                    if (ticketActions != null && ticketActions.TicketCategoriesActionsId > 0)
+                    if (ticketCategoryAction != null)
                     {
-                        var actionsRoutes = from c in ctx.TicketCategoriesActionsRoutes
-                                            join a in ctx.ActionsRoutes on c.ActionsRouteId equals a.ActionsRouteId
-                                            where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId
-                                            select a;
+                        actionRouteCodes = ticketCategoryAction.TicketCategoriesActionsRoutes.Select(p => p.ActionsRoute.Code).ToList();
 
-                        pActionRouteCode = actionsRoutes.ToList().Select(p => p.Code).ToList();
-
-                        var actionsNotification = (from c in ctx.TicketCategoriesActionsNotifications
-                                                   join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                   join t in ctx.TicketCategoriesActions on c.TicketCategoriesActionsId equals t.TicketCategoriesActionsId
-                                                   let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == t.ChannelId)
-                                                   where c.TicketCategoriesActionsId == ticketActions.TicketCategoriesActionsId
-                                                  && ((pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
+                        var actionsNotification = (from c in ctx.CategoriesActionsNotifications
+                                                   where c.CategoryId == ticketCategoryAction.TicketCategoriesId
+                                                   && ((pIsSendEmail == true && c.ActionsNotification.Type == 1) || (pIsSendSMS == true && c.ActionsNotification.Type == 2))
                                                    select new ActionNotificationDynamic()
                                                    {
-                                                       Code = a.Code,
-                                                       BankId = t.BankId,
-                                                       ChannelId = t.ChannelId,
-                                                       Channel = ch != null ? ch.ChannelDescription : string.Empty,
+                                                       Code = c.ActionsNotification.Code,
+                                                       BankId = c.BankId,
+                                                       ChannelId = c.ChannelId,
+                                                       Channel = c.Channel != null ? c.Channel.ChannelDescription : string.Empty,
                                                    });
 
                         List<ActionNotificationDynamic> filtered = null;
@@ -1173,12 +1276,17 @@ namespace Atlas.Core.Logic
                             filtered = actionsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
 
                         for (int i = 0; i < filtered.Count; i++)
-                            pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered[i].Code, filtered[i].BankId.ToString(), filtered[i].ChannelId.ToString(), filtered[i].Channel));
+                            actionNotificationCodes.Add(new Tuple<string, string, string, string>(filtered[i].Code, filtered[i].BankId.ToString(), filtered[i].ChannelId.ToString(),
+                                filtered[i].Channel));
 
                     }
 
                     ticket.LastStatusChanged = DateTime.UtcNow;
                     ticket.TicketStatusId = ticketStatusId;
+                    ticket.ModifedDate = DateTime.UtcNow;
+                    ticket.ModifiedBy = pUserId;
+
+                    ticketParentId = ticket.TicketParentId != null ? ticket.TicketParentId.Value : 0;
                     if (ticket.TicketParentId != null && ticketStatusId == 4)
                         UpdateParentTicketStatus(ticket.TicketParentId.Value, ticketStatusId, pUserId, pComment, ticketActionsId, out ticketParentId);
 
@@ -1200,14 +1308,9 @@ namespace Atlas.Core.Logic
                         RecordDate = DateTime.UtcNow
                     });
 
-                    ticket.ModifedDate = DateTime.UtcNow;
-                    ticket.ModifiedBy = pUserId;
-                    ticket.Description = "";
-                    ctx.SaveChanges();
-
                     if (ticketCategoriesDestinationId > 0)
                     {
-                        var etTicket = ctx.Tickets.Add(new DM.Ticket
+                        var newTicket = ctx.Tickets.Add(new DM.Ticket
                         {
                             TicketParentId = pTicketid,
                             ApplicationId = ticket.ApplicationId,
@@ -1225,15 +1328,14 @@ namespace Atlas.Core.Logic
                         var etStatus = ctx.TicketAudits.Add(new DM.TicketAudit
                         {
                             UserId = pUserId,
-                            Ticket = etTicket,
+                            Ticket = newTicket,
                             TicketStatusId = createdStatus.StatusId,
                             ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow
-
                         });
 
                         var etComment = ctx.Comments.Add(new DM.Comment
                         {
-                            Ticket = etTicket,
+                            Ticket = newTicket,
                             UserId = pUserId,
                             CommentValue = pComment != null ? pComment : string.Empty,
                             RecordDate = DateTime.UtcNow
@@ -1242,13 +1344,10 @@ namespace Atlas.Core.Logic
                         var commentAudit = ctx.TicketAudits.Add(new DM.TicketAudit
                         {
                             UserId = pUserId,
-                            Ticket = etTicket,
+                            Ticket = newTicket,
                             ChangeDate = ticket.LastStatusChanged ?? DateTime.UtcNow,
                             Comment = pComment,
                         });
-
-
-
 
                         var pTransaction = ctx.TicketTransactions.Where(p => p.TicketId == pTicketid).FirstOrDefault();
 
@@ -1256,7 +1355,7 @@ namespace Atlas.Core.Logic
                         {
                             var ticketTransactions = ctx.TicketTransactions.Add(new DM.TicketTransaction
                             {
-                                Ticket = etTicket,
+                                Ticket = newTicket,
                                 Amount = pTransaction.Amount,
                                 BankId = pTransaction.BankId,
                                 BankName = pTransaction.BankName,
@@ -1279,17 +1378,14 @@ namespace Atlas.Core.Logic
                                 RequestId = pTransaction.RequestId,
                                 PaymentAmount = pTransaction.PaymentAmount,
                                 SourceChannel = pTransaction.SourceChannel
-
                             });
-
                         }
-
-                        ctx.SaveChanges();
+                        
                     }
+                    ctx.SaveChanges();
+                    masterTicket = GeTicketById(pUserId, ticket.TicketId);
 
-                    etData = GeTicketById(pUserId, ticket.TicketId);
-
-                    return etData;
+                    return masterTicket;
                 }
 
             }
@@ -1327,7 +1423,6 @@ namespace Atlas.Core.Logic
                 });
                 ticket.ModifedDate = DateTime.UtcNow;
                 ticket.ModifiedBy = pUserId;
-                ticket.Description = "";
                 ctx.SaveChanges();
 
                 if (ticket.TicketParentId != null)
@@ -1554,72 +1649,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public List<Entities.TicketCategory> GetTicketCategories(long pChannelId, int pBankId)
-        {
-            try
-            {
-                var lResult = new List<TicketCategory>();
-                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
-                {
 
-                    var list = ctx.Categories.AsNoTracking().Where(p => p.Enable == true).ToList();
-                    for (int i = 0; i < list.Count(); i++)
-                    {
-                        var lResultResolution = new List<Resolution>();
-                        var lResultReason = new List<Reason>();
-
-                        long idCategories = list[i].CategoryId;
-                        var listCategories = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == idCategories && (pBankId == 0 || (pBankId > 0 && p.BankId == pBankId)) && (pChannelId == 0 && p.ChannelId == null || (pChannelId > 0 && p.ChannelId == pChannelId))).ToList();
-                        var listReasons = ctx.Reasons.Where(p => p.CategoryId == idCategories && (pBankId == 0 || (pBankId > 0 && p.BankId == pBankId)) && (pChannelId == 0 && p.ChannelId == null || (pChannelId > 0 && p.ChannelId == pChannelId))).ToList();
-
-
-                        List<long> listStatus = listCategories.Where(p => p.TicketCategoriesId == idCategories).Select(p => p.TicketStatusesId).Distinct().ToList();
-                        for (int j = 0; j < listStatus.Count(); j++)
-                        {
-                            var lResultActions = new List<Entities.Action>();
-                            long idStatus = listStatus[j];
-                            List<long> listActions = listCategories.Where(p => p.TicketCategoriesId == idCategories && p.TicketStatusesId == idStatus).Select(p => p.TicketCategoriesActionsId).Distinct().ToList();
-
-                            for (int t = 0; t < listActions.Count(); t++)
-                            {
-                                long idActions = listActions[t];
-                                var etActions = ctx.TicketActions.Where(p => p.TicketActionsId == idActions).FirstOrDefault();
-                                if (etActions != null)
-                                {
-                                    lResultActions.Add(new Entities.Action(etActions.TicketActionsId, etActions.Value, etActions.Description));
-                                }
-                            }
-                            var etStatus = ctx.TicketStatuses.Where(p => p.TicketStatusId == idStatus).FirstOrDefault();
-                            if (etStatus != null)
-                            {
-                                lResultResolution.Add(new Resolution(etStatus.Value, etStatus.Description, lResultActions));
-                            }
-
-                        }
-
-
-                        for (int l = 0; l < listReasons.Count(); l++)
-                        {
-                            lResultReason.Add(new Reason(listReasons[l].ReasonsId, listReasons[l].Code, listReasons[l].Description));
-
-                        }
-
-
-                        var etCategory = ctx.Categories.Where(p => p.CategoryId == idCategories).FirstOrDefault();
-                        if (etCategory != null)
-                        {
-                            lResult.Add(new TicketCategory(etCategory.CategoryId, etCategory.Code, etCategory.Description, lResultResolution, lResultReason));
-                        }
-
-                    }
-                }
-                return lResult;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         public List<ValueObjects.TicketStatusModel> GetStatuses()
         {
@@ -1640,53 +1670,56 @@ namespace Atlas.Core.Logic
 
         }
 
-        public List<TicketCategoriesActions> GetResolutionByTicketId(long pTicketId)
+        public List<TicketCategoriesActions> GetResolutionByTicketId(long ticketId)
         {
             try
             {
-                var lResult = new List<TicketCategoriesActions>();
+                List<TicketCategoriesActions> result = null;
                 long ticketParentId = 0;
+
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
-                    var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketId);
+                    var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == ticketId);
                     if (ticket == null)
-                        return lResult;
+                        return result;
 
-                    var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == pTicketId && p.TicketStatusId != null);
+                    var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == ticketId && p.TicketStatusId != null);
                     if (ticketAudits == null)
-                        return lResult;
+                        return result;
 
-                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId && p.TicketActionsId == ticketAudits.TicketActionsId).FirstOrDefault();
+                    var ticketOld = ctx.TicketCategoriesActions.Where(p => p.TicketCategoriesId == ticket.CategoryId
+                                    && p.TicketStatusesDestinationId == ticketAudits.TicketStatusId
+                                    && p.TicketActionsId == ticketAudits.TicketActionsId).FirstOrDefault();
 
                     if (ticketOld != null)
-                    {
                         ticketParentId = Convert.ToInt16(ticketOld.TicketCategoriesActionsId);
-                    }
 
                     var ticketCategoriesActions = ctx.TicketCategoriesActions
-                    .Where(p => p.TicketCategoriesId == ticket.CategoryId
-                    && p.TicketStatusesId == ticketAudits.TicketStatusId
-                    && ((ticketParentId == 0 && p.TicketParentId == null) || (ticketParentId > 0 && p.TicketParentId == ticketParentId))).ToList();
+                        .Where(p => p.TicketCategoriesId == ticket.CategoryId
+                        && p.TicketStatusesId == ticketAudits.TicketStatusId
+                        && (
+                                (ticketParentId == 0 && p.TicketParentId == null)
+                                || (ticketParentId > 0 && p.TicketParentId == ticketParentId))
+                            ).ToList();
 
                     List<DM.TicketCategoriesAction> filtered = null;
                     filtered = ticketCategoriesActions.Where(w => w.BankId == ticket.BankId && w.ChannelId == ticket.ChannelId).ToList();
-                    if(filtered.Count == 0)
+                    if (filtered.Count == 0)
                         filtered = ticketCategoriesActions.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
                     if (filtered.Count == 0)
                         filtered = ticketCategoriesActions.Where(w => w.BankId == null && w.BankId == ticket.ChannelId).ToList();
                     if (filtered.Count == 0)
                         filtered = ticketCategoriesActions.Where(w => w.BankId == null && w.BankId == null).ToList();
-
+                    result = new List<TicketCategoriesActions>();
                     for (int i = 0; i < filtered.Count(); i++)
                     {
                         long ticketActionsId = filtered[i].TicketActionsId;
                         var ticketActions = ctx.TicketActions.Where(p => p.TicketActionsId == ticketActionsId).FirstOrDefault();
                         if (ticketActions != null)
-                            lResult.Add(new Entities.TicketCategoriesActions(filtered[i].TicketCategoriesActionsId, ticketActions.Description));
+                            result.Add(new TicketCategoriesActions(filtered[i].TicketCategoriesActionsId, ticketActions.Description));
                     }
-
                 }
-                return lResult;
+                return result;
             }
             catch (Exception ex)
             {
@@ -1717,34 +1750,7 @@ namespace Atlas.Core.Logic
 
         }
 
-        public string GetTicketByTransactionId(string pTransactionId)
-        {
-            string ticktId = string.Empty;
 
-            try
-            {
-                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
-                {
-
-                    var ticket =
-                    (from tr in ctx.TicketTransactions
-                     let tk = ctx.TicketAudits.OrderByDescending(p => p.TicketAuditId).FirstOrDefault(c => c.TicketId == tr.TicketId && c.TicketStatusId > 0)
-                     where tr.TransactionId == pTransactionId && tk.TicketStatusId != TicketStatusModel.ClosedTicketStatus.StatusId && tk.TicketStatusId != TicketStatusModel.ResolvedTicketStatus.StatusId
-                     select tk
-                    ).ToList();
-
-                    if (ticket != null && ticket.Count > 0)
-                        ticktId = string.Join(",", ticket.FirstOrDefault().TicketId);
-                }
-
-                return ticktId;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
 
         public List<MasterTicket> GetTransactionTicketsByCustomerId(string pUserId, int pCustomerId, int pProfileId, int pBankId)
         {

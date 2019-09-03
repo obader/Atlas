@@ -39,6 +39,18 @@
         <AssociationConnector Association="TicketingModel.FK_CategoriesActionsRoute_ActionsRoute" />
         <EntityTypeShape EntityType="TicketingModel.TicketIssue" Width="1.5" PointX="8.625" PointY="15" />
         <AssociationConnector Association="TicketingModel.FK_TicketIssues_Tickets" />
+        <AssociationConnector Association="TicketingModel.FK_Reasons_Categories" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActions_Categories" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActions_TicketActions" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActions_TicketStatuses" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActions_TicketStatuses1" />
+        <AssociationConnector Association="TicketingModel.FK_CategoriesActionsNotification_ActionsNotification" />
+        <AssociationConnector Association="TicketingModel.FK_CategoriesActionsNotification_Categories" />
+        <AssociationConnector Association="TicketingModel.FK_CategoriesActionsNotification_Channels" />
+        <AssociationConnector Association="TicketingModel.FK_Reasons_Channels" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActions_Channels" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActionsRoute_ActionsRoute" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActionsRoute_TicketCategoriesActions" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

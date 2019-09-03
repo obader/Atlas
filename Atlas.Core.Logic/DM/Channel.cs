@@ -14,9 +14,24 @@ namespace Atlas.Core.Logic.DM
     
     public partial class Channel
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Channel()
+        {
+            this.CategoriesActionsNotifications = new HashSet<CategoriesActionsNotification>();
+            this.Reasons = new HashSet<Reason>();
+            this.TicketCategoriesActions = new HashSet<TicketCategoriesAction>();
+        }
+    
         public long ChannelId { get; set; }
         public string ChannelCode { get; set; }
         public string ChannelDescription { get; set; }
         public byte[] RowVersion { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CategoriesActionsNotification> CategoriesActionsNotifications { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Reason> Reasons { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketCategoriesAction> TicketCategoriesActions { get; set; }
     }
 }

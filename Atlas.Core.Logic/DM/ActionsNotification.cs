@@ -14,11 +14,20 @@ namespace Atlas.Core.Logic.DM
     
     public partial class ActionsNotification
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public ActionsNotification()
+        {
+            this.CategoriesActionsNotifications = new HashSet<CategoriesActionsNotification>();
+        }
+    
         public long ActionsNotificationId { get; set; }
         public string Code { get; set; }
         public string Description { get; set; }
         public int Type { get; set; }
         public bool Enable { get; set; }
         public byte[] RowVersion { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CategoriesActionsNotification> CategoriesActionsNotifications { get; set; }
     }
 }

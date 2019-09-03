@@ -14,6 +14,14 @@ namespace Atlas.Core.Logic.DM
     
     public partial class Category
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Category()
+        {
+            this.Reasons = new HashSet<Reason>();
+            this.TicketCategoriesActions = new HashSet<TicketCategoriesAction>();
+            this.CategoriesActionsNotifications = new HashSet<CategoriesActionsNotification>();
+        }
+    
         public long CategoryId { get; set; }
         public string Code { get; set; }
         public bool Enable { get; set; }
@@ -23,5 +31,11 @@ namespace Atlas.Core.Logic.DM
         public long TicketTypeId { get; set; }
     
         public virtual TicketType TicketType { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Reason> Reasons { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketCategoriesAction> TicketCategoriesActions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CategoriesActionsNotification> CategoriesActionsNotifications { get; set; }
     }
 }
