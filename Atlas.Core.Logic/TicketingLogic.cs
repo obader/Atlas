@@ -758,6 +758,9 @@ namespace Atlas.Core.Logic
                 {
                     mticket.Ticket.TransactionId = transaction.TransactionId;
                 }
+
+                mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
+                mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
             }
             return mticket;
         }
@@ -1129,8 +1132,17 @@ namespace Atlas.Core.Logic
                         , lTicket.PriorityId, lTicket.AssignedToDepartmentId, lTicket.CreationDate, lTicket.ModifedDate), statusList, commentList, transactionsList,
                         externalReferencesList, parentTicket);
 
-                    mticket.HasIssue = lTicket.HasIssue != null ? lTicket.HasIssue.Value : false;
-                    mticket.IssueDescription = lTicket.TicketIssues.Count() != 0 ? lTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                    if (parentTicket != null)
+                    {
+                        var dbParentTicket = ctx.Tickets.AsNoTracking().FirstOrDefault(p => p.TicketId == lTicket.TicketParentId);
+                        mticket.HasIssue = dbParentTicket.HasIssue != null ? dbParentTicket.HasIssue.Value : false;
+                        mticket.IssueDescription = dbParentTicket.TicketIssues.Count() != 0 ? dbParentTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                    }
+                    else
+                    {
+                        mticket.HasIssue = lTicket.HasIssue != null ? lTicket.HasIssue.Value : false;
+                        mticket.IssueDescription = lTicket.TicketIssues.Count() != 0 ? lTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                    }
                     return mticket;
 
                 }
