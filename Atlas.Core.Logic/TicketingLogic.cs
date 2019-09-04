@@ -544,8 +544,7 @@ namespace Atlas.Core.Logic
                     if (page != 0 && itemsPerPage != 0)
                         ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
 
-
-                    List<DM.Ticket> tickets = ticketsQuery.ToList();
+                    List<DM.Ticket> tickets = ticketsQuery.AsNoTracking().ToList();
 
                     foreach (var ticket in tickets)
                     {
@@ -669,7 +668,7 @@ namespace Atlas.Core.Logic
                           );
                     }
 
-                    return ticketsQuery.Count();
+                    return ticketsQuery.AsNoTracking().Count();
                 }
                 catch (Exception ex)
                 {
@@ -1748,9 +1747,40 @@ namespace Atlas.Core.Logic
 
         }
 
+        public int GetTransactionTicketsCountByCustomerId(string pUserId, int pCustomerId, int pProfileId, int pBankId,
+           int page, int itemsPerPage)
+        {
+            var lTickets = new List<MasterTicket>();
+            string category = string.Empty;
+            string statusCode = string.Empty;
+            string reason = string.Empty;
 
+            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+            {
+                try
+                {
+                    IQueryable<DM.Ticket> ticketsQuery = from ticket in ctx.Tickets
+                                                         where (pBankId == 0 && ticket.ProfileId == pProfileId)
+                                                         || (pBankId > 0 && ticket.BankId == pBankId && ticket.CustomerId == pCustomerId)
+                                                         orderby ticket.LastStatusChanged descending
+                                                         select ticket;
 
-        public List<MasterTicket> GetTransactionTicketsByCustomerId(string pUserId, int pCustomerId, int pProfileId, int pBankId)
+                    if (page != 0 && itemsPerPage != 0)
+                        ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
+
+                    return ticketsQuery.AsNoTracking().Count();
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+
+            }
+        }
+
+        public List<MasterTicket> GetTransactionTicketsByCustomerId(string pUserId, int pCustomerId, int pProfileId, int pBankId,
+            int page, int itemsPerPage)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -1762,13 +1792,16 @@ namespace Atlas.Core.Logic
             {
                 try
                 {
-                    var tickets =
-                       ctx.Tickets.Where(p => (pBankId == 0 && p.ProfileId == pProfileId) || (pBankId > 0 && p.BankId == pBankId && p.CustomerId == pCustomerId)).Distinct()
-                            .AsNoTracking()
-                            .ToList();
+                    IQueryable<DM.Ticket> ticketsQuery = from ticket in ctx.Tickets
+                                                         where (pBankId == 0 && ticket.ProfileId == pProfileId)
+                                                         || (pBankId > 0 && ticket.BankId == pBankId && ticket.CustomerId == pCustomerId)
+                                                         orderby ticket.LastStatusChanged descending
+                                                         select ticket;
 
-                    if (tickets.Count == 0)
-                        return lTickets;
+                    if (page != 0 && itemsPerPage != 0)
+                        ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
+
+                    List<DM.Ticket> tickets = ticketsQuery.AsNoTracking().ToList();
 
                     foreach (var ticket in tickets)
                     {
