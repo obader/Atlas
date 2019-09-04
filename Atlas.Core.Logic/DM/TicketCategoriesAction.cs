@@ -18,6 +18,7 @@ namespace Atlas.Core.Logic.DM
         public TicketCategoriesAction()
         {
             this.TicketCategoriesActionsRoutes = new HashSet<TicketCategoriesActionsRoute>();
+            this.TicketCategoriesActionsNotifications = new HashSet<TicketCategoriesActionsNotification>();
         }
     
         public long TicketCategoriesActionsId { get; set; }
@@ -39,5 +40,7 @@ namespace Atlas.Core.Logic.DM
         public virtual Channel Channel { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TicketCategoriesActionsRoute> TicketCategoriesActionsRoutes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketCategoriesActionsNotification> TicketCategoriesActionsNotifications { get; set; }
     }
 }

@@ -481,6 +481,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_TicketCategoriesActionsNotifications_ActionsNotification">
+          <End Role="ActionsNotification" Type="Self.ActionsNotification" Multiplicity="1" />
+          <End Role="TicketCategoriesActionsNotifications" Type="Self.TicketCategoriesActionsNotifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ActionsNotification">
+              <PropertyRef Name="ActionsNotificationId" />
+            </Principal>
+            <Dependent Role="TicketCategoriesActionsNotifications">
+              <PropertyRef Name="ActionsNotificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketCategoriesActionsNotifications_TicketCategoriesActions">
+          <End Role="TicketCategoriesActions" Type="Self.TicketCategoriesActions" Multiplicity="1" />
+          <End Role="TicketCategoriesActionsNotifications" Type="Self.TicketCategoriesActionsNotifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketCategoriesActions">
+              <PropertyRef Name="TicketCategoriesActionsId" />
+            </Principal>
+            <Dependent Role="TicketCategoriesActionsNotifications">
+              <PropertyRef Name="TicketCategoriesActionsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_TicketCategoriesActionsRoute_ActionsRoute">
           <End Role="ActionsRoute" Type="Self.ActionsRoute" Multiplicity="1" />
           <End Role="TicketCategoriesActionsRoute" Type="Self.TicketCategoriesActionsRoute" Multiplicity="*" />
@@ -644,6 +668,14 @@
             <End Role="TicketStatuses" EntitySet="TicketStatuses" />
             <End Role="TicketCategoriesActions" EntitySet="TicketCategoriesActions" />
           </AssociationSet>
+          <AssociationSet Name="FK_TicketCategoriesActionsNotifications_ActionsNotification" Association="Self.FK_TicketCategoriesActionsNotifications_ActionsNotification">
+            <End Role="ActionsNotification" EntitySet="ActionsNotification" />
+            <End Role="TicketCategoriesActionsNotifications" EntitySet="TicketCategoriesActionsNotifications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketCategoriesActionsNotifications_TicketCategoriesActions" Association="Self.FK_TicketCategoriesActionsNotifications_TicketCategoriesActions">
+            <End Role="TicketCategoriesActions" EntitySet="TicketCategoriesActions" />
+            <End Role="TicketCategoriesActionsNotifications" EntitySet="TicketCategoriesActionsNotifications" />
+          </AssociationSet>
           <AssociationSet Name="FK_TicketCategoriesActionsRoute_ActionsRoute" Association="Self.FK_TicketCategoriesActionsRoute_ActionsRoute">
             <End Role="ActionsRoute" EntitySet="ActionsRoute" />
             <End Role="TicketCategoriesActionsRoute" EntitySet="TicketCategoriesActionsRoute" />
@@ -791,6 +823,14 @@
           <AssociationSet Name="FK_TicketCategoriesActionsRoute_TicketCategoriesActions" Association="TicketingModel.FK_TicketCategoriesActionsRoute_TicketCategoriesActions">
             <End Role="TicketCategoriesAction" EntitySet="TicketCategoriesActions" />
             <End Role="TicketCategoriesActionsRoute" EntitySet="TicketCategoriesActionsRoutes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketCategoriesActionsNotifications_ActionsNotification" Association="TicketingModel.FK_TicketCategoriesActionsNotifications_ActionsNotification">
+            <End Role="ActionsNotification" EntitySet="ActionsNotifications" />
+            <End Role="TicketCategoriesActionsNotification" EntitySet="TicketCategoriesActionsNotifications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketCategoriesActionsNotifications_TicketCategoriesActions" Association="TicketingModel.FK_TicketCategoriesActionsNotifications_TicketCategoriesActions">
+            <End Role="TicketCategoriesAction" EntitySet="TicketCategoriesActions" />
+            <End Role="TicketCategoriesActionsNotification" EntitySet="TicketCategoriesActionsNotifications" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Application">
@@ -953,6 +993,7 @@
           <Property Name="Enable" Type="Boolean" Nullable="false" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
           <NavigationProperty Name="CategoriesActionsNotifications" Relationship="TicketingModel.FK_CategoriesActionsNotification_ActionsNotification" FromRole="ActionsNotification" ToRole="CategoriesActionsNotification" />
+          <NavigationProperty Name="TicketCategoriesActionsNotifications" Relationship="TicketingModel.FK_TicketCategoriesActionsNotifications_ActionsNotification" FromRole="ActionsNotification" ToRole="TicketCategoriesActionsNotification" />
         </EntityType>
         <EntityType Name="TicketCategoriesActionsNotification">
           <Key>
@@ -962,6 +1003,8 @@
           <Property Name="TicketCategoriesActionsId" Type="Int64" Nullable="false" />
           <Property Name="ActionsNotificationId" Type="Int64" Nullable="false" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="ActionsNotification" Relationship="TicketingModel.FK_TicketCategoriesActionsNotifications_ActionsNotification" FromRole="TicketCategoriesActionsNotification" ToRole="ActionsNotification" />
+          <NavigationProperty Name="TicketCategoriesAction" Relationship="TicketingModel.FK_TicketCategoriesActionsNotifications_TicketCategoriesActions" FromRole="TicketCategoriesActionsNotification" ToRole="TicketCategoriesAction" />
         </EntityType>
         <EntityType Name="TicketExternalReference">
           <Key>
@@ -1093,6 +1136,7 @@
           <NavigationProperty Name="TicketStatus1" Relationship="TicketingModel.FK_TicketCategoriesActions_TicketStatuses1" FromRole="TicketCategoriesAction" ToRole="TicketStatus" />
           <NavigationProperty Name="Channel" Relationship="TicketingModel.FK_TicketCategoriesActions_Channels" FromRole="TicketCategoriesAction" ToRole="Channel" />
           <NavigationProperty Name="TicketCategoriesActionsRoutes" Relationship="TicketingModel.FK_TicketCategoriesActionsRoute_TicketCategoriesActions" FromRole="TicketCategoriesAction" ToRole="TicketCategoriesActionsRoute" />
+          <NavigationProperty Name="TicketCategoriesActionsNotifications" Relationship="TicketingModel.FK_TicketCategoriesActionsNotifications_TicketCategoriesActions" FromRole="TicketCategoriesAction" ToRole="TicketCategoriesActionsNotification" />
         </EntityType>
         <EntityType Name="Ticket">
           <Key>
@@ -1397,6 +1441,30 @@
               <PropertyRef Name="TicketCategoriesActionsId" />
             </Principal>
             <Dependent Role="TicketCategoriesActionsRoute">
+              <PropertyRef Name="TicketCategoriesActionsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketCategoriesActionsNotifications_ActionsNotification">
+          <End Type="TicketingModel.ActionsNotification" Role="ActionsNotification" Multiplicity="1" />
+          <End Type="TicketingModel.TicketCategoriesActionsNotification" Role="TicketCategoriesActionsNotification" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ActionsNotification">
+              <PropertyRef Name="ActionsNotificationId" />
+            </Principal>
+            <Dependent Role="TicketCategoriesActionsNotification">
+              <PropertyRef Name="ActionsNotificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketCategoriesActionsNotifications_TicketCategoriesActions">
+          <End Type="TicketingModel.TicketCategoriesAction" Role="TicketCategoriesAction" Multiplicity="1" />
+          <End Type="TicketingModel.TicketCategoriesActionsNotification" Role="TicketCategoriesActionsNotification" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketCategoriesAction">
+              <PropertyRef Name="TicketCategoriesActionsId" />
+            </Principal>
+            <Dependent Role="TicketCategoriesActionsNotification">
               <PropertyRef Name="TicketCategoriesActionsId" />
             </Dependent>
           </ReferentialConstraint>

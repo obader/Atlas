@@ -51,6 +51,8 @@
         <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActions_Channels" />
         <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActionsRoute_ActionsRoute" />
         <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActionsRoute_TicketCategoriesActions" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActionsNotifications_ActionsNotification" />
+        <AssociationConnector Association="TicketingModel.FK_TicketCategoriesActionsNotifications_TicketCategoriesActions" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

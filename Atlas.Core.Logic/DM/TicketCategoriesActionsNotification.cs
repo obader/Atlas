@@ -18,5 +18,8 @@ namespace Atlas.Core.Logic.DM
         public long TicketCategoriesActionsId { get; set; }
         public long ActionsNotificationId { get; set; }
         public byte[] RowVersion { get; set; }
+    
+        public virtual ActionsNotification ActionsNotification { get; set; }
+        public virtual TicketCategoriesAction TicketCategoriesAction { get; set; }
     }
 }

@@ -237,8 +237,6 @@ namespace Atlas.Core.Logic
                         ationRouteCodes = filtered;
 
                         var actionsNotification = (from c in ctx.CategoriesActionsNotifications
-                                                       //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                                       //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
                                                    where c.CategoryId == categoryId
                                                    && ((c.ActionsNotification.Code == ActionsNotification.ClaimAcknowledged && c.ActionsNotification.Type == 1)
                                                    || (sendEmail == true && c.ActionsNotification.Type == 1) || (sendSMS == true && c.ActionsNotification.Type == 2))
@@ -1255,15 +1253,15 @@ namespace Atlas.Core.Logic
                     {
                         actionRouteCodes = ticketCategoryAction.TicketCategoriesActionsRoutes.Select(p => p.ActionsRoute.Code).ToList();
 
-                        var actionsNotification = (from c in ctx.CategoriesActionsNotifications
-                                                   where c.CategoryId == ticketCategoryAction.TicketCategoriesId
+                        var actionsNotification = (from c in ctx.TicketCategoriesActionsNotifications
+                                                   where c.TicketCategoriesActionsId == ticketCategoryAction.TicketCategoriesActionsId
                                                    && ((pIsSendEmail == true && c.ActionsNotification.Type == 1) || (pIsSendSMS == true && c.ActionsNotification.Type == 2))
                                                    select new ActionNotificationDynamic()
                                                    {
                                                        Code = c.ActionsNotification.Code,
-                                                       BankId = c.BankId,
-                                                       ChannelId = c.ChannelId,
-                                                       Channel = c.Channel != null ? c.Channel.ChannelDescription : string.Empty,
+                                                       BankId = c.TicketCategoriesAction.BankId,
+                                                       ChannelId = c.TicketCategoriesAction.ChannelId,
+                                                       Channel = c.TicketCategoriesAction.Channel != null ? c.TicketCategoriesAction.Channel.ChannelDescription : string.Empty,
                                                    });
 
                         List<ActionNotificationDynamic> filtered = null;
@@ -1920,31 +1918,29 @@ namespace Atlas.Core.Logic
                 pActionRouteCode = filtered;
 
 
-                var ationsNotification = (from c in ctx.CategoriesActionsNotifications
-                                              //join a in ctx.ActionsNotifications on c.ActionsNotificationId equals a.ActionsNotificationId
-                                              //let ch = ctx.Channels.FirstOrDefault(p => p.ChannelId == c.ChannelId)
-                                          where c.CategoryId == categoryId
-                                          //&& ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
-                                          select new ActionNotificationDynamic()
-                                          {
-                                              Code = c.ActionsNotification.Code,
-                                              BankId = c.BankId,
-                                              ChannelId = c.ChannelId,
-                                              Channel = c.Channel != null ? c.Channel.ChannelDescription : string.Empty,
-                                          });
+                //var actionsNotification = (from c in ctx.CategoriesActionsNotifications
+                //                          where c.CategoryId == categoryId
+                //                          //&& ((a.Code == ActionsNotification.ClaimAcknowledged && a.Type == 1) || (pIsSendEmail == true && a.Type == 1) || (pIsSendSMS == true && a.Type == 2))
+                //                          select new ActionNotificationDynamic()
+                //                          {
+                //                              Code = c.ActionsNotification.Code,
+                //                              BankId = c.BankId,
+                //                              ChannelId = c.ChannelId,
+                //                              Channel = c.Channel != null ? c.Channel.ChannelDescription : string.Empty,
+                //                          });
 
-                List<ActionNotificationDynamic> filtered2 = null;
-                filtered2 = ationsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == createdTicket.ChannelId).ToList();
-                if (filtered2.Count == 0)
-                    filtered2 = ationsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
-                if (filtered2.Count == 0)
-                    filtered2 = ationsNotification.Where(w => w.BankId == null && w.BankId == createdTicket.ChannelId).ToList();
-                if (filtered2.Count == 0)
-                    filtered2 = ationsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
+                //List<ActionNotificationDynamic> filtered2 = null;
+                //filtered2 = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == createdTicket.ChannelId).ToList();
+                //if (filtered2.Count == 0)
+                //    filtered2 = actionsNotification.Where(w => w.BankId == ticket.BankId && w.ChannelId == null).ToList();
+                //if (filtered2.Count == 0)
+                //    filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == createdTicket.ChannelId).ToList();
+                //if (filtered2.Count == 0)
+                //    filtered2 = actionsNotification.Where(w => w.BankId == null && w.BankId == null).ToList();
 
-                for (int i = 0; i < filtered2.Count; i++)
-                    pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered2[i].Code, filtered2[i].BankId.ToString(),
-                        filtered2[i].ChannelId.ToString(), filtered2[i].Channel));
+                //for (int i = 0; i < filtered2.Count; i++)
+                //    pActionNotificationCode.Add(new Tuple<string, string, string, string>(filtered2[i].Code, filtered2[i].BankId.ToString(),
+                //        filtered2[i].ChannelId.ToString(), filtered2[i].Channel));
 
 
                 int reasonsId = Convert.ToInt32(createdTicket.ReasonsId);
