@@ -396,7 +396,7 @@ namespace Atlas.Core.Logic
             return lResult;
         }
 
-        public List<MasterTicket> GeTickets(string pUserId, DateTime? pFromDate, DateTime? pToDate, int pStatusId, int pCategoryId, int pProfileId, int pCustomerId, string pStatusesFilterOut, int pBankId)
+        public List<MasterTicket> GetTickets(string pUserId, DateTime? pFromDate, DateTime? pToDate, int pStatusId, int pCategoryId, int pProfileId, int pCustomerId, string pStatusesFilterOut, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -498,7 +498,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public List<MasterTicket> GeTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
+        public List<MasterTicket> GetTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
             long ticketId, long transactionId, long profileId)
         {
             var lTickets = new List<MasterTicket>();
@@ -616,6 +616,9 @@ namespace Atlas.Core.Logic
                             mticket.Ticket.TransactionId = transaction.TransactionId;
                         }
 
+                        mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
+                        mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+
                         lTickets.Add(mticket);
                     }
                 }
@@ -628,7 +631,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public int GeTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
+        public int GetTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
             long ticketId, long transactionId, long profileId)
         {
             var lTickets = new List<MasterTicket>();
@@ -765,7 +768,7 @@ namespace Atlas.Core.Logic
             return mticket;
         }
 
-        public List<MasterTicket> GeTicketsByProfileId(string pUserId, int pProfiled, int pBankId)
+        public List<MasterTicket> GetTicketsByProfileId(string pUserId, int pProfiled, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -873,7 +876,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public List<MasterTicket> GeTicketsByCustomerId(string pUserId, int pCustomerd, int pBankId)
+        public List<MasterTicket> GetTicketsByCustomerId(string pUserId, int pCustomerd, int pBankId)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
@@ -981,7 +984,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public MasterTicket GeTicket(long pTicketId, string pUserId, int pBankId)
+        public MasterTicket GetTicket(long pTicketId, string pUserId, int pBankId)
         {
             MasterTicket parentTicket = null;
 
@@ -1060,7 +1063,7 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket GeTicketById(string pUserId, long pTicketId)
+        public MasterTicket GetTicketById(string pUserId, long pTicketId)
         {
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
@@ -1143,6 +1146,10 @@ namespace Atlas.Core.Logic
                         mticket.HasIssue = lTicket.HasIssue != null ? lTicket.HasIssue.Value : false;
                         mticket.IssueDescription = lTicket.TicketIssues.Count() != 0 ? lTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
                     }
+
+                    //get channel code
+                    if (lTicket.ChannelId != null)
+                        mticket.Channel = ctx.Channels.Where(w => w.ChannelId == lTicket.ChannelId.Value).FirstOrDefault().ChannelCode;
                     return mticket;
 
                 }
@@ -1392,7 +1399,7 @@ namespace Atlas.Core.Logic
 
                     }
                     ctx.SaveChanges();
-                    masterTicket = GeTicketById(pUserId, ticket.TicketId);
+                    masterTicket = GetTicketById(pUserId, ticket.TicketId);
 
                     return masterTicket;
                 }
@@ -1503,7 +1510,7 @@ namespace Atlas.Core.Logic
                     ticket.Description = "";
                     ctx.SaveChanges();
                     iSuccess = true;
-                    etData = GeTicketById(pUserId, ticket.TicketId);
+                    etData = GetTicketById(pUserId, ticket.TicketId);
                     return etData;
                 }
 

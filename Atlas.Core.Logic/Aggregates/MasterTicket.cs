@@ -21,6 +21,7 @@ namespace Atlas.Core.Logic.Aggregates
         public MasterTicket ParentTicket { get; set; }
         public bool HasIssue { get; set; }
         public string IssueDescription { get; set; }
+        public string Channel { get; set; }
 
         public MasterTicket(string pUserId, Entities.Ticket pTicket, List<Entities.TicketStatus> pStatuses,List<Entities.Comment> pComments, List<Entities.TicketTransaction> pTransactions, List<Entities.TicketExternalReferences> pExternalReferences,
             MasterTicket pParentTicket)
