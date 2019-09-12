@@ -12,6 +12,7 @@ using System.Data;
 using static Atlas.Core.Logic.Entities.Enums;
 using Atlas.Core.Logic.ValueObjects;
 using Atlas.Core.Logic.DTOs;
+using Newtonsoft.Json;
 
 namespace Atlas.Core.Logic
 {
@@ -512,34 +513,47 @@ namespace Atlas.Core.Logic
             {
                 try
                 {
+                    long fetchedTicketId = 0;
+                    if (transactionId != 0)
+                    {
+                        var issueTickets = ctx.Tickets.Where(w => w.HasIssue.HasValue && w.HasIssue.Value == true).ToList();
+                        for (int i = 0; i < issueTickets.Count(); i++)
+                        {
+                            if (issueTickets[i].TicketIssues.Count() > 0)
+                            {
+                                string issueDescription = issueTickets[i].TicketIssues.FirstOrDefault().IssueDescription;
 
-                    if (transactionId > 0)
-                    {
-                        ticketsQuery = (from ticketTransaction in ctx.TicketTransactions
-                                        orderby ticketTransaction.Ticket.LastStatusChanged descending
-                                        where ticketTransaction.Ticket.CategoryId == pCategoryId
-                                        && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
-                                        && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                                        && (ticketId == 0 || (ticketId > 0 && (ticketTransaction.Ticket.TicketId == ticketId || ticketTransaction.Ticket.TicketParentId == ticketId)))
-                                        && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
-                                        && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
-                                        select ticketTransaction.Ticket
-                                        );
+                                if (!string.IsNullOrEmpty(issueDescription))
+                                {
+                                    IssueTicketModel issueticket = JsonConvert.DeserializeObject<IssueTicketModel>(issueDescription);
+                                    if (issueticket != null)
+                                        if (issueticket.Transaction != null)
+                                            if (issueticket.Transaction.Id != 0)
+                                                if (issueticket.Transaction.Id == transactionId)
+                                                {
+                                                    fetchedTicketId = issueTickets[i].TicketId;
+                                                    break;
+                                                }
+                                }
+                            }
+                        }
                     }
-                    else
-                    {
-                        ticketsQuery =
-                             (from ticket in ctx.Tickets
-                              orderby ticket.LastStatusChanged descending
-                              where ticket.CategoryId == pCategoryId
-                              && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
-                              && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                              && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || ticket.TicketParentId == ticketId)))
-                              && (transactionId == 0 || (transactionId > 0 && ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
-                              && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
-                              select ticket
-                              );
-                    }
+
+                    ticketsQuery =
+                    (from ticket in ctx.Tickets
+                     orderby ticket.LastStatusChanged descending
+                     where ticket.CategoryId == pCategoryId
+                     && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                     && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
+                     && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == ticketId))))
+                     && (
+                         transactionId == 0
+                         || (transactionId > 0 && (ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
+                         || (transactionId > 0 && (ticket.TicketId == fetchedTicketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == fetchedTicketId)))
+                     )
+                     && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
+                     select ticket
+                    );
 
                     if (page != 0 && itemsPerPage != 0)
                         ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
@@ -616,8 +630,18 @@ namespace Atlas.Core.Logic
                             mticket.Ticket.TransactionId = transaction.TransactionId;
                         }
 
-                        mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
-                        mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                        if (parentTicket != null)
+                        {
+                            var dbParentTicket = ctx.Tickets.AsNoTracking().FirstOrDefault(p => p.TicketId == ticket.TicketParentId);
+                            mticket.HasIssue = dbParentTicket.HasIssue != null ? dbParentTicket.HasIssue.Value : false;
+                            mticket.IssueDescription = dbParentTicket.TicketIssues.Count() != 0 ? dbParentTicket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                        }
+                        else
+                        {
+                            mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
+                            mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                        }
+
                         lTickets.Add(mticket);
                     }
                 }
@@ -643,32 +667,47 @@ namespace Atlas.Core.Logic
             {
                 try
                 {
-                    if (transactionId > 0)
+                    long fetchedTicketId = 0;
+                    if (transactionId != 0)
                     {
-                        ticketsQuery = (from ticketTransaction in ctx.TicketTransactions
-                                        where ticketTransaction.Ticket.CategoryId == pCategoryId
-                                        && (pBankId == 0 || (pBankId > 0 && ticketTransaction.Ticket.BankId == pBankId))
-                                        && (statusId == 0 || (statusId > 0 && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticketTransaction.Ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                                         && (ticketId == 0 || (ticketId > 0 && (ticketTransaction.Ticket.TicketId == ticketId || ticketTransaction.Ticket.TicketParentId == ticketId)))
-                                        && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
-                                        && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
-                                        select ticketTransaction.Ticket
-                              );
+                        var issueTickets = ctx.Tickets.Where(w => w.HasIssue.HasValue && w.HasIssue.Value == true).ToList();
+                        for (int i = 0; i < issueTickets.Count(); i++)
+                        {
+                            if (issueTickets[i].TicketIssues.Count() > 0)
+                            {
+                                string issueDescription = issueTickets[i].TicketIssues.FirstOrDefault().IssueDescription;
+
+                                if (!string.IsNullOrEmpty(issueDescription))
+                                {
+                                    IssueTicketModel issueticket = JsonConvert.DeserializeObject<IssueTicketModel>(issueDescription);
+                                    if (issueticket != null)
+                                        if (issueticket.Transaction != null)
+                                            if (issueticket.Transaction.Id != 0)
+                                                if (issueticket.Transaction.Id == transactionId)
+                                                {
+                                                    fetchedTicketId = issueTickets[i].TicketId;
+                                                    break;
+                                                }
+                                }
+                            }
+                        }
                     }
-                    else
-                    {
-                        ticketsQuery =
-                         (from ticket in ctx.Tickets
-                          orderby ticket.CreationDate descending
-                          where ticket.CategoryId == pCategoryId
-                          && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
-                          && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                          && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || ticket.TicketParentId == ticketId)))
-                          && (transactionId == 0 || (transactionId > 0 && ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
-                          && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
-                          select ticket
-                          );
-                    }
+
+                    ticketsQuery =
+                     (from ticket in ctx.Tickets
+                      orderby ticket.LastStatusChanged descending
+                      where ticket.CategoryId == pCategoryId
+                      && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                      && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
+                      && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == ticketId))))
+                      && (
+                          transactionId == 0
+                          || (transactionId > 0 && (ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
+                          || (transactionId > 0 && (ticket.TicketId == fetchedTicketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == fetchedTicketId)))
+                      )
+                      && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
+                      select ticket
+                     );
 
                     return ticketsQuery.AsNoTracking().Count();
                 }
@@ -1149,7 +1188,7 @@ namespace Atlas.Core.Logic
                     }
 
                     //get channel code
-                    if (lTicket.ChannelId != null)
+                    if (lTicket.ChannelId != null && lTicket.ChannelId != 0)
                         mticket.Channel = ctx.Channels.Where(w => w.ChannelId == lTicket.ChannelId.Value).FirstOrDefault().ChannelCode;
                     return mticket;
 
@@ -1340,6 +1379,7 @@ namespace Atlas.Core.Logic
                             CreatedBy = pUserId,
                             LastStatusChanged = DateTime.UtcNow,
                             CreationDate = DateTime.UtcNow,
+                            HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false
                         });
 
                         var etStatus = ctx.TicketAudits.Add(new DM.TicketAudit
@@ -1832,7 +1872,7 @@ namespace Atlas.Core.Logic
 
                     foreach (var ticket in tickets)
                     {
-                        var transaction = ctx.TicketTransactions.First();
+                        var transaction = ticket.TicketTransactions.First();
                         //if (transaction != null)
                         //{
                         if (ticket.CategoryId != null && ticket.CategoryId > 0)
@@ -1949,7 +1989,7 @@ namespace Atlas.Core.Logic
         }
 
         public MasterTicket CreateIssueTicket(Ticket ticket, TicketTransaction pTransaction, string ticketIssueDescription,
-            string comment, long reasonId, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
+            string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
         {
             pActionNotificationCode = new List<Tuple<string, string, string, string>>();
 
@@ -1957,11 +1997,10 @@ namespace Atlas.Core.Logic
             {
                 var categoryDescription = ctx.Categories.Where(w => w.CategoryId == ticket.CategoryId).FirstOrDefault().Description;
                 long channelId = ctx.Channels.Where(w => w.ChannelCode.Contains(categoryDescription)).FirstOrDefault().ChannelId;
-                ticket.ReasonsId = reasonId;
                 long ticketStatus = ValueObjects.TicketStatusModel.CreatedTicketStatus.StatusId;
                 var createdTicket = ctx.Tickets.Add(new DM.Ticket
                 {
-                    Title = ticket.Title,
+                    Title = ticket.Description,
                     ApplicationId = ticket.ApplicationId,
                     CategoryId = ticket.CategoryId,
                     ReasonsId = ticket.ReasonsId,

@@ -152,6 +152,15 @@
     <Compile Include="DTOs\FullTicketInfo.cs" />
     <Compile Include="DTOs\TicketObject.cs" />
     <Compile Include="DTOs\TransactionObject.cs" />
+    <Compile Include="Entities\IssueTicketAccountType.cs" />
+    <Compile Include="Entities\IssueTicketCurrency.cs" />
+    <Compile Include="Entities\IssueTicketDetails.cs" />
+    <Compile Include="Entities\IssueTicketMerchant.cs" />
+    <Compile Include="Entities\IssueTicketModel.cs" />
+    <Compile Include="Entities\IssueTicketPaymentOption.cs" />
+    <Compile Include="Entities\IssueTicketService.cs" />
+    <Compile Include="Entities\IssueTicketSubscriber.cs" />
+    <Compile Include="Entities\IssueTicketTransaction.cs" />
     <Compile Include="Entities\TicketCategoriesActions.cs" />
     <Compile Include="Entities\Reason.cs" />
     <Compile Include="Entities\Application.cs" />
