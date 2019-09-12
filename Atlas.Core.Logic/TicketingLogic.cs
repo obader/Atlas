@@ -696,74 +696,76 @@ namespace Atlas.Core.Logic
                     ctx.Tickets.Where(p => p.TicketId == ticketId)
                         .AsNoTracking()
                         .FirstOrDefault();
-
-                if (ticket.CategoryId != null && ticket.CategoryId > 0)
+                if (ticket != null)
                 {
-                    int categoryId = Convert.ToInt32(ticket.CategoryId);
-                    var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
-                    category = etcategory.Code;
-                }
+                    if (ticket.CategoryId != null && ticket.CategoryId > 0)
+                    {
+                        int categoryId = Convert.ToInt32(ticket.CategoryId);
+                        var etcategory = ctx.Categories.Where(p => p.CategoryId == categoryId).FirstOrDefault();
+                        category = etcategory.Code;
+                    }
 
-                if (ticket.ReasonsId != null && ticket.ReasonsId > 0)
-                {
-                    int reasonsId = Convert.ToInt32(ticket.ReasonsId);
-                    var etReasons = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
-                    if (etReasons != null)
-                        reason = etReasons.Description;
-                }
+                    if (ticket.ReasonsId != null && ticket.ReasonsId > 0)
+                    {
+                        int reasonsId = Convert.ToInt32(ticket.ReasonsId);
+                        var etReasons = ctx.Reasons.Where(p => p.ReasonsId == reasonsId).FirstOrDefault();
+                        if (etReasons != null)
+                            reason = etReasons.Description;
+                    }
 
-                var transaction =
-                  ctx.TicketTransactions.Where(p => p.TicketId == ticket.TicketId)
-                      .FirstOrDefault();
+                    var transaction =
+                      ctx.TicketTransactions.Where(p => p.TicketId == ticket.TicketId)
+                          .FirstOrDefault();
 
-                var sts =
-                    ctx.TicketAudits.Where(p => p.TicketId == ticket.TicketId && p.TicketStatusId != null)
-                        .ToList();
+                    var sts =
+                        ctx.TicketAudits.Where(p => p.TicketId == ticket.TicketId && p.TicketStatusId != null)
+                            .ToList();
 
-                var etr =
-                 ctx.TicketExternalReferences.Where(p => p.TicketId == ticket.TicketId)
-                     .ToList();
+                    var etr =
+                     ctx.TicketExternalReferences.Where(p => p.TicketId == ticket.TicketId)
+                         .ToList();
 
-                var statusList =
-                    sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, null, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
+                    var statusList =
+                        sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, null, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
 
-                var externalReferencesList =
-                     etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
+                    var externalReferencesList =
+                         etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
 
-                var lCommentList =
-                    ctx.Comments.Where(p => p.TicketId == ticket.TicketId).AsNoTracking().ToList();
+                    var lCommentList =
+                        ctx.Comments.Where(p => p.TicketId == ticket.TicketId).AsNoTracking().ToList();
 
-                var commentList = lCommentList.Select(cm => new Comment(ticket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
-                        .ToList();
+                    var commentList = lCommentList.Select(cm => new Comment(ticket.TicketId, cm.CommentId, cm.UserId, cm.CommentValue, cm.RecordDate))
+                            .ToList();
 
-                statusCode = statusList.LastOrDefault()?.Status?.StatusCode;
+                    statusCode = statusList.LastOrDefault()?.Status?.StatusCode;
 
-                parentTicket = null;
-                if (ticket.TicketParentId != null)
-                    parentTicket = GetTicketParent(ticket.TicketParentId.Value, pUserId);
+                    parentTicket = null;
+                    if (ticket.TicketParentId != null)
+                        parentTicket = GetTicketParent(ticket.TicketParentId.Value, pUserId);
 
-                if (transaction != null)
-                {
-                    mticket = new MasterTicket(pUserId,
-                              new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.CustomerId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
-                                        ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
+                    if (transaction != null)
+                    {
+                        mticket = new MasterTicket(pUserId,
+                                  new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.CustomerId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
+                                            ticket.CreationDate, ticket.ModifedDate), statusList, commentList, new List<Entities.TicketTransaction> {
                                                new Entities.TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.TransactionId,transaction.RequestId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentTypeName, transaction.AccountType, transaction.AccountNumber, transaction.TransactionStatus, transaction.Amount,transaction.PaymentAmount, transaction.TransactionDate, transaction.CurrencyId, transaction.CurrencyCode, transaction.PaymentOptionId, transaction.PaymentOptionName,transaction.SourceChannel, transaction.SFM, transaction.BankTransactionId, transaction.PaymentCurrencyId ?? 0)
-                                      }, externalReferencesList, parentTicket);
-                }
-                else
-                {
-                    mticket = new MasterTicket(pUserId,
-                              new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.CustomerId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
-                              ticket.CreationDate, ticket.ModifedDate), statusList, commentList, null, externalReferencesList, parentTicket);
-                }
+                                          }, externalReferencesList, parentTicket);
+                    }
+                    else
+                    {
+                        mticket = new MasterTicket(pUserId,
+                                  new Ticket(ticket.TicketId, ticket.TicketParentId ?? 0, ticket.CreatedBy, ticket.BankId ?? 0, ticket.ProfileId, ticket.CustomerId, ticket.Title, ticket.Description, ticket.ApplicationId ?? 0, ticket.CategoryId ?? 0, category, ticket.ReasonsId ?? 0, reason, statusCode, ticket.PriorityId, ticket.AssignedToDepartmentId,
+                                  ticket.CreationDate, ticket.ModifedDate), statusList, commentList, null, externalReferencesList, parentTicket);
+                    }
 
-                if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
-                {
-                    mticket.Ticket.TransactionId = transaction.TransactionId;
-                }
+                    if (mticket != null && mticket.Ticket != null && transaction != null && transaction.TransactionId != "")
+                    {
+                        mticket.Ticket.TransactionId = transaction.TransactionId;
+                    }
 
-                mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
-                mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                    mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
+                    mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
+                }
             }
             return mticket;
         }
