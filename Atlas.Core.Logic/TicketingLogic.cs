@@ -524,7 +524,7 @@ namespace Atlas.Core.Logic
                                         && (transactionId == 0 || (transactionId > 0 && ticketTransaction.TransactionId == transactionId.ToString()))
                                         && (profileId == 0 || (profileId > 0 && ticketTransaction.Ticket.ProfileId == profileId))
                                         select ticketTransaction.Ticket
-                              );
+                                        );
                     }
                     else
                     {
@@ -618,7 +618,6 @@ namespace Atlas.Core.Logic
 
                         mticket.HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false;
                         mticket.IssueDescription = ticket.TicketIssues.Count() != 0 ? ticket.TicketIssues.FirstOrDefault().IssueDescription : string.Empty;
-
                         lTickets.Add(mticket);
                     }
                 }
@@ -1931,14 +1930,31 @@ namespace Atlas.Core.Logic
             }
         }
 
+        public List<Entities.Reason> GetReportIssueReasons()
+        {
+            try
+            {
+                var lResult = new List<Reason>();
+                using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+                {
+                    var list = ctx.Reasons.AsNoTracking().Where(p => p.Category.Enable == true && p.Category.TicketType.Code == "0060").ToList();
+                    lResult.AddRange(list.Select(application => new Reason(application.ReasonsId, application.Code, application.Description)));
+                }
+                return lResult;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public MasterTicket CreateIssueTicket(Ticket ticket, TicketTransaction pTransaction, string ticketIssueDescription,
-            string comment, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
+            string comment, long reasonId, out List<string> pActionRouteCode, out List<Tuple<string, string, string, string>> pActionNotificationCode)
         {
             pActionNotificationCode = new List<Tuple<string, string, string, string>>();
 
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
-                long reasonId = ctx.Reasons.Where(w => w.CategoryId == ticket.CategoryId).FirstOrDefault().ReasonsId;
                 var categoryDescription = ctx.Categories.Where(w => w.CategoryId == ticket.CategoryId).FirstOrDefault().Description;
                 long channelId = ctx.Channels.Where(w => w.ChannelCode.Contains(categoryDescription)).FirstOrDefault().ChannelId;
                 ticket.ReasonsId = reasonId;
@@ -2068,7 +2084,6 @@ namespace Atlas.Core.Logic
                         RequestId = pTransaction.RequestId,
                         PaymentAmount = pTransaction.PaymentAmount,
                         SourceChannel = pTransaction.SourceChannel
-
                     });
                     lstTicketTransaction.Add(new TicketTransaction(pTransaction.TicketId, pTransaction.BankId, pTransaction.BankName, pTransaction.PinPayTransactionId, pTransaction.RequestId,
                         pTransaction.ProviderId, pTransaction.ProviderName, pTransaction.PaymentTypeId, pTransaction.PaymentType, pTransaction.AccountType, pTransaction.AccountNumber, pTransaction.StatusId,
