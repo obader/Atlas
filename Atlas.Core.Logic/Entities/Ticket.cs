@@ -30,6 +30,7 @@ namespace Atlas.Core.Logic.Entities
         public DateTime ModifiedDate { get; private set; }
         public Profile Profile { get; set; }
         public string BankName { get; set; }
+        public string MobileNumber { get; set; }
 
         public Ticket(long pTicketId, long pTicketParentId, string pUserId, int pBankId, long? pProfileId, long? pCustomerId,
             string pTitle, string pDescription, long pApplicationId, long pCategoryId, string pCategoryCode, 
@@ -54,7 +55,6 @@ namespace Atlas.Core.Logic.Entities
             Status = pStatus;
             ReasonsId = pReasonsId;
             ReasonsName = pReasonsName;
-
         }
     }
 }

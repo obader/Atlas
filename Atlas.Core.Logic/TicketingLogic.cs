@@ -197,7 +197,8 @@ namespace Atlas.Core.Logic
                         BankId = ticket.BankId,
                         PriorityId = ticket.PriorityId,
                         AssignedToDepartmentId = ticket.DepartmentId,
-                        ChannelId = channelId
+                        ChannelId = channelId,
+                        MobileNumber = ticket.MobileNumber
                     });
 
                     var cmt = ctx.Comments.Add(
@@ -292,7 +293,7 @@ namespace Atlas.Core.Logic
                             PaymentAmount = transaction.PaymentAmount,
                             SourceChannel = transaction.SourceChannel
                         });
-
+                        createdTicket.TransactionId = ticketTransactions.TransactionId;
                         //ctx.SaveChanges();
                         lstTicketTransaction.Add(new TicketTransaction(transaction.TicketId, transaction.BankId, transaction.BankName, transaction.PinPayTransactionId, transaction.RequestId, transaction.ProviderId, transaction.ProviderName, transaction.PaymentTypeId, transaction.PaymentType, transaction.AccountType, transaction.AccountNumber, transaction.StatusId, transaction.TotalAmount, transaction.PaymentAmount, transaction.TransactionDate, transaction.CurrencyId, transaction.Currency, transaction.PaymentOptionId, transaction.PaymentOptionName, transaction.SourceChannel, transaction.SFM, transaction.BankTransactionId, transaction.PaymentCurrencyId));
                     }
@@ -499,61 +500,95 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
+        public int GetTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
+            long ticketId, long transactionId, string mobileNumber)
+        {
+            var lTickets = new List<MasterTicket>();
+            string category = string.Empty;
+            string statusCode = string.Empty;
+            string reason = string.Empty;
+            //List<long> ticketIdsForTransaction = new List<long>();
+            //List<long> ticketIdsForMobile = new List<long>();
+            int noOfTransactions = 0;
+
+            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+            {
+                try
+                {
+                    //if (transactionId > 0)
+                    //    ticketIdsForTransaction = IssueIdsByTransactionId(transactionId);
+                    //if (!string.IsNullOrEmpty(mobileNumber))
+                    //    ticketIdsForMobile = IssueIdsByMobileNumber(mobileNumber);
+
+                    var ticketsQuery =
+                           (from ticket in ctx.Tickets
+                            orderby ticket.LastStatusChanged descending
+                            where ticket.CategoryId == pCategoryId
+                            && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                            && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
+                            && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == ticketId))))
+                            && (
+                                transactionId == 0
+                                || (transactionId > 0 && ticket.TransactionId == transactionId.ToString())
+                            )
+                            && (
+                                string.IsNullOrEmpty(mobileNumber)
+                                || (!string.IsNullOrEmpty(mobileNumber) && ticket.MobileNumber == mobileNumber)
+                            )
+                            select ticket
+                        );
+
+                    if (page != 0 && itemsPerPage != 0)
+                        ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
+
+                    noOfTransactions = ticketsQuery.AsNoTracking().Count();
+
+                    return noOfTransactions;
+                }
+                catch (Exception ex)
+                {
+                    return noOfTransactions;
+                }
+            }
+        }
+
         public List<MasterTicket> GetTicketsByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
-            long ticketId, long transactionId, long profileId)
+            long ticketId, long transactionId, string mobileNumber)
         {
             var lTickets = new List<MasterTicket>();
             string category = string.Empty;
             string statusCode = string.Empty;
             string reason = string.Empty;
             MasterTicket parentTicket = null;
-            IQueryable<DM.Ticket> ticketsQuery = null;
+            List<long> ticketIdsForTransaction = new List<long>();
+            List<long> ticketIdsForMobile = new List<long>();
 
             using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
             {
                 try
                 {
-                    long fetchedTicketId = 0;
-                    if (transactionId != 0)
-                    {
-                        var issueTickets = ctx.Tickets.Where(w => w.HasIssue.HasValue && w.HasIssue.Value == true).ToList();
-                        for (int i = 0; i < issueTickets.Count(); i++)
-                        {
-                            if (issueTickets[i].TicketIssues.Count() > 0)
-                            {
-                                string issueDescription = issueTickets[i].TicketIssues.FirstOrDefault().IssueDescription;
+                    //if (transactionId > 0)
+                    //    ticketIdsForTransaction = IssueIdsByTransactionId(transactionId);
+                    //if(!string.IsNullOrEmpty(mobileNumber))
+                    //    ticketIdsForMobile = IssueIdsByMobileNumber(mobileNumber);
 
-                                if (!string.IsNullOrEmpty(issueDescription))
-                                {
-                                    IssueTicketModel issueticket = JsonConvert.DeserializeObject<IssueTicketModel>(issueDescription);
-                                    if (issueticket != null)
-                                        if (issueticket.Transaction != null)
-                                            if (issueticket.Transaction.Id != 0)
-                                                if (issueticket.Transaction.Id == transactionId)
-                                                {
-                                                    fetchedTicketId = issueTickets[i].TicketId;
-                                                    break;
-                                                }
-                                }
-                            }
-                        }
-                    }
-
-                    ticketsQuery =
-                    (from ticket in ctx.Tickets
-                     orderby ticket.LastStatusChanged descending
-                     where ticket.CategoryId == pCategoryId
-                     && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
-                     && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                     && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == ticketId))))
-                     && (
-                         transactionId == 0
-                         || (transactionId > 0 && (ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
-                         || (transactionId > 0 && (ticket.TicketId == fetchedTicketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == fetchedTicketId)))
-                     )
-                     && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
-                     select ticket
-                    );
+                    var ticketsQuery =
+                           (from ticket in ctx.Tickets
+                            orderby ticket.LastStatusChanged descending
+                            where ticket.CategoryId == pCategoryId
+                            && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
+                            && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
+                            && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == ticketId))))
+                            && (
+                                transactionId == 0
+                                || (transactionId > 0 && ticket.TransactionId == transactionId.ToString())
+                            )
+                            && (
+                                string.IsNullOrEmpty(mobileNumber)
+                                || (!string.IsNullOrEmpty(mobileNumber) && ticket.MobileNumber == mobileNumber)
+                            )
+                            select ticket
+                        );
 
                     if (page != 0 && itemsPerPage != 0)
                         ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
@@ -647,78 +682,70 @@ namespace Atlas.Core.Logic
                 }
                 catch (Exception ex)
                 {
-
-                    throw ex;
                 }
             }
             return lTickets;
         }
 
-        public int GetTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
-            long ticketId, long transactionId, long profileId)
-        {
-            var lTickets = new List<MasterTicket>();
-            string category = string.Empty;
-            string statusCode = string.Empty;
-            string reason = string.Empty;
-            IQueryable<DM.Ticket> ticketsQuery = null;
+        //private List<long> IssueIdsByMobileNumber(string mobileNumber)
+        //{
+        //    List<long> fetchedTicketIds = new List<long>();
+        //    using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+        //    {
+        //        var issueTickets = ctx.Tickets.Where(w => w.HasIssue.HasValue && w.HasIssue.Value == true).ToList();
+        //        for (int i = 0; i < issueTickets.Count(); i++)
+        //        {
+        //            if (issueTickets[i].TicketIssues.Count() > 0)
+        //            {
+        //                string issueDescription = issueTickets[i].TicketIssues.FirstOrDefault().IssueDescription;
 
-            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
-            {
-                try
-                {
-                    long fetchedTicketId = 0;
-                    if (transactionId != 0)
-                    {
-                        var issueTickets = ctx.Tickets.Where(w => w.HasIssue.HasValue && w.HasIssue.Value == true).ToList();
-                        for (int i = 0; i < issueTickets.Count(); i++)
-                        {
-                            if (issueTickets[i].TicketIssues.Count() > 0)
-                            {
-                                string issueDescription = issueTickets[i].TicketIssues.FirstOrDefault().IssueDescription;
+        //                if (!string.IsNullOrEmpty(issueDescription))
+        //                {
+        //                    IssueTicketModel issueticket = JsonConvert.DeserializeObject<IssueTicketModel>(issueDescription);
+        //                    if (issueticket != null)
+        //                        if (issueticket.Subscriber != null)
+        //                            if (!string.IsNullOrEmpty(issueticket.Subscriber.MobileNumber))
+        //                                if (issueticket.Subscriber.MobileNumber == mobileNumber)
+        //                                {
+        //                                    fetchedTicketIds.Add(issueTickets[i].TicketId);
+        //                                    break;
+        //                                }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return fetchedTicketIds;
+        //}
 
-                                if (!string.IsNullOrEmpty(issueDescription))
-                                {
-                                    IssueTicketModel issueticket = JsonConvert.DeserializeObject<IssueTicketModel>(issueDescription);
-                                    if (issueticket != null)
-                                        if (issueticket.Transaction != null)
-                                            if (issueticket.Transaction.Id != 0)
-                                                if (issueticket.Transaction.Id == transactionId)
-                                                {
-                                                    fetchedTicketId = issueTickets[i].TicketId;
-                                                    break;
-                                                }
-                                }
-                            }
-                        }
-                    }
+        //private List<long> IssueIdsByTransactionId(long transactionId)
+        //{
+        //    List<long> fetchedTicketIds = new List<long>();
+        //    using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+        //    {
+        //        var issueTickets = ctx.Tickets.Where(w => w.HasIssue.HasValue && w.HasIssue.Value == true).ToList();
+        //        for (int i = 0; i < issueTickets.Count(); i++)
+        //        {
+        //            if (issueTickets[i].TicketIssues.Count() > 0)
+        //            {
+        //                string issueDescription = issueTickets[i].TicketIssues.FirstOrDefault().IssueDescription;
 
-                    ticketsQuery =
-                     (from ticket in ctx.Tickets
-                      orderby ticket.LastStatusChanged descending
-                      where ticket.CategoryId == pCategoryId
-                      && (pBankId == 0 || (pBankId > 0 && ticket.BankId == pBankId))
-                      && (statusId == 0 || (statusId > 0 && ticket.TicketAudits.Where(p => p.TicketStatusId != null).FirstOrDefault() != null && ticket.TicketAudits.Where(p => p.TicketStatusId != null).OrderByDescending(p => p.ChangeDate).FirstOrDefault().TicketStatusId == statusId))
-                      && (ticketId == 0 || (ticketId > 0 && (ticket.TicketId == ticketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == ticketId))))
-                      && (
-                          transactionId == 0
-                          || (transactionId > 0 && (ticket.TicketTransactions.Where(w => w.TransactionId == transactionId.ToString()).Any()))
-                          || (transactionId > 0 && (ticket.TicketId == fetchedTicketId || (ticket.TicketParentId.HasValue && ticket.TicketParentId.Value == fetchedTicketId)))
-                      )
-                      && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
-                      select ticket
-                     );
-
-                    return ticketsQuery.AsNoTracking().Count();
-                }
-                catch (Exception ex)
-                {
-
-                    throw ex;
-                }
-            }
-        }
-
+        //                if (!string.IsNullOrEmpty(issueDescription))
+        //                {
+        //                    IssueTicketModel issueticket = JsonConvert.DeserializeObject<IssueTicketModel>(issueDescription);
+        //                    if (issueticket != null)
+        //                        if (issueticket.Transaction != null)
+        //                            if (issueticket.Transaction.Id != 0)
+        //                                if (issueticket.Transaction.Id == transactionId)
+        //                                {
+        //                                    fetchedTicketIds.Add(issueTickets[i].TicketId);
+        //                                    break;
+        //                                }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return fetchedTicketIds;
+        //}
 
         private MasterTicket GetTicketParent(long ticketId, string pUserId)
         {
@@ -1379,7 +1406,9 @@ namespace Atlas.Core.Logic
                             CreatedBy = pUserId,
                             LastStatusChanged = DateTime.UtcNow,
                             CreationDate = DateTime.UtcNow,
-                            HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false
+                            HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false,
+                            MobileNumber = ticket.MobileNumber,
+                            TransactionId = ticket.TransactionId
                         });
 
                         var etStatus = ctx.TicketAudits.Add(new DM.TicketAudit
@@ -2016,7 +2045,9 @@ namespace Atlas.Core.Logic
                     PriorityId = ticket.PriorityId,
                     AssignedToDepartmentId = ticket.DepartmentId,
                     ChannelId = channelId,
-                    HasIssue = true
+                    HasIssue = true,
+                    MobileNumber = ticket.MobileNumber,
+                    TransactionId = ticket.TransactionId == "0" ? null : ticket.TransactionId
                 });
 
                 int categoryId = Convert.ToInt32(createdTicket.CategoryId);

@@ -20,8 +20,8 @@ namespace Atlas.Core.Logic.DM
             this.Comments = new HashSet<Comment>();
             this.TicketAudits = new HashSet<TicketAudit>();
             this.TicketExternalReferences = new HashSet<TicketExternalReference>();
-            this.TicketTransactions = new HashSet<TicketTransaction>();
             this.TicketIssues = new HashSet<TicketIssue>();
+            this.TicketTransactions = new HashSet<TicketTransaction>();
         }
     
         public long TicketId { get; set; }
@@ -36,6 +36,8 @@ namespace Atlas.Core.Logic.DM
         public Nullable<int> BankId { get; set; }
         public Nullable<long> CustomerId { get; set; }
         public Nullable<long> ProfileId { get; set; }
+        public string MobileNumber { get; set; }
+        public string TransactionId { get; set; }
         public string Description { get; set; }
         public string CreatedBy { get; set; }
         public System.DateTime CreationDate { get; set; }
@@ -46,17 +48,20 @@ namespace Atlas.Core.Logic.DM
         public Nullable<long> ChannelId { get; set; }
         public Nullable<bool> HasIssue { get; set; }
     
+        public virtual Category Category { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual Department Department { get; set; }
         public virtual Priority Priority { get; set; }
+        public virtual Reason Reason { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TicketAudit> TicketAudits { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TicketExternalReference> TicketExternalReferences { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TicketTransaction> TicketTransactions { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TicketIssue> TicketIssues { get; set; }
+        public virtual TicketStatus TicketStatus { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TicketTransaction> TicketTransactions { get; set; }
     }
 }

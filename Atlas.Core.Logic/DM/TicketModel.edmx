@@ -219,6 +219,8 @@
           <Property Name="BankId" Type="int" />
           <Property Name="CustomerId" Type="bigint" />
           <Property Name="ProfileId" Type="bigint" />
+          <Property Name="MobileNumber" Type="nvarchar(max)" />
+          <Property Name="TransactionId" Type="nvarchar(max)" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="CreatedBy" Type="nvarchar" MaxLength="250" />
           <Property Name="CreationDate" Type="datetime" Nullable="false" />
@@ -409,6 +411,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_TicketAudits_TicketActions">
+          <End Role="TicketActions" Type="Self.TicketActions" Multiplicity="0..1" />
+          <End Role="TicketAudits" Type="Self.TicketAudits" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketActions">
+              <PropertyRef Name="TicketActionsId" />
+            </Principal>
+            <Dependent Role="TicketAudits">
+              <PropertyRef Name="TicketActionsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_TicketAudits_Tickets">
           <End Role="Tickets" Type="Self.Tickets" Multiplicity="1" />
           <End Role="TicketAudits" Type="Self.TicketAudits" Multiplicity="*" />
@@ -418,6 +432,18 @@
             </Principal>
             <Dependent Role="TicketAudits">
               <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketAudits_TicketStatuses">
+          <End Role="TicketStatuses" Type="Self.TicketStatuses" Multiplicity="0..1" />
+          <End Role="TicketAudits" Type="Self.TicketAudits" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketStatuses">
+              <PropertyRef Name="TicketStatusId" />
+            </Principal>
+            <Dependent Role="TicketAudits">
+              <PropertyRef Name="TicketStatusId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -541,6 +567,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Tickets_Categories">
+          <End Role="Categories" Type="Self.Categories" Multiplicity="0..1" />
+          <End Role="Tickets" Type="Self.Tickets" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categories">
+              <PropertyRef Name="CategoryId" />
+            </Principal>
+            <Dependent Role="Tickets">
+              <PropertyRef Name="CategoryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tickets_Reasons">
+          <End Role="Reasons" Type="Self.Reasons" Multiplicity="0..1" />
+          <End Role="Tickets" Type="Self.Tickets" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Reasons">
+              <PropertyRef Name="ReasonsId" />
+            </Principal>
+            <Dependent Role="Tickets">
+              <PropertyRef Name="ReasonsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_TICKETS_REFERENCE_DEPARTME">
           <End Role="Departments" Type="Self.Departments" Multiplicity="0..1" />
           <End Role="Tickets" Type="Self.Tickets" Multiplicity="*" />
@@ -562,6 +612,18 @@
             </Principal>
             <Dependent Role="Tickets">
               <PropertyRef Name="PriorityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tickets_TicketStatuses">
+          <End Role="TicketStatuses" Type="Self.TicketStatuses" Multiplicity="1" />
+          <End Role="Tickets" Type="Self.Tickets" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketStatuses">
+              <PropertyRef Name="TicketStatusId" />
+            </Principal>
+            <Dependent Role="Tickets">
+              <PropertyRef Name="TicketStatusId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -644,8 +706,16 @@
             <End Role="Priorities" EntitySet="Priorities" />
             <End Role="TicketAudits" EntitySet="TicketAudits" />
           </AssociationSet>
+          <AssociationSet Name="FK_TicketAudits_TicketActions" Association="Self.FK_TicketAudits_TicketActions">
+            <End Role="TicketActions" EntitySet="TicketActions" />
+            <End Role="TicketAudits" EntitySet="TicketAudits" />
+          </AssociationSet>
           <AssociationSet Name="FK_TicketAudits_Tickets" Association="Self.FK_TicketAudits_Tickets">
             <End Role="Tickets" EntitySet="Tickets" />
+            <End Role="TicketAudits" EntitySet="TicketAudits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketAudits_TicketStatuses" Association="Self.FK_TicketAudits_TicketStatuses">
+            <End Role="TicketStatuses" EntitySet="TicketStatuses" />
             <End Role="TicketAudits" EntitySet="TicketAudits" />
           </AssociationSet>
           <AssociationSet Name="FK_TicketCategoriesActions_Categories" Association="Self.FK_TicketCategoriesActions_Categories">
@@ -688,12 +758,24 @@
             <End Role="Tickets" EntitySet="Tickets" />
             <End Role="TicketIssues" EntitySet="TicketIssues" />
           </AssociationSet>
+          <AssociationSet Name="FK_Tickets_Categories" Association="Self.FK_Tickets_Categories">
+            <End Role="Categories" EntitySet="Categories" />
+            <End Role="Tickets" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tickets_Reasons" Association="Self.FK_Tickets_Reasons">
+            <End Role="Reasons" EntitySet="Reasons" />
+            <End Role="Tickets" EntitySet="Tickets" />
+          </AssociationSet>
           <AssociationSet Name="FK_TICKETS_REFERENCE_DEPARTME" Association="Self.FK_TICKETS_REFERENCE_DEPARTME">
             <End Role="Departments" EntitySet="Departments" />
             <End Role="Tickets" EntitySet="Tickets" />
           </AssociationSet>
           <AssociationSet Name="FK_TICKETS_REFERENCE_PRIORITI" Association="Self.FK_TICKETS_REFERENCE_PRIORITI">
             <End Role="Priorities" EntitySet="Priorities" />
+            <End Role="Tickets" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tickets_TicketStatuses" Association="Self.FK_Tickets_TicketStatuses">
+            <End Role="TicketStatuses" EntitySet="TicketStatuses" />
             <End Role="Tickets" EntitySet="Tickets" />
           </AssociationSet>
           <AssociationSet Name="FK_TicketTransactions_Tickets" Association="Self.FK_TicketTransactions_Tickets">
@@ -737,31 +819,6 @@
           <EntitySet Name="Departments" EntityType="TicketingModel.Department" />
           <EntitySet Name="Reasons" EntityType="TicketingModel.Reason" />
           <EntitySet Name="TicketCategoriesActions" EntityType="TicketingModel.TicketCategoriesAction" />
-          <EntitySet Name="Tickets" EntityType="TicketingModel.Ticket" />
-          <AssociationSet Name="FK_Comments_Tickets" Association="TicketingModel.FK_Comments_Tickets">
-            <End Role="Ticket" EntitySet="Tickets" />
-            <End Role="Comment" EntitySet="Comments" />
-          </AssociationSet>
-          <AssociationSet Name="FK_TICKETS_REFERENCE_DEPARTME" Association="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME">
-            <End Role="Department" EntitySet="Departments" />
-            <End Role="Ticket" EntitySet="Tickets" />
-          </AssociationSet>
-          <AssociationSet Name="FK_TICKETS_REFERENCE_PRIORITI" Association="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI">
-            <End Role="Priority" EntitySet="Priorities" />
-            <End Role="Ticket" EntitySet="Tickets" />
-          </AssociationSet>
-          <AssociationSet Name="FK_TicketAudits_Tickets" Association="TicketingModel.FK_TicketAudits_Tickets">
-            <End Role="Ticket" EntitySet="Tickets" />
-            <End Role="TicketAudit" EntitySet="TicketAudits" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ExternalReferences_Tickets" Association="TicketingModel.FK_ExternalReferences_Tickets">
-            <End Role="Ticket" EntitySet="Tickets" />
-            <End Role="TicketExternalReference" EntitySet="TicketExternalReferences" />
-          </AssociationSet>
-          <AssociationSet Name="FK_TicketTransactions_Tickets" Association="TicketingModel.FK_TicketTransactions_Tickets">
-            <End Role="Ticket" EntitySet="Tickets" />
-            <End Role="TicketTransaction" EntitySet="TicketTransactions" />
-          </AssociationSet>
           <EntitySet Name="Channels" EntityType="TicketingModel.Channel" />
           <AssociationSet Name="FK_Categories_TicketType" Association="TicketingModel.FK_Categories_TicketType">
             <End Role="TicketType" EntitySet="TicketTypes" />
@@ -772,10 +829,6 @@
             <End Role="CategoriesActionsRoute" EntitySet="CategoriesActionsRoutes" />
           </AssociationSet>
           <EntitySet Name="TicketIssues" EntityType="TicketingModel.TicketIssue" />
-          <AssociationSet Name="FK_TicketIssues_Tickets" Association="TicketingModel.FK_TicketIssues_Tickets">
-            <End Role="Ticket" EntitySet="Tickets" />
-            <End Role="TicketIssue" EntitySet="TicketIssues" />
-          </AssociationSet>
           <AssociationSet Name="FK_Reasons_Categories" Association="TicketingModel.FK_Reasons_Categories">
             <End Role="Category" EntitySet="Categories" />
             <End Role="Reason" EntitySet="Reasons" />
@@ -832,7 +885,48 @@
             <End Role="TicketCategoriesAction" EntitySet="TicketCategoriesActions" />
             <End Role="TicketCategoriesActionsNotification" EntitySet="TicketCategoriesActionsNotifications" />
           </AssociationSet>
-        </EntityContainer>
+          <EntitySet Name="Tickets" EntityType="TicketingModel.Ticket" />
+          <AssociationSet Name="FK_Tickets_Categories" Association="TicketingModel.FK_Tickets_Categories">
+            <End Role="Category" EntitySet="Categories" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Comments_Tickets" Association="TicketingModel.FK_Comments_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="Comment" EntitySet="Comments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TICKETS_REFERENCE_DEPARTME" Association="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME">
+            <End Role="Department" EntitySet="Departments" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TICKETS_REFERENCE_PRIORITI" Association="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI">
+            <End Role="Priority" EntitySet="Priorities" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tickets_Reasons" Association="TicketingModel.FK_Tickets_Reasons">
+            <End Role="Reason" EntitySet="Reasons" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketAudits_Tickets" Association="TicketingModel.FK_TicketAudits_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="TicketAudit" EntitySet="TicketAudits" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ExternalReferences_Tickets" Association="TicketingModel.FK_ExternalReferences_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="TicketExternalReference" EntitySet="TicketExternalReferences" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketIssues_Tickets" Association="TicketingModel.FK_TicketIssues_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="TicketIssue" EntitySet="TicketIssues" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tickets_TicketStatuses" Association="TicketingModel.FK_Tickets_TicketStatuses">
+            <End Role="TicketStatus" EntitySet="TicketStatuses" />
+            <End Role="Ticket" EntitySet="Tickets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TicketTransactions_Tickets" Association="TicketingModel.FK_TicketTransactions_Tickets">
+            <End Role="Ticket" EntitySet="Tickets" />
+            <End Role="TicketTransaction" EntitySet="TicketTransactions" />
+          </AssociationSet>
+          </EntityContainer>
         <EntityType Name="Application">
           <Key>
             <PropertyRef Name="ApplicationId" />
@@ -885,6 +979,7 @@
           <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TICKETAU_REFERENCE_TICKETST" FromRole="TicketStatus" ToRole="TicketAudit" />
           <NavigationProperty Name="TicketCategoriesActions" Relationship="TicketingModel.FK_TicketCategoriesActions_TicketStatuses" FromRole="TicketStatus" ToRole="TicketCategoriesAction" />
           <NavigationProperty Name="TicketCategoriesActions1" Relationship="TicketingModel.FK_TicketCategoriesActions_TicketStatuses1" FromRole="TicketStatus" ToRole="TicketCategoriesAction" />
+          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_Tickets_TicketStatuses" FromRole="TicketStatus" ToRole="Ticket" />
         </EntityType>
         <Association Name="FK_TICKETAU_REFERENCE_TICKETST">
           <End Type="TicketingModel.TicketStatus" Role="TicketStatus" Multiplicity="0..1" />
@@ -936,6 +1031,7 @@
           <NavigationProperty Name="Reasons" Relationship="TicketingModel.FK_Reasons_Categories" FromRole="Category" ToRole="Reason" />
           <NavigationProperty Name="TicketCategoriesActions" Relationship="TicketingModel.FK_TicketCategoriesActions_Categories" FromRole="Category" ToRole="TicketCategoriesAction" />
           <NavigationProperty Name="CategoriesActionsNotifications" Relationship="TicketingModel.FK_CategoriesActionsNotification_Categories" FromRole="Category" ToRole="CategoriesActionsNotification" />
+          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_Tickets_Categories" FromRole="Category" ToRole="Ticket" />
         </EntityType>
         <EntityType Name="ActionsRoute">
           <Key>
@@ -1097,9 +1193,9 @@
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Email" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Department" ToRole="Ticket" />
           <Property Name="BankId" Type="Int32" />
           <Property Name="ChannelId" Type="Int64" />
+          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Department" ToRole="Ticket" />
         </EntityType>
         <EntityType Name="Reason">
           <Key>
@@ -1114,6 +1210,7 @@
           <Property Name="ChannelId" Type="Int64" />
           <NavigationProperty Name="Category" Relationship="TicketingModel.FK_Reasons_Categories" FromRole="Reason" ToRole="Category" />
           <NavigationProperty Name="Channel" Relationship="TicketingModel.FK_Reasons_Channels" FromRole="Reason" ToRole="Channel" />
+          <NavigationProperty Name="Tickets" Relationship="TicketingModel.FK_Tickets_Reasons" FromRole="Reason" ToRole="Ticket" />
         </EntityType>
         <EntityType Name="TicketCategoriesAction">
           <Key>
@@ -1138,111 +1235,6 @@
           <NavigationProperty Name="TicketCategoriesActionsRoutes" Relationship="TicketingModel.FK_TicketCategoriesActionsRoute_TicketCategoriesActions" FromRole="TicketCategoriesAction" ToRole="TicketCategoriesActionsRoute" />
           <NavigationProperty Name="TicketCategoriesActionsNotifications" Relationship="TicketingModel.FK_TicketCategoriesActionsNotifications_TicketCategoriesActions" FromRole="TicketCategoriesAction" ToRole="TicketCategoriesActionsNotification" />
         </EntityType>
-        <EntityType Name="Ticket">
-          <Key>
-            <PropertyRef Name="TicketId" />
-          </Key>
-          <Property Name="TicketId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TicketParentId" Type="Int64" />
-          <Property Name="ApplicationId" Type="Int64" />
-          <Property Name="CategoryId" Type="Int64" />
-          <Property Name="PriorityId" Type="Int64" />
-          <Property Name="AssignedToDepartmentId" Type="Int64" />
-          <Property Name="ReasonsId" Type="Int64" />
-          <Property Name="TicketStatusId" Type="Int64" Nullable="false" />
-          <Property Name="Title" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="BankId" Type="Int32" />
-          <Property Name="CustomerId" Type="Int64" />
-          <Property Name="ProfileId" Type="Int64" />
-          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedBy" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="ModifiedBy" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="ModifedDate" Type="DateTime" Precision="3" />
-          <Property Name="LastStatusChanged" Type="DateTime" Precision="3" />
-          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
-          <NavigationProperty Name="Comments" Relationship="TicketingModel.FK_Comments_Tickets" FromRole="Ticket" ToRole="Comment" />
-          <NavigationProperty Name="Department" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Ticket" ToRole="Department" />
-          <NavigationProperty Name="Priority" Relationship="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI" FromRole="Ticket" ToRole="Priority" />
-          <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TicketAudits_Tickets" FromRole="Ticket" ToRole="TicketAudit" />
-          <NavigationProperty Name="TicketExternalReferences" Relationship="TicketingModel.FK_ExternalReferences_Tickets" FromRole="Ticket" ToRole="TicketExternalReference" />
-          <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
-          <Property Name="ChannelId" Type="Int64" />
-          <Property Name="HasIssue" Type="Boolean" />
-          <NavigationProperty Name="TicketIssues" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="Ticket" ToRole="TicketIssue" />
-        </EntityType>
-        <Association Name="FK_Comments_Tickets">
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="0..1" />
-          <End Type="TicketingModel.Comment" Role="Comment" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Ticket">
-              <PropertyRef Name="TicketId" />
-            </Principal>
-            <Dependent Role="Comment">
-              <PropertyRef Name="TicketId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_TICKETS_REFERENCE_DEPARTME">
-          <End Type="TicketingModel.Department" Role="Department" Multiplicity="0..1" />
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Department">
-              <PropertyRef Name="DepartmentId" />
-            </Principal>
-            <Dependent Role="Ticket">
-              <PropertyRef Name="AssignedToDepartmentId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_TICKETS_REFERENCE_PRIORITI">
-          <End Type="TicketingModel.Priority" Role="Priority" Multiplicity="0..1" />
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Priority">
-              <PropertyRef Name="PriorityId" />
-            </Principal>
-            <Dependent Role="Ticket">
-              <PropertyRef Name="PriorityId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_TicketAudits_Tickets">
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
-          <End Type="TicketingModel.TicketAudit" Role="TicketAudit" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Ticket">
-              <PropertyRef Name="TicketId" />
-            </Principal>
-            <Dependent Role="TicketAudit">
-              <PropertyRef Name="TicketId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ExternalReferences_Tickets">
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
-          <End Type="TicketingModel.TicketExternalReference" Role="TicketExternalReference" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Ticket">
-              <PropertyRef Name="TicketId" />
-            </Principal>
-            <Dependent Role="TicketExternalReference">
-              <PropertyRef Name="TicketId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_TicketTransactions_Tickets">
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
-          <End Type="TicketingModel.TicketTransaction" Role="TicketTransaction" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Ticket">
-              <PropertyRef Name="TicketId" />
-            </Principal>
-            <Dependent Role="TicketTransaction">
-              <PropertyRef Name="TicketId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="Channel">
           <Key>
             <PropertyRef Name="ChannelId" />
@@ -1286,21 +1278,9 @@
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TicketId" Type="Int64" Nullable="false" />
           <Property Name="IssueDescription" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="TicketIssue" ToRole="Ticket" />
           <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="Ticket" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="TicketIssue" ToRole="Ticket" />
         </EntityType>
-        <Association Name="FK_TicketIssues_Tickets">
-          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
-          <End Type="TicketingModel.TicketIssue" Role="TicketIssue" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Ticket">
-              <PropertyRef Name="TicketId" />
-            </Principal>
-            <Dependent Role="TicketIssue">
-              <PropertyRef Name="TicketId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Reasons_Categories">
           <End Type="TicketingModel.Category" Role="Category" Multiplicity="1" />
           <End Type="TicketingModel.Reason" Role="Reason" Multiplicity="*" />
@@ -1466,6 +1446,164 @@
             </Principal>
             <Dependent Role="TicketCategoriesActionsNotification">
               <PropertyRef Name="TicketCategoriesActionsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Ticket">
+          <Key>
+            <PropertyRef Name="TicketId" />
+          </Key>
+          <Property Name="TicketId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TicketParentId" Type="Int64" />
+          <Property Name="ApplicationId" Type="Int64" />
+          <Property Name="CategoryId" Type="Int64" />
+          <Property Name="PriorityId" Type="Int64" />
+          <Property Name="AssignedToDepartmentId" Type="Int64" />
+          <Property Name="ReasonsId" Type="Int64" />
+          <Property Name="TicketStatusId" Type="Int64" Nullable="false" />
+          <Property Name="Title" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="BankId" Type="Int32" />
+          <Property Name="CustomerId" Type="Int64" />
+          <Property Name="ProfileId" Type="Int64" />
+          <Property Name="MobileNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TransactionId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBy" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="ModifedDate" Type="DateTime" Precision="3" />
+          <Property Name="LastStatusChanged" Type="DateTime" Precision="3" />
+          <Property Name="RowVersion" Type="Binary" Nullable="false" MaxLength="8" FixedLength="true" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="ChannelId" Type="Int64" />
+          <Property Name="HasIssue" Type="Boolean" />
+          <NavigationProperty Name="Category" Relationship="TicketingModel.FK_Tickets_Categories" FromRole="Ticket" ToRole="Category" />
+          <NavigationProperty Name="Comments" Relationship="TicketingModel.FK_Comments_Tickets" FromRole="Ticket" ToRole="Comment" />
+          <NavigationProperty Name="Department" Relationship="TicketingModel.FK_TICKETS_REFERENCE_DEPARTME" FromRole="Ticket" ToRole="Department" />
+          <NavigationProperty Name="Priority" Relationship="TicketingModel.FK_TICKETS_REFERENCE_PRIORITI" FromRole="Ticket" ToRole="Priority" />
+          <NavigationProperty Name="Reason" Relationship="TicketingModel.FK_Tickets_Reasons" FromRole="Ticket" ToRole="Reason" />
+          <NavigationProperty Name="TicketAudits" Relationship="TicketingModel.FK_TicketAudits_Tickets" FromRole="Ticket" ToRole="TicketAudit" />
+          <NavigationProperty Name="TicketExternalReferences" Relationship="TicketingModel.FK_ExternalReferences_Tickets" FromRole="Ticket" ToRole="TicketExternalReference" />
+          <NavigationProperty Name="TicketIssues" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="Ticket" ToRole="TicketIssue" />
+          <NavigationProperty Name="TicketStatus" Relationship="TicketingModel.FK_Tickets_TicketStatuses" FromRole="Ticket" ToRole="TicketStatus" />
+          <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
+        </EntityType>
+        <Association Name="FK_Tickets_Categories">
+          <End Type="TicketingModel.Category" Role="Category" Multiplicity="0..1" />
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Category">
+              <PropertyRef Name="CategoryId" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="CategoryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Comments_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="0..1" />
+          <End Type="TicketingModel.Comment" Role="Comment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="Comment">
+              <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TICKETS_REFERENCE_DEPARTME">
+          <End Type="TicketingModel.Department" Role="Department" Multiplicity="0..1" />
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="DepartmentId" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="AssignedToDepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TICKETS_REFERENCE_PRIORITI">
+          <End Type="TicketingModel.Priority" Role="Priority" Multiplicity="0..1" />
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Priority">
+              <PropertyRef Name="PriorityId" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="PriorityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tickets_Reasons">
+          <End Type="TicketingModel.Reason" Role="Reason" Multiplicity="0..1" />
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Reason">
+              <PropertyRef Name="ReasonsId" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="ReasonsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketAudits_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
+          <End Type="TicketingModel.TicketAudit" Role="TicketAudit" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketAudit">
+              <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ExternalReferences_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
+          <End Type="TicketingModel.TicketExternalReference" Role="TicketExternalReference" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketExternalReference">
+              <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketIssues_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
+          <End Type="TicketingModel.TicketIssue" Role="TicketIssue" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketIssue">
+              <PropertyRef Name="TicketId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tickets_TicketStatuses">
+          <End Type="TicketingModel.TicketStatus" Role="TicketStatus" Multiplicity="1" />
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TicketStatus">
+              <PropertyRef Name="TicketStatusId" />
+            </Principal>
+            <Dependent Role="Ticket">
+              <PropertyRef Name="TicketStatusId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TicketTransactions_Tickets">
+          <End Type="TicketingModel.Ticket" Role="Ticket" Multiplicity="1" />
+          <End Type="TicketingModel.TicketTransaction" Role="TicketTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Ticket">
+              <PropertyRef Name="TicketId" />
+            </Principal>
+            <Dependent Role="TicketTransaction">
+              <PropertyRef Name="TicketId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1722,33 +1860,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Tickets">
-            <EntityTypeMapping TypeName="TicketingModel.Ticket">
-              <MappingFragment StoreEntitySet="Tickets">
-                <ScalarProperty Name="HasIssue" ColumnName="HasIssue" />
-                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
-                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
-                <ScalarProperty Name="LastStatusChanged" ColumnName="LastStatusChanged" />
-                <ScalarProperty Name="ModifedDate" ColumnName="ModifedDate" />
-                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
-                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ProfileId" ColumnName="ProfileId" />
-                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
-                <ScalarProperty Name="BankId" ColumnName="BankId" />
-                <ScalarProperty Name="Title" ColumnName="Title" />
-                <ScalarProperty Name="TicketStatusId" ColumnName="TicketStatusId" />
-                <ScalarProperty Name="ReasonsId" ColumnName="ReasonsId" />
-                <ScalarProperty Name="AssignedToDepartmentId" ColumnName="AssignedToDepartmentId" />
-                <ScalarProperty Name="PriorityId" ColumnName="PriorityId" />
-                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
-                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
-                <ScalarProperty Name="TicketParentId" ColumnName="TicketParentId" />
-                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Channels">
             <EntityTypeMapping TypeName="TicketingModel.Channel">
               <MappingFragment StoreEntitySet="Channels">
@@ -1766,6 +1877,35 @@
                 <ScalarProperty Name="IssueDescription" ColumnName="IssueDescription" />
                 <ScalarProperty Name="TicketId" ColumnName="TicketId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tickets">
+            <EntityTypeMapping TypeName="TicketingModel.Ticket">
+              <MappingFragment StoreEntitySet="Tickets">
+                <ScalarProperty Name="HasIssue" ColumnName="HasIssue" />
+                <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
+                <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
+                <ScalarProperty Name="LastStatusChanged" ColumnName="LastStatusChanged" />
+                <ScalarProperty Name="ModifedDate" ColumnName="ModifedDate" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="TransactionId" ColumnName="TransactionId" />
+                <ScalarProperty Name="MobileNumber" ColumnName="MobileNumber" />
+                <ScalarProperty Name="ProfileId" ColumnName="ProfileId" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="BankId" ColumnName="BankId" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="TicketStatusId" ColumnName="TicketStatusId" />
+                <ScalarProperty Name="ReasonsId" ColumnName="ReasonsId" />
+                <ScalarProperty Name="AssignedToDepartmentId" ColumnName="AssignedToDepartmentId" />
+                <ScalarProperty Name="PriorityId" ColumnName="PriorityId" />
+                <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+                <ScalarProperty Name="TicketParentId" ColumnName="TicketParentId" />
+                <ScalarProperty Name="TicketId" ColumnName="TicketId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

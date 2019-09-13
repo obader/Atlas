@@ -20,6 +20,7 @@ namespace Atlas.Core.Logic.DM
             this.Reasons = new HashSet<Reason>();
             this.TicketCategoriesActions = new HashSet<TicketCategoriesAction>();
             this.CategoriesActionsNotifications = new HashSet<CategoriesActionsNotification>();
+            this.Tickets = new HashSet<Ticket>();
         }
     
         public long CategoryId { get; set; }
@@ -37,5 +38,7 @@ namespace Atlas.Core.Logic.DM
         public virtual ICollection<TicketCategoriesAction> TicketCategoriesActions { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CategoriesActionsNotification> CategoriesActionsNotifications { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }

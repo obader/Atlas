@@ -14,6 +14,12 @@ namespace Atlas.Core.Logic.DM
     
     public partial class Reason
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Reason()
+        {
+            this.Tickets = new HashSet<Ticket>();
+        }
+    
         public long ReasonsId { get; set; }
         public string Code { get; set; }
         public long CategoryId { get; set; }
@@ -24,5 +30,7 @@ namespace Atlas.Core.Logic.DM
     
         public virtual Category Category { get; set; }
         public virtual Channel Channel { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }
