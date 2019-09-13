@@ -500,7 +500,7 @@ namespace Atlas.Core.Logic
             return lTickets;
         }
 
-        public int GetTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId, int page, int itemsPerPage,
+        public int GetTicketsCountByCategoryId(string pUserId, int pCategoryId, int pBankId, int statusId,
             long ticketId, long transactionId, string mobileNumber)
         {
             var lTickets = new List<MasterTicket>();
@@ -537,9 +537,6 @@ namespace Atlas.Core.Logic
                             )
                             select ticket
                         );
-
-                    if (page != 0 && itemsPerPage != 0)
-                        ticketsQuery = ticketsQuery.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
 
                     noOfTransactions = ticketsQuery.AsNoTracking().Count();
 
