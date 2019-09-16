@@ -1513,46 +1513,45 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public MasterTicket CloseClaim(long pTicketid, string pUserId, string pComment, out bool iSuccess)
+        public MasterTicket CloseClaim(long ticketId, string pUserId, string pComment, out bool isSuccess)
         {
+            MasterTicket masterTicket = null;
+
             try
             {
-                iSuccess = false;
-                MasterTicket etData = null;
-                var closedTicketStatus = ValueObjects.TicketStatusModel.ClosedTicketStatus;
+                isSuccess = false;
+                var closedTicketStatus = TicketStatusModel.ClosedTicketStatus;
 
-
-                if (pComment == null || pComment == "")
+                if (string.IsNullOrEmpty(pComment))
                 {
-                    iSuccess = false;
-
-                    return etData;
+                    isSuccess = false;
+                    return masterTicket;
                 }
-
 
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
-                    var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketid);
+                    var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == ticketId);
                     if (ticket == null)
                     {
-                        iSuccess = false;
-                        return etData;
+                        isSuccess = false;
+                        return masterTicket;
                     }
 
-
-
-                    var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == pTicketid && p.TicketStatusId != null);
+                    var ticketAudits = ctx.TicketAudits.OrderByDescending(p => p.ChangeDate).FirstOrDefault(p => p.TicketId == ticketId && p.TicketStatusId != null);
                     if (ticketAudits == null)
                     {
-                        iSuccess = false;
-                        return etData;
+                        isSuccess = false;
+                        return masterTicket;
                     }
-
 
                     ticket.LastStatusChanged = DateTime.UtcNow;
                     ticket.TicketStatusId = 5;
                     if (ticket.TicketParentId != null)
-                        CloseParentClaim(ticket.TicketParentId.Value, pUserId, pComment);
+                        CloseTicketById(ticket.TicketParentId.Value, pUserId, pComment);
+
+                    long ticketChildId = TicketChildId(ticket.TicketId);
+                    if (ticketChildId > 0)
+                        CloseTicketById(ticketChildId, pUserId, pComment);
 
                     var status = ctx.TicketAudits.Add(new DM.TicketAudit
                     {
@@ -1574,11 +1573,11 @@ namespace Atlas.Core.Logic
 
                     ticket.ModifedDate = DateTime.UtcNow;
                     ticket.ModifiedBy = pUserId;
-                    ticket.Description = "";
+                    ticket.Description = string.Empty;
                     ctx.SaveChanges();
-                    iSuccess = true;
-                    etData = GetTicketById(pUserId, ticket.TicketId);
-                    return etData;
+                    isSuccess = true;
+                    masterTicket = GetTicketById(pUserId, ticket.TicketId);
+                    return masterTicket;
                 }
 
             }
@@ -1588,21 +1587,27 @@ namespace Atlas.Core.Logic
             }
         }
 
-        private void CloseParentClaim(long pTicketid, string pUserId, string pComment)
+        private long TicketChildId(long ticketId)
+        {
+            using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
+            {
+                long childId = 0;
+                var ticket = ctx.Tickets.Where(w => w.TicketParentId == ticketId).FirstOrDefault();
+                if (ticket != null)
+                    childId = ticket.TicketId;
+                return childId;
+            }
+        }
+
+        private void CloseTicketById(long pTicketid, string pUserId, string pComment)
         {
             try
             {
-                MasterTicket etData = null;
-                var closedTicketStatus = ValueObjects.TicketStatusModel.ClosedTicketStatus;
-
-
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
                     var ticket = ctx.Tickets.FirstOrDefault(p => p.TicketId == pTicketid);
                     ticket.LastStatusChanged = DateTime.UtcNow;
                     ticket.TicketStatusId = 5;
-
-
                     var status = ctx.TicketAudits.Add(new DM.TicketAudit
                     {
                         UserId = pUserId,
@@ -1622,11 +1627,8 @@ namespace Atlas.Core.Logic
                     });
                     ticket.ModifedDate = DateTime.UtcNow;
                     ticket.ModifiedBy = pUserId;
-                    ticket.Description = "";
+                    ticket.Description = string.Empty;
                     ctx.SaveChanges();
-
-                    if (ticket.TicketParentId != null)
-                        CloseParentClaim(ticket.TicketParentId.Value, pUserId, pComment);
                 }
 
             }
