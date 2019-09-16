@@ -788,10 +788,11 @@ namespace Atlas.Core.Logic
                          .ToList();
 
                     var statusList =
-                        sts.Select(st => new Entities.TicketStatus(new ValueObjects.TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description), st.UserId, null, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : "")).ToList();
+                        sts.Select(st => new TicketStatus(new TicketStatusModel(st.TicketStatus.TicketStatusId, st.TicketStatus.Value, st.TicketStatus.Description),
+                        st.UserId, st.ChangeDate, ticket.TicketId, st.TicketAction != null ? st.TicketAction.Description : string.Empty)).ToList();
 
                     var externalReferencesList =
-                         etr.Select(st => new Entities.TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
+                         etr.Select(st => new TicketExternalReferences(st.TicketExternalReferencesId, st.UserId, st.RecordDate, st.TicketId, st.Comments, st.TypeCode, st.PayLoad)).ToList();
 
                     var lCommentList =
                         ctx.Comments.Where(p => p.TicketId == ticket.TicketId).AsNoTracking().ToList();
