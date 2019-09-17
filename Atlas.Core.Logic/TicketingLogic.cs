@@ -779,9 +779,9 @@ namespace Atlas.Core.Logic
                            (from ticket in ctx.Tickets
                             orderby ticket.LastStatusChanged descending
                             where
-                            (   pCategoryId == 0 || (pCategoryId > 0 && ticket.CategoryId == pCategoryId)
-                                && (statusId == 0 || (statusId > 0 && ticket.TicketStatusId == statusId))
-                                && (profileId == 0 || (profileId > 0 && ticket.ProfileId == profileId))
+                            (   ticket.CategoryId == pCategoryId
+                                && ticket.TicketStatusId == statusId
+                                && ticket.ProfileId == profileId
                             )
                             select ticket
                         );
