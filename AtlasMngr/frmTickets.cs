@@ -27,7 +27,7 @@ namespace AtlasMngr
         {
             lvTickets.Items.Clear();
             var logic = new TicketingLogic("192.168.2.50", "AtlasDB", "sa", "P@ssw0rd", false);
-            var tickets = logic.GeTickets("Al", dtpFromDate.Value, dtpToDate.Value, 1, 0, 0, null);
+            var tickets = logic.GetTickets("Al", dtpFromDate.Value, dtpToDate.Value, 1, 0, 0, null);
             if (tickets == null)
             {
                 lvTickets.Items.Clear();

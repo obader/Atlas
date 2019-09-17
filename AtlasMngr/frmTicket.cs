@@ -156,7 +156,7 @@ namespace AtlasMngr
         {
             LoadData();
 
-            _ticket = logic.GeTicket(_ticketId??0, "Al");
+            _ticket = logic.GetTicket(_ticketId??0, "Al");
             if(_ticket == null)
                 return;
 
