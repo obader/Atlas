@@ -47,6 +47,7 @@ namespace Atlas.Core.Logic.DM
         public byte[] RowVersion { get; set; }
         public Nullable<long> ChannelId { get; set; }
         public Nullable<bool> HasIssue { get; set; }
+        public string BankTransactionId { get; set; }
     
         public virtual Category Category { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

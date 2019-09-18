@@ -221,6 +221,7 @@
           <Property Name="ProfileId" Type="bigint" />
           <Property Name="MobileNumber" Type="nvarchar(max)" />
           <Property Name="TransactionId" Type="nvarchar(max)" />
+          <Property Name="BankTransactionId" Type="nvarchar(max)" />
           <Property Name="Description" Type="nvarchar" MaxLength="500" />
           <Property Name="CreatedBy" Type="nvarchar" MaxLength="250" />
           <Property Name="CreationDate" Type="datetime" Nullable="false" />
@@ -1486,6 +1487,7 @@
           <NavigationProperty Name="TicketIssues" Relationship="TicketingModel.FK_TicketIssues_Tickets" FromRole="Ticket" ToRole="TicketIssue" />
           <NavigationProperty Name="TicketStatus" Relationship="TicketingModel.FK_Tickets_TicketStatuses" FromRole="Ticket" ToRole="TicketStatus" />
           <NavigationProperty Name="TicketTransactions" Relationship="TicketingModel.FK_TicketTransactions_Tickets" FromRole="Ticket" ToRole="TicketTransaction" />
+          <Property Name="BankTransactionId" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Tickets_Categories">
           <End Type="TicketingModel.Category" Role="Category" Multiplicity="0..1" />
@@ -1883,6 +1885,7 @@
           <EntitySetMapping Name="Tickets">
             <EntityTypeMapping TypeName="TicketingModel.Ticket">
               <MappingFragment StoreEntitySet="Tickets">
+                <ScalarProperty Name="BankTransactionId" ColumnName="BankTransactionId" />
                 <ScalarProperty Name="HasIssue" ColumnName="HasIssue" />
                 <ScalarProperty Name="ChannelId" ColumnName="ChannelId" />
                 <ScalarProperty Name="RowVersion" ColumnName="RowVersion" />
