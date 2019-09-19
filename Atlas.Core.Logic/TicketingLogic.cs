@@ -1940,14 +1940,18 @@ namespace Atlas.Core.Logic
             }
         }
 
-        public List<Entities.Reason> GetReportIssueReasons()
+        public List<Entities.Reason> GetReportIssueReasons(int? bankId)
         {
             try
             {
                 var lResult = new List<Reason>();
                 using (var ctx = DM.TicketingEntities.ConnectToSqlServer(_connectionInfo))
                 {
-                    var list = ctx.Reasons.AsNoTracking().Where(p => p.Category.Enable == true && p.Category.TicketType.Code == "0060").ToList();
+                    var list = ctx.Reasons.AsNoTracking()
+                        .Where(p => p.Category.Enable == true 
+                        && p.Category.TicketType.Code == "0060"
+                        &&(bankId == null || p.BankId == bankId))
+                        .ToList();
                     lResult.AddRange(list.Select(application => new Reason(application.ReasonsId, application.Code, application.Description)));
                 }
                 return lResult;
