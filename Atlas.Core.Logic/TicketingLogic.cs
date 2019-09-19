@@ -1347,7 +1347,8 @@ namespace Atlas.Core.Logic
                             CreationDate = DateTime.UtcNow,
                             HasIssue = ticket.HasIssue != null ? ticket.HasIssue.Value : false,
                             MobileNumber = ticket.MobileNumber,
-                            TransactionId = ticket.TransactionId
+                            TransactionId = ticket.TransactionId,
+                            BankTransactionId = ticket.BankTransactionId
                         });
 
                         var etStatus = ctx.TicketAudits.Add(new DM.TicketAudit
