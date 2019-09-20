@@ -82,11 +82,13 @@ namespace Atlas.Core.Logic
                             ).ToList();
                         //get category ticketCategoriesActions
                         var ticketCategoriesActions = category.TicketCategoriesActions
-                            .Where(w =>
-                            (bankId == 0 || (bankId > 0 && w.BankId == bankId)
-                            && (channelId == 0 && w.ChannelId == null || (channelId > 0 && w.ChannelId == channelId))
-                            )
-                            ).ToList();
+                            //.Where(
+                            //w =>
+                            //(bankId == 0 || (bankId > 0 && w.BankId == bankId)
+                            //&& (channelId == 0 && w.ChannelId == null || (channelId > 0 && w.ChannelId == channelId))
+                            //)
+                            //)
+                            .ToList();
 
                         //set return reasons
                         var lstReasons = new List<Reason>();
