@@ -784,8 +784,8 @@ namespace Atlas.Core.Logic
                             orderby ticket.LastStatusChanged descending
                             where
                             (   ticket.CategoryId == pCategoryId
-                                && ticket.TicketStatusId == statusId
                                 && ticket.ProfileId == profileId
+                                && (statusId == 0 || ticket.TicketStatusId == statusId)
                             )
                             select ticket
                         );
