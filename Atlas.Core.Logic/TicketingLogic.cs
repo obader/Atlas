@@ -242,8 +242,11 @@ namespace Atlas.Core.Logic
 
                         var actionsNotification = (from c in ctx.CategoriesActionsNotifications
                                                    where c.CategoryId == categoryId
-                                                   && ((c.ActionsNotification.Code == ActionsNotification.ClaimAcknowledged && c.ActionsNotification.Type == 1)
-                                                   || (sendEmail == true && c.ActionsNotification.Type == 1) || (sendSMS == true && c.ActionsNotification.Type == 2))
+                                                   && (
+                                                        //(c.ActionsNotification.Code == ActionsNotification.ClaimAcknowledged && c.ActionsNotification.Type == 1)
+                                                        //|| 
+                                                        (sendEmail == true && c.ActionsNotification.Type == 1) || (sendSMS == true && c.ActionsNotification.Type == 2)
+                                                    )
                                                    select new ActionNotificationDynamic()
                                                    {
                                                        Code = c.ActionsNotification.Code,
