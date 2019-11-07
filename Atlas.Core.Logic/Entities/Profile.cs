@@ -14,7 +14,7 @@ namespace Atlas.Core.Logic.Entities
 
         public string Name { get; set; }
 
-        public int CIFID { get; set; }
+        public string CIFID { get; set; }
       
         public string Email { get; set; }
      
