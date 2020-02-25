@@ -40,14 +40,14 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="PinPayObjects.BaseObjects, Version=1.0.30.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PinPayObjects.BaseObjects.1.0.30\lib\net45\PinPayObjects.BaseObjects.dll</HintPath>
+    <Reference Include="PinPayObjects.BaseObjects, Version=1.0.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PinPayObjects.BaseObjects.1.0.34\lib\net45\PinPayObjects.BaseObjects.dll</HintPath>
     </Reference>
-    <Reference Include="PinPayObjects.Enumerators, Version=1.0.33.0, Culture=neutral, PublicKeyToken=1722aaba48ad093e, processorArchitecture=MSIL">
-      <HintPath>..\packages\PinPayObjects.Enumerators.1.0.33\lib\net45\PinPayObjects.Enumerators.dll</HintPath>
+    <Reference Include="PinPayObjects.Enumerators, Version=1.0.38.0, Culture=neutral, PublicKeyToken=1722aaba48ad093e, processorArchitecture=MSIL">
+      <HintPath>..\packages\PinPayObjects.Enumerators.1.0.39\lib\net45\PinPayObjects.Enumerators.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
